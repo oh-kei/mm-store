@@ -1,153 +1,54 @@
-import { getCategoriesList } from "@lib/data/categories"
-import { getCollectionsList } from "@lib/data/collections"
-import { Text, clx } from "@medusajs/ui"
+"use client"
 
+import React from 'react'
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import MedusaCTA from "@modules/layout/components/medusa-cta"
 
-export default async function Footer() {
-  const { collections } = await getCollectionsList(0, 6)
-  const { product_categories } = await getCategoriesList(0, 6)
-
+export default function Footer() {
   return (
-    <footer className="border-t border-ui-border-base w-full">
-      <div className="content-container flex flex-col w-full">
-        <div className="flex flex-col gap-y-6 xsmall:flex-row items-start justify-between py-40">
-          <div>
-            <LocalizedClientLink
-              href="/"
-              className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
-            >
-              Medusa Store
-            </LocalizedClientLink>
-          </div>
-          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
-            {product_categories && product_categories?.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Categories
-                </span>
-                <ul
-                  className="grid grid-cols-1 gap-2"
-                  data-testid="footer-categories"
-                >
-                  {product_categories?.slice(0, 6).map((c) => {
-                    if (c.parent_category) {
-                      return
-                    }
-
-                    const children =
-                      c.category_children?.map((child) => ({
-                        name: child.name,
-                        handle: child.handle,
-                        id: child.id,
-                      })) || null
-
-                    return (
-                      <li
-                        className="flex flex-col gap-2 text-ui-fg-subtle txt-small"
-                        key={c.id}
-                      >
-                        <LocalizedClientLink
-                          className={clx(
-                            "hover:text-ui-fg-base",
-                            children && "txt-small-plus"
-                          )}
-                          href={`/categories/${c.handle}`}
-                          data-testid="category-link"
-                        >
-                          {c.name}
-                        </LocalizedClientLink>
-                        {children && (
-                          <ul className="grid grid-cols-1 ml-3 gap-2">
-                            {children &&
-                              children.map((child) => (
-                                <li key={child.id}>
-                                  <LocalizedClientLink
-                                    className="hover:text-ui-fg-base"
-                                    href={`/categories/${child.handle}`}
-                                    data-testid="category-link"
-                                  >
-                                    {child.name}
-                                  </LocalizedClientLink>
-                                </li>
-                              ))}
-                          </ul>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            )}
-            {collections && collections.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Collections
-                </span>
-                <ul
-                  className={clx(
-                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small",
-                    {
-                      "grid-cols-2": (collections?.length || 0) > 3,
-                    }
-                  )}
-                >
-                  {collections?.slice(0, 6).map((c) => (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="hover:text-ui-fg-base"
-                        href={`/collections/${c.handle}`}
-                      >
-                        {c.title}
-                      </LocalizedClientLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Medusa</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
-                <li>
-                  <a
-                    href="https://github.com/medusajs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://docs.medusajs.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/medusajs/nextjs-starter-medusa"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Source code
-                  </a>
-                </li>
-              </ul>
+    <footer className="bg-[#0F172A] text-white py-12 px-6">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        {/* Newsletter Section */}
+        <div className="flex flex-col gap-4 w-full max-w-md">
+          <h4 className="text-xl font-bold" style={{ fontFamily: "'Manrope', sans-serif" }}>Join Our Voyage</h4>
+          <p className="text-slate-400 text-sm">Join our mailing list for updates.</p>
+          <form className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <input 
+                type="email" 
+                placeholder="Enter email" 
+                className="bg-white/10 border border-white/20 rounded-md px-3 py-1.5 text-sm flex-grow focus:outline-none focus:ring-1 focus:ring-white/40 transition-all text-white placeholder-slate-400"
+              />
+              <button 
+                type="submit"
+                className="bg-white text-[#0F172A] px-4 py-1.5 rounded-md text-sm font-bold hover:bg-slate-200 transition-colors"
+                onClick={(e) => e.preventDefault()}
+              >
+                Join
+              </button>
             </div>
-          </div>
+          </form>
         </div>
-        <div className="flex w-full mb-16 justify-between text-ui-fg-muted">
-          <Text className="txt-compact-small">
-            © {new Date().getFullYear()} Medusa Store. All rights reserved.
-          </Text>
-          <MedusaCTA />
+
+        {/* Links & Socials */}
+        <div className="flex flex-col items-center md:items-end gap-4">
+          <div className="flex gap-4">
+            {/* Instagram SVG */}
+            <a href="https://www.instagram.com/marinersmarkets/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+            {/* Linkedin SVG */}
+            <a href="https://www.linkedin.com/company/mariners-markets/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+          </div>
+          <div className="flex flex-wrap justify-center md:justify-end gap-6 text-xs text-slate-500 font-sans">
+            <LocalizedClientLink href="/terms" className="hover:text-white transition-colors uppercase tracking-widest font-semibold">
+              Terms and Policies
+            </LocalizedClientLink>
+            <p className="">
+              © {new Date().getFullYear()} Mariners Market. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

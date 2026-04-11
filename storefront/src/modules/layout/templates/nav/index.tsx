@@ -1,70 +1,74 @@
 import { Suspense } from "react"
-
 import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
-import SideMenu from "@modules/layout/components/side-menu"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
 
   return (
-    <div className="sticky top-0 inset-x-0 z-50 group">
-      <header className="relative h-16 mx-auto border-b duration-200 bg-white border-ui-border-base">
-        <nav className="content-container txt-xsmall-plus text-ui-fg-subtle flex items-center justify-between w-full h-full text-small-regular">
-          <div className="flex-1 basis-0 h-full flex items-center">
-            <div className="h-full">
-              <SideMenu regions={regions} />
-            </div>
-          </div>
-
-          <div className="flex items-center h-full">
-            <LocalizedClientLink
-              href="/"
-              className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase"
-              data-testid="nav-store-link"
+    <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 isolate pointer-events-none">
+      {/* Navbar Background Layer */}
+      <div 
+        className="absolute inset-0 max-w-5xl mx-auto h-full bg-black/30 backdrop-blur-md border border-white/10 rounded-full -z-10 shadow-lg" 
+        style={{ margin: "0 auto", height: "100%", top: "0" }} 
+      />
+      
+      <nav 
+        className="flex items-center justify-between w-full max-w-5xl relative pointer-events-auto"
+        style={{ padding: "clamp(0.5rem, 1.5vh, 0.75rem) clamp(1rem, 3vw, 2rem)" }}
+      >
+        <div className="flex items-center gap-3 md:gap-8">
+          <LocalizedClientLink href="/" className="flex items-center gap-3">
+            <img 
+              src="/logo.png" 
+              alt="Mariners Market" 
+              className="object-contain rounded-md" 
+              style={{ width: "clamp(2rem, 4vw, 3.25rem)", height: "clamp(2rem, 4vw, 3.25rem)" }}
+            />
+            <span 
+              className="hidden md:inline font-bold text-white tracking-wider"
+              style={{ fontSize: "clamp(1rem, 1.5vw, 1.125rem)" }}
             >
-              Medusa Store
+              Mariners Market
+            </span>
+          </LocalizedClientLink>
+
+          <div 
+            className="flex items-center gap-3 md:gap-8 font-medium text-white/90"
+            style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
+          >
+            <LocalizedClientLink href="/store" className="hover:text-white transition-colors py-2">
+              Catalogue
+            </LocalizedClientLink>
+            <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
+              Custom Studio
             </LocalizedClientLink>
           </div>
+        </div>
 
-          <div className="flex items-center gap-x-6 h-full flex-1 basis-0 justify-end">
-            <div className="hidden small:flex items-center gap-x-6 h-full">
-              {process.env.NEXT_PUBLIC_FEATURE_SEARCH_ENABLED && (
-                <LocalizedClientLink
-                  className="hover:text-ui-fg-base"
-                  href="/search"
-                  scroll={false}
-                  data-testid="nav-search-link"
-                >
-                  Search
-                </LocalizedClientLink>
-              )}
+        <div className="flex items-center gap-3 md:gap-6 text-white/90">
+          <LocalizedClientLink href="/account" className="hover:text-white transition-colors flex items-center justify-center">
+            {/* User Icon SVG */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </LocalizedClientLink>
+          
+          <Suspense
+            fallback={
               <LocalizedClientLink
-                className="hover:text-ui-fg-base"
-                href="/account"
-                data-testid="nav-account-link"
+                className="hover:text-white flex gap-2"
+                href="/cart"
               >
-                Account
+                {/* ShoppingCart Icon SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
               </LocalizedClientLink>
-            </div>
-            <Suspense
-              fallback={
-                <LocalizedClientLink
-                  className="hover:text-ui-fg-base flex gap-2"
-                  href="/cart"
-                  data-testid="nav-cart-link"
-                >
-                  Cart (0)
-                </LocalizedClientLink>
-              }
-            >
-              <CartButton />
-            </Suspense>
-          </div>
-        </nav>
-      </header>
+            }
+          >
+            <CartButton />
+          </Suspense>
+        </div>
+      </nav>
     </div>
   )
 }

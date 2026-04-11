@@ -60,6 +60,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "var(--font-manrope)",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
