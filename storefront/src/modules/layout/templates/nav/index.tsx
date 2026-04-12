@@ -3,6 +3,7 @@ import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
+import NavRegionSelect from "@modules/layout/components/nav-region-select"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -39,16 +40,20 @@ export default async function Nav() {
             className="flex items-center gap-3 md:gap-8 font-medium text-white/90"
             style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
           >
-            <LocalizedClientLink href="/store" className="hover:text-white transition-colors py-2">
+            <LocalizedClientLink href="/catalog" className="hover:text-white transition-colors py-2">
               Catalogue
             </LocalizedClientLink>
             <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
               Custom Studio
             </LocalizedClientLink>
+            <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2">
+              Bulk Order
+            </LocalizedClientLink>
           </div>
         </div>
 
         <div className="flex items-center gap-3 md:gap-6 text-white/90">
+          <NavRegionSelect regions={regions} />
           <LocalizedClientLink href="/account" className="hover:text-white transition-colors flex items-center justify-center">
             {/* User Icon SVG */}
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

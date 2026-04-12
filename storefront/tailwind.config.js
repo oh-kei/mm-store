@@ -21,6 +21,11 @@ module.exports = {
         padding: "padding-top padding-right padding-bottom padding-left",
       },
       colors: {
+        "maritime-navy": "#0F172A",
+        "maritime-gold": "#D4AF37",
+        "maritime-brass": "#B5A642",
+        "maritime-slate": "#94A3B8",
+        "maritime-light": "#F8FAFC",
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",
@@ -70,6 +75,7 @@ module.exports = {
           "Ubuntu",
           "sans-serif",
         ],
+        panchang: ["Panchang", "sans-serif"],
       },
       keyframes: {
         ring: {

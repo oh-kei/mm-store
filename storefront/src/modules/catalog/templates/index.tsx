@@ -3,8 +3,18 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ProductCard } from '../components/product-card';
+import { CategoryCard } from '../components/category-card';
 import { FilterDropdown } from '../components/filter-dropdown';
 import { HttpTypes } from "@medusajs/types";
+
+const CATEGORIES = [
+  { name: "All", handle: "all", image: "/mm-home-img-desktop.webp" },
+  { name: "Bags", handle: "bags", image: "/mm-duffel-navy.webp" },
+  { name: "Tops", handle: "tops", image: "/mariners-market-polo.webp" },
+  { name: "Hats", handle: "hats", image: "/mm-hats-blackwhite.webp" },
+  { name: "Jackets", handle: "jackets", image: "/mariners-jacket.webp" },
+  { name: "Event Items", handle: "event-items", image: "/mm-regatta-banner.webp" },
+]
 
 const FILTER_OPTIONS = {
   types: ['All', 'Tops', 'Polo Shirts', 'Midlayers', 'Jackets', 'Hats', 'Bags', 'Banners/Event items'],
@@ -24,18 +34,46 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
   const pathname = usePathname();
 
   // Filter state from URL
-  const typeFilter = searchParams.get('category') || 'All';
+  const selectedCategory = searchParams.get('category');
+  const typeFilter = selectedCategory || 'All';
   const sizeFilter = searchParams.get('size') || 'All';
   const colorFilter = searchParams.get('color') || 'All';
   const genderFilter = searchParams.get('gender') || 'All';
 
+  const showCategoryLanding = !selectedCategory;
+
   const filteredProducts = useMemo(() => {
     return products.filter((product: any) => {
-      // 1. Type Filter
-      if (typeFilter !== 'All') {
-        const productType = product.type?.value?.toLowerCase().replace(' ', '-');
-        const targetType = typeFilter.toLowerCase().replace(' ', '-');
-        if (productType !== targetType) return false;
+      // 1. Type/Category Filter
+      if (typeFilter !== 'All' && typeFilter !== 'all') {
+        const targetType = typeFilter.toLowerCase().trim();
+        
+        // Check Product Type
+        const productType = product.type?.value?.toLowerCase().trim();
+        if (productType === targetType) return true;
+
+        // Check Product Categories
+        const hasCategoryMatch = product.categories?.some((cat: any) => 
+          cat.name?.toLowerCase().trim() === targetType || 
+          cat.handle?.toLowerCase().trim() === targetType
+        );
+        if (hasCategoryMatch) return true;
+
+        // Check Product Collection
+        if (product.collection?.title?.toLowerCase().trim() === targetType || 
+            product.collection?.handle?.toLowerCase().trim() === targetType) {
+          return true;
+        }
+        
+        // Handle "Event Items" mapping
+        const eventItemsAliases = ['event-items', 'banners/event items', 'banners-event-items', 'event items'];
+        if (eventItemsAliases.includes(targetType)) {
+             const isEventItem = eventItemsAliases.includes(productType || '') || 
+                                product.categories?.some((cat: any) => eventItemsAliases.includes(cat.name?.toLowerCase().trim() || ''));
+             if (isEventItem) return true;
+        }
+
+        return false;
       }
 
       // 2. Attribute Filters (Size, Color, Gender)
@@ -43,8 +81,6 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
         if (value === 'All') return true;
         return product.variants?.some((v: any) => 
           v.options?.some((vo: any) => {
-            // In Medusa v2, option names might be different, but let's assume 'Size' and 'Color'
-            // We can also check product.options
             const opt = product.options?.find((o: any) => o.id === vo.option_id || o.title.toLowerCase() === title.toLowerCase());
             return vo.value === value;
           })
@@ -74,7 +110,7 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-8">
+    <div className="min-h-screen bg-white pt-32 pb-20 px-4 md:px-8">
       <div className="max-w-[1600px] mx-auto">
         
         {/* Top-Bar Filters */}
@@ -119,8 +155,16 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
           </button>
         </div>
 
-        {/* Product Grid Area */}
-        {filteredProducts.length > 0 ? (
+        {/* Content Area */}
+        {showCategoryLanding ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0.5 bg-gray-200 border border-gray-200 overflow-hidden">
+            {CATEGORIES.map((cat) => (
+              <div key={cat.handle} className="bg-white">
+                 <CategoryCard name={cat.name} handle={cat.handle} image={cat.image} />
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0.5 bg-gray-200 border border-gray-200 overflow-hidden">
             {filteredProducts.map((product) => (
               <div key={product.id} className="bg-white">

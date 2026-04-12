@@ -69,7 +69,7 @@ export function ProductCard({ product, region }: ProductCardProps) {
               {product.type.value}
             </p>
           )}
-          <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase" style={{ fontFamily: "'Manrope', sans-serif" }}>
+          <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase font-sans">
             {title}
           </h3>
           

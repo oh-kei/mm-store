@@ -16,10 +16,14 @@ export default async function ProductPreview({
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  const [pricedProduct] = await getProductsById({
-    ids: [product.id!],
-    regionId: region.id,
-  })
+  // Use the priced product directly if available, otherwise fetch it.
+  // getCollectionsWithProducts/getProductsList already fetches with calculated_price.
+  const pricedProduct = (product.variants?.[0] as any)?.calculated_price 
+    ? product 
+    : (await getProductsById({
+        ids: [product.id!],
+        regionId: region.id,
+      })).find((p) => p.id === product.id)
 
   if (!pricedProduct) {
     return null
