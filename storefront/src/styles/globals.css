@@ -2,6 +2,29 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@theme {
+  --color-maritime-navy: #0F172A;
+  --color-maritime-gold: #D4AF37;
+  --color-maritime-brass: #B5A642;
+  --color-maritime-slate: #94A3B8;
+  --color-maritime-light: #F8FAFC;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/Manrope-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Panchang';
+  src: url('/Panchang-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+
 @layer base {
   html {
     scroll-behavior: smooth;

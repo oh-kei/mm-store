@@ -13,11 +13,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
+import { SmoothScroll } from "@modules/layout/components/smooth-scroll"
+
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light" className={manrope.variable}>
       <body className="font-sans">
-        <main className="relative">{props.children}</main>
+        <SmoothScroll>
+          <main className="relative">{props.children}</main>
+        </SmoothScroll>
       </body>
     </html>
   )
