@@ -29,7 +29,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
       <div className="absolute inset-0 bg-black/[0.02] group-hover:bg-black/[0.04] transition-colors duration-300 z-0" />
       
       {/* Image Container (Inner Box) */}
-      <div className={`absolute top-4 ${isBig ? 'bottom-36' : 'bottom-20 md:bottom-28'} left-4 right-4 rounded-lg bg-[#EDEEF3]/60 backdrop-blur-[2px] border border-gray-200/50 overflow-hidden transition-all duration-500 z-10`}>
+      <div className={`absolute top-6 ${isBig ? 'bottom-36' : 'bottom-20 md:bottom-28'} left-6 right-6 rounded-lg bg-[#EDEEF3]/60 backdrop-blur-[2px] border border-gray-200/50 overflow-hidden transition-all duration-500 z-10`}>
         {image ? (
           <div className="relative w-full h-full">
             <Image
@@ -37,7 +37,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
               alt={title}
               fill
               priority={priority}
-              className={`object-contain md:object-cover transition-all duration-700 ease-out mix-blend-multiply ${hoverImage ? 'group-hover:opacity-0 group-hover:scale-110' : 'group-hover:scale-105'}`}
+              className={`scale-105 group-hover:scale-110 object-contain md:object-cover transition-all duration-700 ease-out mix-blend-multiply ${hoverImage ? 'group-hover:opacity-0' : ''}`}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
             {hoverImage && (

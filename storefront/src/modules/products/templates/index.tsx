@@ -35,7 +35,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
-      <div className="content-container pt-12 pb-4">
+      <div className="content-container pt-32 pb-4">
         <Breadcrumbs items={breadcrumbItems} />
       </div>
       <div

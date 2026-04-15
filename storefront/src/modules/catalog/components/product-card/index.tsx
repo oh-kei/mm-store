@@ -14,9 +14,18 @@ interface ProductCardProps {
 export function ProductCard({ product, region }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [showSizeSelector, setShowSizeSelector] = useState(false);
   const { countryCode } = useParams() as { countryCode: string };
   const router = useRouter(); 
   const title = product.title || "";
+  
+  // Get all unique sizes and colors
+  const { sizes, colors } = useMemo(() => {
+    const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
+    const c = product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
+    return { sizes: s, colors: c };
+  }, [product.options]);
   
   const getColorHex = (colorName: string) => {
     const map: Record<string, string> = {
@@ -33,15 +42,11 @@ export function ProductCard({ product, region }: ProductCardProps) {
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }
 
-  // Fetch unique colors from variants
-  const colors = useMemo(() => {
-    const colorOptions = product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"));
-    if (!colorOptions) return [];
-    return colorOptions.values?.map(v => v.value).filter(Boolean) as string[];
-  }, [product.options]);
+  const variant = useMemo(() => {
+    if (!selectedColor) return product.variants?.[0];
+    return product.variants?.find(v => v.options?.some(o => o.value === selectedColor)) || product.variants?.[0];
+  }, [product.variants, selectedColor]);
 
-  // Price calculation for Medusa v2
-  const variant = product.variants?.[0];
   const price = variant?.calculated_price;
   const formattedPrice = price && price.calculated_amount !== null && price.calculated_amount !== undefined && price.currency_code
     ? convertToLocale({
@@ -50,21 +55,23 @@ export function ProductCard({ product, region }: ProductCardProps) {
       }) 
     : "N/A";
 
-  const handleQuickAdd = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!variant?.id) return;
+  const handleAddToCart = async (size?: string) => {
+    const targetVariant = size 
+      ? product.variants?.find(v => v.options?.some(o => o.value === size) && (!selectedColor || v.options?.some(o => o.value === selectedColor)))
+      : variant;
+
+    if (!targetVariant?.id) return;
 
     setIsAdding(true);
     try {
       await addToCart({
-        variantId: variant.id,
+        variantId: targetVariant.id,
         quantity: 1,
         countryCode,
       });
       setIsAdded(true);
-      router.refresh(); // Update cart count in Nav
+      setShowSizeSelector(false);
+      router.refresh();
       setTimeout(() => setIsAdded(false), 2000);
     } catch (err) {
       console.error("Failed to add to cart:", err);
@@ -73,19 +80,53 @@ export function ProductCard({ product, region }: ProductCardProps) {
     }
   };
 
+  const handleQuickAddClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (sizes.length > 1) {
+      setShowSizeSelector(true);
+    } else {
+      handleAddToCart();
+    }
+  };
+
   return (
-    <div className="group h-full flex flex-col transition-all duration-300 border-none rounded-none shadow-none hover:bg-gray-50/30">
+    <div className="group h-full flex flex-col transition-all duration-300 border-none rounded-none shadow-none hover:bg-gray-50/30 relative">
       {/* Image Container with Custom #EDEEF3 Background */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#EDEEF3] p-6 flex items-center justify-center">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
         {product.thumbnail ? (
           <img
             src={product.thumbnail}
             alt={title}
-            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-contain mix-blend-multiply scale-[1.1] group-hover:scale-[1.15] transition-transform duration-1000 ease-out"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             No image
+          </div>
+        )}
+        
+        {/* Size Selector Overlay */}
+        {showSizeSelector && (
+          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-maritime-navy">Select Size</h4>
+            <div className="grid grid-cols-3 gap-2 w-full">
+              {sizes.map(size => (
+                <button
+                  key={size}
+                  onClick={(e) => { e.preventDefault(); handleAddToCart(size); }}
+                  className="h-10 border border-gray-200 text-[10px] font-bold hover:bg-maritime-navy hover:text-white transition-all"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={(e) => { e.preventDefault(); setShowSizeSelector(false); }}
+              className="mt-4 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4"
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>
@@ -107,13 +148,17 @@ export function ProductCard({ product, region }: ProductCardProps) {
             </p>
           </div>
 
-          {/* DYNAMIC COLOR SWATCHES: Added back for subpages */}
+          {/* DYNAMIC COLOR SWATCHES */}
           {colors.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-2">
               {colors.map((color) => (
-                <div 
+                <button 
                   key={color}
-                  className="w-3 h-3 rounded-full border border-black/5 shadow-sm"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedColor(color); }}
+                  className={clx("w-3 h-3 rounded-full border shadow-sm transition-all duration-300", {
+                    "border-black/40 scale-125 ring-1 ring-black/10": selectedColor === color,
+                    "border-black/5": selectedColor !== color
+                  })}
                   style={{ backgroundColor: getColorHex(color) }}
                   title={color}
                 />
@@ -133,10 +178,12 @@ export function ProductCard({ product, region }: ProductCardProps) {
           </Link>
           <button 
             disabled={isAdding}
-            className={`w-full h-9 text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0 ${
-              isAdded ? 'bg-green-600 border border-green-600' : 'bg-maritime-navy hover:bg-black border border-maritime-navy'
-            }`}
-            onClick={handleQuickAdd}
+            className={clx("w-full h-9 text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
+              "bg-green-600 border border-green-600": isAdded,
+              "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
+              "opacity-50 cursor-not-allowed": isAdding
+            })}
+            onClick={handleQuickAddClick}
           >
             {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : 'Add to Bag'}
           </button>

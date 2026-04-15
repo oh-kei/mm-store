@@ -1,6 +1,7 @@
 import { useFormState } from "react-dom"
 
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
+import { Button } from "@medusajs/ui"
 import Input from "@modules/common/components/input"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
@@ -47,17 +48,17 @@ const Login = ({ setCurrentView }: Props) => {
           Sign in
         </SubmitButton>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        Not a member?{" "}
-        <button
+      <div className="flex flex-col items-center gap-y-4 mt-8 pt-8 border-t border-gray-100 w-full">
+        <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">New to Mariners Market?</span>
+        <Button
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
-          className="underline"
+          variant="secondary"
+          className="w-full text-xs font-bold uppercase tracking-widest h-12"
           data-testid="register-button"
         >
-          Join us
-        </button>
-        .
-      </span>
+          Create an Account
+        </Button>
+      </div>
     </div>
   )
 }

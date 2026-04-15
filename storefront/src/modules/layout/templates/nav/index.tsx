@@ -6,11 +6,17 @@ import NavRegionSelect from "@modules/layout/components/nav-region-select"
 import CartButton from "@modules/layout/components/cart-button"
 import NavCatalogueDropdown from "@modules/layout/components/nav-catalogue-dropdown"
 
+import NavAccountDropdown from "@modules/layout/components/nav-account-dropdown"
+
+import { NavMenuProvider } from "@modules/layout/components/nav-menu-context"
+
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
 
   return (
-    <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 isolate pointer-events-none">
+    <NavMenuProvider>
+      <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 isolate pointer-events-none">
+      {/* ... */}
       {/* Navbar Background Layer */}
       <div 
         className="absolute inset-0 max-w-5xl mx-auto h-full bg-black/30 backdrop-blur-md border border-white/10 rounded-full -z-10 shadow-lg" 
@@ -53,10 +59,7 @@ export default async function Nav() {
 
         <div className="flex items-center gap-3 md:gap-6 text-white/90">
           <NavRegionSelect regions={regions} />
-          <LocalizedClientLink href="/account" className="hover:text-white transition-colors flex items-center justify-center">
-            {/* User Icon SVG */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </LocalizedClientLink>
+          <NavAccountDropdown />
           
           <Suspense
             fallback={
@@ -74,5 +77,6 @@ export default async function Nav() {
         </div>
       </nav>
     </div>
+    </NavMenuProvider>
   )
 }

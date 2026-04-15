@@ -1,0 +1,87 @@
+"use client"
+
+import React, { useState, useRef, useEffect } from "react"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { Transition } from "@headlessui/react"
+import { Fragment } from "react"
+import { useParams } from "next/navigation"
+import { signout } from "@lib/data/customer"
+
+import { useNavMenu } from "@modules/layout/components/nav-menu-context"
+
+export default function NavAccountDropdown() {
+  const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
+  const isOpen = activeMenu === "account"
+  const { countryCode } = useParams() as { countryCode: string }
+
+  const handleMouseEnter = () => {
+    setActiveMenu("account")
+  }
+
+  const handleMouseLeave = () => {
+    closeMenu()
+  }
+
+  const handleLogout = async () => {
+    await signout(countryCode)
+    setActiveMenu(null)
+  }
+
+  const LINKS = [
+    { href: "/account", label: "Overview" },
+    { href: "/account/profile", label: "Profile" },
+    { href: "/account/orders", label: "Orders" },
+    { href: "/account/addresses", label: "Addresses" },
+  ]
+
+  return (
+    <div 
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <LocalizedClientLink 
+        href="/account" 
+        className="hover:text-white transition-colors flex items-center justify-center py-2"
+        onClick={() => setActiveMenu(null)}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </LocalizedClientLink>
+
+      <Transition
+        show={isOpen}
+        as={Fragment}
+        enter="transition ease-out duration-200"
+        enterFrom="opacity-0 translate-y-1"
+        enterTo="opacity-100 translate-y-0"
+        leave="transition ease-in duration-150"
+        leaveFrom="opacity-100 translate-y-0"
+        leaveTo="opacity-0 translate-y-1"
+      >
+        <div className="absolute right-0 mt-4 w-48 bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] overflow-hidden">
+          <div className="py-2">
+            <div className="px-4 py-2 border-b border-white/5 mb-1">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">Account</span>
+            </div>
+            {LINKS.map((link) => (
+              <LocalizedClientLink
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                onClick={() => setActiveMenu(null)}
+              >
+                {link.label}
+              </LocalizedClientLink>
+            ))}
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-white/5 transition-all border-t border-white/5 mt-1"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  )
+}
