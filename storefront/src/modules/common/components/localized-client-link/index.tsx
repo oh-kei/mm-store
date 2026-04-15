@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 /**
@@ -21,9 +21,20 @@ const LocalizedClientLink = ({
   [x: string]: any
 }) => {
   const { countryCode } = useParams()
+  const router = useRouter()
+
+  const handleMouseEnter = () => {
+    if (router && typeof href === "string") {
+      router.prefetch(`/${countryCode}${href}`)
+    }
+  }
 
   return (
-    <Link href={`/${countryCode}${href}`} {...props}>
+    <Link 
+      href={`/${countryCode}${href}`} 
+      onMouseEnter={handleMouseEnter}
+      {...props}
+    >
       {children}
     </Link>
   )

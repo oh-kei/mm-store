@@ -21,24 +21,66 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 }) => {
   const filteredOptions = option.values?.map((v) => v.value)
 
+  const isColor = title.toLowerCase().includes("color") || title.toLowerCase().includes("colour")
+
+  const getColorHex = (colorName: string) => {
+    const map: Record<string, string> = {
+      black: "#000000",
+      white: "#FFFFFF",
+      navy: "#1E3A8A",
+      grey: "#4B5563",
+      gray: "#4B5563",
+      blue: "#3B82F6",
+      red: "#EF4444",
+      green: "#10B981",
+      yellow: "#F59E0B",
+    }
+    return map[colorName.toLowerCase()] || "#E5E7EB"
+  }
+
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm">Select {title}</span>
+      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">Select {title}</span>
       <div
-        className="flex flex-wrap justify-between gap-2"
+        className="flex flex-wrap gap-3"
         data-testid={dataTestId}
       >
         {filteredOptions?.map((v) => {
+          if (!v) return null;
+          
+          if (isColor) {
+            /* COLOR CIRCLES CONFIGURATION: Change h-10 w-10 to adjust circle size. */
+            return (
+              <button
+                onClick={() => updateOption(option.title ?? "", v)}
+                key={v}
+                title={v}
+                className={clx(
+                  "h-8 w-8 rounded-full border-2 transition-all duration-200",
+                  {
+                    "border-maritime-navy scale-110 shadow-md": v === current,
+                    "border-transparent hover:border-gray-300": v !== current,
+                  }
+                )}
+                disabled={disabled}
+              >
+                <div 
+                  className="w-full h-full rounded-full border border-black/10" 
+                  style={{ backgroundColor: getColorHex(v) }}
+                />
+              </button>
+            )
+          }
+
           return (
             <button
-              onClick={() => updateOption(option.title ?? "", v ?? "")}
+              onClick={() => updateOption(option.title ?? "", v)}
               key={v}
               className={clx(
-                "border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded p-2 flex-1 ",
+                "border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded px-4 min-w-[3rem] transition-all",
                 {
-                  "border-ui-border-interactive": v === current,
-                  "hover:shadow-elevation-card-rest transition-shadow ease-in-out duration-150":
-                    v !== current,
+                  "border-ui-border-interactive bg-white shadow-sm ring-1 ring-ui-border-interactive": v === current,
+                  "hover:shadow-elevation-card-rest": v !== current,
                 }
               )}
               disabled={disabled}

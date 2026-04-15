@@ -25,13 +25,20 @@ export default async function Home({
     return null
   }
 
+  const filteredCollections = collections.filter(collection => 
+    !collection.title.toLowerCase().includes('accessories') && 
+    !collection.title.toLowerCase().includes('jackets') &&
+    !collection.handle.toLowerCase().includes('accessories') && 
+    !collection.handle.toLowerCase().includes('jackets')
+  )
+
   return (
     <>
       <Hero />
       <FeaturedCatalogue />
       <div className="py-12">
         <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
+          <FeaturedProducts collections={filteredCollections} region={region} />
         </ul>
       </div>
     </>

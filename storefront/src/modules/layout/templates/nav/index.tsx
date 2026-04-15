@@ -2,8 +2,9 @@ import { Suspense } from "react"
 import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CartButton from "@modules/layout/components/cart-button"
 import NavRegionSelect from "@modules/layout/components/nav-region-select"
+import CartButton from "@modules/layout/components/cart-button"
+import NavCatalogueDropdown from "@modules/layout/components/nav-catalogue-dropdown"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -32,7 +33,7 @@ export default async function Nav() {
               className="hidden md:inline font-bold text-white tracking-wider"
               style={{ fontSize: "clamp(1rem, 1.5vw, 1.125rem)" }}
             >
-              Mariners Market
+              Mariners' Markets
             </span>
           </LocalizedClientLink>
 
@@ -40,9 +41,7 @@ export default async function Nav() {
             className="flex items-center gap-3 md:gap-8 font-medium text-white/90"
             style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
           >
-            <LocalizedClientLink href="/catalog" className="hover:text-white transition-colors py-2">
-              Catalogue
-            </LocalizedClientLink>
+            <NavCatalogueDropdown />
             <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
               Custom Studio
             </LocalizedClientLink>

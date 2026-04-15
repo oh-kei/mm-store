@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Button } from '@medusajs/ui'; // Using Medusa UI if available, or custom
+import { Button, clx } from '@medusajs/ui';
 import { HttpTypes } from "@medusajs/types";
 import { convertToLocale } from "@lib/util/money";
+import { addToCart } from "@lib/data/cart";
+import { useParams, useRouter } from "next/navigation";
 
 interface ProductCardProps {
   product: HttpTypes.StoreProduct;
@@ -12,37 +14,63 @@ interface ProductCardProps {
 export function ProductCard({ product, region }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const { countryCode } = useParams() as { countryCode: string };
+  const router = useRouter(); 
   const title = product.title || "";
-  const isPolo = title.toLowerCase().includes('polo');
   
-  const poloColors = [
-    { name: 'Black', hex: '#000000' },
-    { name: 'Dark Gray', hex: '#4B5563' },
-    { name: 'Light Gray', hex: '#D1D5DB' },
-    { name: 'Dark Blue', hex: '#1E3A8A' },
-    { name: 'Light Blue', hex: '#93C5FD' }
-  ];
+  const getColorHex = (colorName: string) => {
+    const map: Record<string, string> = {
+      black: "#000000",
+      white: "#FFFFFF",
+      navy: "#1E3A8A",
+      grey: "#4B5563",
+      gray: "#4B5563",
+      blue: "#3B82F6",
+      red: "#EF4444",
+      green: "#10B981",
+      yellow: "#F59E0B",
+    }
+    return map[colorName.toLowerCase()] || "#E5E7EB"
+  }
+
+  // Fetch unique colors from variants
+  const colors = useMemo(() => {
+    const colorOptions = product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"));
+    if (!colorOptions) return [];
+    return colorOptions.values?.map(v => v.value).filter(Boolean) as string[];
+  }, [product.options]);
 
   // Price calculation for Medusa v2
   const variant = product.variants?.[0];
   const price = variant?.calculated_price;
-  const formattedPrice = price ? convertToLocale({
-    amount: price.calculated_amount,
-    currency_code: price.currency_code,
-  }) : "N/A";
+  const formattedPrice = price && price.calculated_amount !== null && price.calculated_amount !== undefined && price.currency_code
+    ? convertToLocale({
+        amount: price.calculated_amount,
+        currency_code: price.currency_code,
+      }) 
+    : "N/A";
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Quick add logic would go here, involving cart actions
-    // For now, just simulating the UI state
+    if (!variant?.id) return;
+
     setIsAdding(true);
-    setTimeout(() => {
-        setIsAdding(false);
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
-    }, 500);
+    try {
+      await addToCart({
+        variantId: variant.id,
+        quantity: 1,
+        countryCode,
+      });
+      setIsAdded(true);
+      router.refresh(); // Update cart count in Nav
+      setTimeout(() => setIsAdded(false), 2000);
+    } catch (err) {
+      console.error("Failed to add to cart:", err);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -79,24 +107,19 @@ export function ProductCard({ product, region }: ProductCardProps) {
             </p>
           </div>
 
-          {/* Larger Color Swatches */}
-          <div className="flex items-center gap-2 pt-2">
-            {isPolo ? (
-              poloColors.map((color) => (
+          {/* DYNAMIC COLOR SWATCHES: Added back for subpages */}
+          {colors.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-2">
+              {colors.map((color) => (
                 <div 
-                  key={color.name}
-                  className="w-4.5 h-4.5 rounded-full border border-black/10 shadow-sm"
-                  style={{ backgroundColor: color.hex }}
-                  title={color.name}
+                  key={color}
+                  className="w-3 h-3 rounded-full border border-black/5 shadow-sm"
+                  style={{ backgroundColor: getColorHex(color) }}
+                  title={color}
                 />
-              ))
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="w-4.5 h-4.5 rounded-full bg-gray-200 border border-black/10 shadow-sm" />
-                <div className="w-4.5 h-4.5 rounded-full bg-gray-400 border border-black/10 shadow-sm" />
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Permanent Action Buttons */}

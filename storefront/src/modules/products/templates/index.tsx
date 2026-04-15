@@ -17,6 +17,8 @@ type ProductTemplateProps = {
   countryCode: string
 }
 
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
+
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
@@ -26,8 +28,16 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     return notFound()
   }
 
+  const breadcrumbItems = [
+    { name: "Catalog", handle: "catalog" },
+    { name: product.title || "Product" }
+  ]
+
   return (
     <>
+      <div className="content-container pt-12 pb-4">
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       <div
         className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
         data-testid="product-container"

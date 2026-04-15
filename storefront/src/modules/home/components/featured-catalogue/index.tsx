@@ -16,11 +16,13 @@ const FeaturedCatalogue = () => {
           {/* Featured Item - Full width on mobile, left column on desktop */}
           <div className="md:col-span-1">
             <CategoryCard 
-              title="Offshore Jackets" 
+              title="Inshore Sailing Jacket" 
               isBig={true} 
               image="/mariners-jacket.webp" 
               hoverImage="/mm-jacket-closeup.webp"
               subtitle="MOST POPULAR"
+              link="/products/inshore-sailing-jacket"
+              priority={true}
             />
           </div>
 
@@ -29,31 +31,35 @@ const FeaturedCatalogue = () => {
             {/* Column 1: Shirts & Decorations */}
             <div className="flex flex-col gap-4 md:gap-6">
               <CategoryCard 
-                title="Shirts" 
+                title="Short Sleeve T-shirt" 
                 className="h-[160px] md:h-[360px]" 
                 image="/mariners-market-polo.webp"
                 hoverImage="/mm-polo-closeup-navy.webp"
+                link="/products/short-sleeve-t-shirt"
               />
               <CategoryCard 
-                title="Decorations" 
+                title="Regatta Banner" 
                 className="h-[160px] md:h-[240px]" 
                 image="/mm-regatta-banner.webp"
                 hoverImage="/mm-regatta-closeup.webp"
+                link="/products/regatta-banner"
               />
             </div>
             {/* Column 2: Duffel Bags & Accessories */}
             <div className="flex flex-col gap-4 md:gap-6">
               <CategoryCard 
-                title="Duffel Bags" 
+                title="Rashguard" 
                 className="h-[160px] md:h-[300px]" 
                 image="/mm-duffel-navy.webp"
                 hoverImage="/mm-navyduffel-closeup.webp"
+                link="/products/rashguard"
               />
               <CategoryCard 
-                title="Accessories" 
+                title="Compression Polo" 
                 className="h-[160px] md:h-[300px]" 
                 image="/mm-hats-blackwhite.webp"
                 hoverImage="/mm-hats-closeup-black.webp"
+                link="/products/compression-polo"
               />
             </div>
           </div>

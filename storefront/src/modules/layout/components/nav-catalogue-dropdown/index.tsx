@@ -5,32 +5,34 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 
 const CATEGORIES = [
   { href: "/catalog", label: "All" },
-  { href: "/catalog?category=bags", label: "Bags" },
   { href: "/catalog?category=tops", label: "Tops" },
-  { href: "/catalog?category=hats", label: "Hats" },
   { href: "/catalog?category=jackets", label: "Jackets" },
+  { href: "/catalog?category=hats", label: "Hats" },
   { href: "/catalog?category=event-items", label: "Event Items" },
+  { href: "/catalog?category=bags", label: "Bags" },
 ]
 
 export default function NavCatalogueDropdown() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const enterTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleMouseEnter = () => {
-    if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
-    enterTimerRef.current = setTimeout(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
       setIsDropdownOpen(true)
-    }, 500)
+    }, 150) // Small delay to avoid accidental triggers
   }
 
   const handleMouseLeave = () => {
-    if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
-    setIsDropdownOpen(false)
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      setIsDropdownOpen(false)
+    }, 1000) // 1 second delay to improve hover-out behavior
   }
 
   useEffect(() => {
     return () => {
-      if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
+      if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [])
 
@@ -52,7 +54,7 @@ export default function NavCatalogueDropdown() {
         className={`absolute left-1/2 -translate-x-1/2 w-48 z-[100] transition-all duration-300 pointer-events-none ${
           isDropdownOpen ? 'visible opacity-100 pointer-events-auto mt-0' : 'invisible opacity-0 mt-2'
         }`}
-        style={{ top: "100%" }}
+        style={{ top: "calc(100% + 24px)" }} // Adjusted to sit exactly below the floating navbar
       >
         <div className="bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (

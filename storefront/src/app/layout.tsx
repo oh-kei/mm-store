@@ -17,7 +17,7 @@ import { SmoothScroll } from "@modules/layout/components/smooth-scroll"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-mode="light" className={manrope.variable}>
+    <html lang="en" data-mode="light" className={manrope.variable} data-scroll-behavior="smooth">
       <body className="font-sans">
         <SmoothScroll>
           <main className="relative">{props.children}</main>
