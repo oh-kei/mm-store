@@ -1,0 +1,17 @@
+/* src/modules/layout/components/page-transition/styles.css */
+
+.nautical-transition-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* This allows the 100x100 SVG to stretch to any screen ratio */
+.nautical-transition-svg {
+  width: 100%;
+  height: 100%;
+}

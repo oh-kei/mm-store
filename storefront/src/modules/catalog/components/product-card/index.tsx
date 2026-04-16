@@ -20,6 +20,17 @@ export function ProductCard({ product, region }: ProductCardProps) {
   const router = useRouter(); 
   const title = product.title || "";
   
+  // Custom Image Overrides
+  const productImage = useMemo(() => {
+    if (product.handle === "technical-long-sleeve-rashguard") {
+      return "https://bucket-production-bd41.up.railway.app/medusa-media/mm-rashguard-black-01KPA0EEFK50TC99MNDS685YFC.webp"
+    }
+    if (product.handle === "short-sleeve-t-shirt") {
+      return "https://bucket-production-bd41.up.railway.app/medusa-media/mm-tshirt-blue-01KPA0GV69A2MGV0K4CC4Z67VQ.webp"
+    }
+    return product.thumbnail
+  }, [product.handle, product.thumbnail])
+  
   // Get all unique sizes and colors
   const { sizes, colors } = useMemo(() => {
     const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
@@ -94,9 +105,9 @@ export function ProductCard({ product, region }: ProductCardProps) {
     <div className="group h-full flex flex-col transition-all duration-300 border-none rounded-none shadow-none hover:bg-gray-50/30 relative">
       {/* Image Container with Custom #EDEEF3 Background */}
       <div className="relative aspect-[4/5] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
-        {product.thumbnail ? (
+        {productImage ? (
           <img
-            src={product.thumbnail}
+            src={productImage}
             alt={title}
             className="w-full h-full object-contain mix-blend-multiply scale-[1.1] group-hover:scale-[1.15] transition-transform duration-1000 ease-out"
           />

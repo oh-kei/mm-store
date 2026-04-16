@@ -135,7 +135,13 @@ const medusaConfig = {
     }] : [])
   ],
   plugins: [
-  ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY ? [{
+    {
+      resolve: "@306technologies/auto-gen-variants",
+      options: {
+        enableUI: true,
+      },
+    },
+    ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY ? [{
       resolve: '@rokmohar/medusa-plugin-meilisearch',
       options: {
         config: {

@@ -5,7 +5,8 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { Transition } from "@headlessui/react"
 import { Fragment } from "react"
 import { useParams } from "next/navigation"
-import { signout } from "@lib/data/customer"
+import { signout, getCustomer } from "@lib/data/customer"
+import { HttpTypes } from "@medusajs/types"
 
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
@@ -13,6 +14,22 @@ export default function NavAccountDropdown() {
   const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
   const isOpen = activeMenu === "account"
   const { countryCode } = useParams() as { countryCode: string }
+  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        const c = await getCustomer()
+        setCustomer(c)
+      } catch (e) {
+        setCustomer(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCustomer()
+  }, [isOpen]) // Re-fetch when menu opens to ensure fresh state
 
   const handleMouseEnter = () => {
     setActiveMenu("account")
@@ -24,7 +41,7 @@ export default function NavAccountDropdown() {
 
   const handleLogout = async () => {
     await signout(countryCode)
-    setActiveMenu(null)
+    window.location.href = `/${countryCode}/account`
   }
 
   const LINKS = [
@@ -42,10 +59,11 @@ export default function NavAccountDropdown() {
     >
       <LocalizedClientLink 
         href="/account" 
-        className="hover:text-white transition-colors flex items-center justify-center py-2"
+        className="hover:text-white transition-colors flex items-center justify-center py-2 relative"
         onClick={() => setActiveMenu(null)}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        {customer && <div className="absolute top-1 right-[-4px] w-2 h-2 bg-emerald-500 rounded-full border border-black" />}
       </LocalizedClientLink>
 
       <Transition
@@ -61,24 +79,39 @@ export default function NavAccountDropdown() {
         <div className="absolute right-0 mt-4 w-48 bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] overflow-hidden">
           <div className="py-2">
             <div className="px-4 py-2 border-b border-white/5 mb-1">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">Account</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">
+                {customer ? `Hi, ${customer.first_name}` : "Account"}
+              </span>
             </div>
-            {LINKS.map((link) => (
+            
+            {customer ? (
+              <>
+                {LINKS.map((link) => (
+                  <LocalizedClientLink
+                    key={link.href}
+                    href={link.href}
+                    className="block px-4 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                    onClick={() => setActiveMenu(null)}
+                  >
+                    {link.label}
+                  </LocalizedClientLink>
+                ))}
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-white/5 transition-all border-t border-white/5 mt-1"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
               <LocalizedClientLink
-                key={link.href}
-                href={link.href}
-                className="block px-4 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                href="/account"
+                className="block px-4 py-2 text-xs font-bold text-maritime-gold hover:text-white hover:bg-white/10 transition-all"
                 onClick={() => setActiveMenu(null)}
               >
-                {link.label}
+                Sign In
               </LocalizedClientLink>
-            ))}
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-white/5 transition-all border-t border-white/5 mt-1"
-            >
-              Sign Out
-            </button>
+            )}
           </div>
         </div>
       </Transition>

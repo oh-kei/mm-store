@@ -1,5 +1,6 @@
-import { useFormState } from "react-dom"
+"use client"
 
+import { useActionState } from "react"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import { Button } from "@medusajs/ui"
 import Input from "@modules/common/components/input"
@@ -12,7 +13,7 @@ type Props = {
 }
 
 const Login = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useFormState(login, null)
+  const [message, formAction] = useActionState(login, null)
 
   return (
     <div

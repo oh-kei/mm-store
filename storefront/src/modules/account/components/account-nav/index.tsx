@@ -22,6 +22,7 @@ const AccountNav = ({
 
   const handleLogout = async () => {
     await signout(countryCode)
+    window.location.href = `/${countryCode}/account`
   }
 
   return (

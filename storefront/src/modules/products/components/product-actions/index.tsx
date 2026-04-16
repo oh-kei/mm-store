@@ -9,6 +9,7 @@ import { useIntersection } from "@lib/hooks/use-in-view"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import MobileActions from "./mobile-actions"
 import ProductPrice from "../product-price"
 import { addToCart } from "@lib/data/cart"
@@ -17,6 +18,7 @@ import { HttpTypes } from "@medusajs/types"
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
+  customer?: HttpTypes.StoreCustomer | null
   disabled?: boolean
 }
 
@@ -32,6 +34,7 @@ const optionsAsKeymap = (variantOptions: any) => {
 export default function ProductActions({
   product,
   region,
+  customer,
   disabled,
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
@@ -95,6 +98,7 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
+    if (!customer) return null
     if (!selectedVariant?.id) return null
 
     setIsAdding(true)
@@ -135,31 +139,44 @@ export default function ProductActions({
 
         <ProductPrice product={product} variant={selectedVariant} />
 
-        <Button
-          onClick={handleAddToCart}
-          disabled={!inStock || !selectedVariant || !!disabled || isAdding}
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant
-            ? "Select variant"
-            : !inStock
-            ? "Out of stock"
-            : "Add to cart"}
-        </Button>
-        <MobileActions
-          product={product}
-          variant={selectedVariant}
-          options={options}
-          updateOptions={setOptionValue}
-          inStock={inStock}
-          handleAddToCart={handleAddToCart}
-          isAdding={isAdding}
-          show={!inView}
-          optionsDisabled={!!disabled || isAdding}
-        />
+        {!customer ? (
+          <LocalizedClientLink href="/account">
+            <Button
+              variant="primary"
+              className="w-full h-10 uppercase font-black tracking-widest text-[10px]"
+            >
+              Sign in to purchase
+            </Button>
+          </LocalizedClientLink>
+        ) : (
+          <Button
+            onClick={handleAddToCart}
+            disabled={!inStock || !selectedVariant || !!disabled || isAdding}
+            variant="primary"
+            className="w-full h-10 uppercase font-black tracking-widest text-[10px]"
+            isLoading={isAdding}
+            data-testid="add-product-button"
+          >
+            {!selectedVariant
+              ? "Select variant"
+              : !inStock
+              ? "Out of stock"
+              : "Add to cart"}
+          </Button>
+        )}
+        {customer && (
+          <MobileActions
+            product={product}
+            variant={selectedVariant}
+            options={options}
+            updateOptions={setOptionValue}
+            inStock={inStock}
+            handleAddToCart={handleAddToCart}
+            isAdding={isAdding}
+            show={!inView}
+            optionsDisabled={!!disabled || isAdding}
+          />
+        )}
       </div>
     </>
   )

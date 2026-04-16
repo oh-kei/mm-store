@@ -102,6 +102,37 @@ export async function addToCart({
     .catch(medusaError)
 }
 
+export async function addBulkToCart({
+  items,
+  countryCode,
+}: {
+  items: { variantId: string; quantity: number }[]
+  countryCode: string
+}) {
+  const cart = await getOrSetCart(countryCode)
+  if (!cart) {
+    throw new Error("Error retrieving or creating cart")
+  }
+
+  // Medusa v2 SDK might support batch line item creation differently, 
+  // but for now we loop. Optimally this would be a single server call.
+  for (const item of items) {
+     if (item.variantId && item.quantity > 0) {
+        await sdk.store.cart.createLineItem(
+          cart.id,
+          {
+            variant_id: item.variantId,
+            quantity: item.quantity,
+          },
+          {},
+          await getAuthHeaders()
+        )
+     }
+  }
+  
+  revalidateTag("cart")
+}
+
 export async function updateLineItem({
   lineId,
   quantity,

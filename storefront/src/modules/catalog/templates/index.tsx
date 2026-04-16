@@ -8,12 +8,12 @@ import { HttpTypes } from "@medusajs/types";
 import Breadcrumbs from '@modules/common/components/breadcrumbs';
 
 const CATEGORIES = [
-  { name: "All", handle: "all", image: "/mm-home-img-desktop.webp" },
+  { name: "All", handle: "all", image: "/mm-allclothes.webp" },
   { name: "Tops", handle: "tops", image: "/mariners-market-polo.webp" },
   { name: "Jackets", handle: "jackets", image: "/mariners-jacket.webp" },
   { name: "Hats", handle: "hats", image: "/mm-hats-blackwhite.webp" },
   { name: "Event Items", handle: "event-items", image: "/mm-regatta-banner.webp" },
-  { name: "Bags", handle: "bags", image: "/mm-duffel-navy.webp" },
+  { name: "Bags and Accessories", handle: "bags-accessories", image: "/mm-duffel-navy.webp" },
 ]
 
 interface CatalogTemplateProps {
@@ -33,7 +33,7 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
   const showCategoryLanding = !selectedCategory;
 
   const breadcrumbItems = useMemo(() => {
-    const items = [{ name: "Catalog", handle: "catalog" }];
+    const items = [{ name: "Catalogue", handle: "catalog" }];
     if (selectedCategory) {
       const category = CATEGORIES.find(c => c.handle === selectedCategory);
       items.push({ name: category?.name || selectedCategory, handle: `catalog?category=${selectedCategory}` });

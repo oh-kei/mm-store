@@ -10,7 +10,7 @@ const CATEGORIES = [
   { href: "/catalog?category=jackets", label: "Jackets" },
   { href: "/catalog?category=hats", label: "Hats" },
   { href: "/catalog?category=event-items", label: "Event Items" },
-  { href: "/catalog?category=bags", label: "Bags" },
+  { href: "/catalog?category=bags-accessories", label: "Bags and Accessories" },
 ]
 
 export default function NavCatalogueDropdown() {
@@ -54,9 +54,9 @@ export default function NavCatalogueDropdown() {
       {/* Stateful Dropdown */}
       <div 
         className={`absolute left-1/2 -translate-x-1/2 w-48 z-[100] transition-all duration-300 pointer-events-none ${
-          isDropdownOpen ? 'visible opacity-100 pointer-events-auto mt-0' : 'invisible opacity-0 mt-2'
+          isDropdownOpen ? 'visible opacity-100 pointer-events-auto mt-4' : 'invisible opacity-0 mt-6'
         }`}
-        style={{ top: "calc(100% + 4px)" }} // Adjusted to sit closer to the floating navbar
+        style={{ top: "100%" }}
       >
         <div className="bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (

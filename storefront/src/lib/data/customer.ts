@@ -10,7 +10,7 @@ import { getAuthHeaders, removeAuthToken, setAuthToken } from "./cookies"
 
 export const getCustomer = cache(async function () {
   return await sdk.store.customer
-    .retrieve({}, { next: { tags: ["customer"] }, ...getAuthHeaders() })
+    .retrieve({}, { next: { tags: ["customer"] }, ...(await getAuthHeaders()) })
     .then(({ customer }) => customer)
     .catch(() => null)
 })
@@ -19,7 +19,7 @@ export const updateCustomer = cache(async function (
   body: HttpTypes.StoreUpdateCustomer
 ) {
   const updateRes = await sdk.store.customer
-    .update(body, {}, getAuthHeaders())
+    .update(body, {}, await getAuthHeaders())
     .then(({ customer }) => customer)
     .catch(medusaError)
 
@@ -37,10 +37,16 @@ export async function signup(_currentState: unknown, formData: FormData) {
   }
 
   try {
-    const token = await sdk.auth.register("customer", "emailpass", {
+    const res: any = await sdk.auth.register("customer", "emailpass", {
       email: customerForm.email,
       password: password,
     })
+    
+    const token = typeof res === 'string' ? res : res.token || res.location
+
+    if (!token || typeof token !== "string") {
+      return "Registration failed, no token received."
+    }
 
     const customHeaders = { authorization: `Bearer ${token}` }
     
@@ -50,18 +56,35 @@ export async function signup(_currentState: unknown, formData: FormData) {
       customHeaders
     )
 
-    const loginToken = await sdk.auth.login("customer", "emailpass", {
+    const loginRes: any = await sdk.auth.login("customer", "emailpass", {
       email: customerForm.email,
       password,
     })
+    
+    const loginToken = typeof loginRes === 'string' ? loginRes : loginRes.token || loginRes.location
 
-    setAuthToken(typeof loginToken === 'string' ? loginToken : loginToken.location)
+    if (!loginToken || typeof loginToken !== "string") {
+      return "Authentication failed, no token received."
+    }
+
+    await setAuthToken(loginToken)
 
     revalidateTag("customer")
-    return createdCustomer
   } catch (error: any) {
-    return error.toString()
+    let msg = error.toString()
+    if (msg.includes("already exists")) {
+      return "An account with this email already exists."
+    }
+    if (msg.includes("400")) {
+      return "Invalid information provided. Please ensure all fields are correct and your password is secure."
+    }
+    if (msg.includes("401")) {
+      return "Registration successful, but auto-login failed. Please sign in manually."
+    }
+    return msg || "Something went wrong during registration. Please try again."
   }
+  
+  redirect('/account')
 }
 
 export async function login(_currentState: unknown, formData: FormData) {
@@ -69,23 +92,32 @@ export async function login(_currentState: unknown, formData: FormData) {
   const password = formData.get("password") as string
 
   try {
-    await sdk.auth
-      .login("customer", "emailpass", { email, password })
-      .then((token) => {
-        setAuthToken(typeof token === 'string' ? token : token.location)
-        revalidateTag("customer")
-      })
+    const res: any = await sdk.auth.login("customer", "emailpass", { email, password })
+    const token = typeof res === 'string' ? res : res.token || res.location
+    
+    if (!token || typeof token !== "string") {
+      return "Authentication failed, no token received. Please try again."
+    }
+
+    if (token) {
+      await setAuthToken(token)
+      revalidateTag("customer")
+    }
   } catch (error: any) {
-    return error.toString()
+    let msg = error.toString()
+    if (msg.includes("401")) msg = "Incorrect email or password. Please try again."
+    return msg || "Failed to log in. Please check your credentials."
   }
+
+  redirect('/account')
 }
 
 export async function signout(countryCode: string) {
   await sdk.auth.logout()
-  removeAuthToken()
+  await removeAuthToken()
   revalidateTag("auth")
   revalidateTag("customer")
-  redirect(`/${countryCode}/account`)
+  return { success: true }
 }
 
 export const addCustomerAddress = async (
@@ -106,7 +138,7 @@ export const addCustomerAddress = async (
   }
 
   return sdk.store.customer
-    .createAddress(address, {}, getAuthHeaders())
+    .createAddress(address, {}, await getAuthHeaders())
     .then(({ customer }) => {
       revalidateTag("customer")
       return { success: true, error: null }
@@ -120,7 +152,7 @@ export const deleteCustomerAddress = async (
   addressId: string
 ): Promise<void> => {
   await sdk.store.customer
-    .deleteAddress(addressId, getAuthHeaders())
+    .deleteAddress(addressId, await getAuthHeaders())
     .then(() => {
       revalidateTag("customer")
       return { success: true, error: null }
@@ -150,7 +182,7 @@ export const updateCustomerAddress = async (
   }
 
   return sdk.store.customer
-    .updateAddress(addressId, address, {}, getAuthHeaders())
+    .updateAddress(addressId, address, {}, await getAuthHeaders())
     .then(() => {
       revalidateTag("customer")
       return { success: true, error: null }
