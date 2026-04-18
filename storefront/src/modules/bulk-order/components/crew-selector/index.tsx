@@ -6,37 +6,40 @@ import { Heading, Button, clx } from "@medusajs/ui"
 import { Minus, Plus, User, Users, Check, AlertTriangle } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-interface CrewMember {
-  name: string
-  size: string
-}
-
 interface SelectionMember extends CrewMember {
   overrideSize?: string
-  overrideColor?: string
+  overrideColour?: string
 }
 
 interface CrewSelectorProps {
   product: HttpTypes.StoreProduct
   roster: CrewMember[]
   customer: HttpTypes.StoreCustomer | null
-  onUpdate: (selection: { members: SelectionMember[], color: string | null }) => void
+  onUpdate: (selection: { members: SelectionMember[], colour: string | null }) => void
+  forceShowMessage?: boolean
 }
 
-export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelectorProps) {
-  const [selectedColor, setSelectedColor] = useState<string | null>(null)
+export function CrewSelector({ product, roster, customer, onUpdate, forceShowMessage }: CrewSelectorProps) {
+  const [selectedColour, setSelectedColour] = useState<string | null>(null)
   const [selectionMode, setSelectionMode] = useState<"all" | "select">("all")
   const [selectedMemberIndices, setSelectedMemberIndices] = useState<number[]>([])
-  const [overrides, setOverrides] = useState<Record<number, { size?: string; color?: string }>>({})
+  const [overrides, setOverrides] = useState<Record<number, { size?: string; colour?: string }>>({})
   const [editingMemberIdx, setEditingMemberIdx] = useState<number | null>(null)
+  const [hasInteracted, setHasInteracted] = useState(false)
 
   // Extract available colors from product options and sort alphabetically
-  const colorOption = product.options?.find(o => o.title?.toLowerCase().includes("color"))
+  const colorOption = product.options?.find(o => {
+    const t = o.title?.toLowerCase() || ""
+    return t.includes("color") || t.includes("colour") || t.includes("design") || t.includes("style")
+  })
   const colors = (colorOption?.values?.map(v => v.value).filter(Boolean) as string[] || []).sort((a, b) => a.localeCompare(b))
 
   // Extract available sizes
   const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))
   const availableSizes = sizeOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+  
+  const isOneSize = availableSizes.length === 1
+  const oneSize = isOneSize ? availableSizes[0] : null
 
   // Current effective members selection with overrides applied
   const selectedMembers = useMemo(() => {
@@ -44,16 +47,16 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
     
     return base.map(m => ({
       ...m,
-      overrideSize: overrides[m.originalIdx]?.size,
-      overrideColor: overrides[m.originalIdx]?.color
+      overrideSize: isOneSize ? (oneSize || undefined) : overrides[m.originalIdx]?.size,
+      overrideColour: overrides[m.originalIdx]?.colour
     }))
-  }, [roster, selectionMode, selectedMemberIndices, overrides])
+  }, [roster, selectionMode, selectedMemberIndices, overrides, isOneSize, oneSize])
 
   // Sync up to parent
   useEffect(() => {
-    onUpdate({ members: selectedMembers, color: selectedColor })
+    onUpdate({ members: selectedMembers, colour: selectedColour })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMembers, selectedColor])
+  }, [selectedMembers, selectedColour])
 
   const handleToggleMember = (idx: number) => {
     setSelectedMemberIndices(prev => 
@@ -61,7 +64,7 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
     )
   }
 
-  const handleUpdateOverride = (idx: number, type: 'size' | 'color', value: string) => {
+  const handleUpdateOverride = (idx: number, type: 'size' | 'colour', value: string) => {
     setOverrides(prev => ({
       ...prev,
       [idx]: {
@@ -76,16 +79,19 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
       {/* Color Selection */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Select Global Color</h4>
+          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Select Global Colour</h4>
         </div>
         <div className="flex flex-wrap gap-2">
           {colors.map(color => (
             <button
               key={color}
-              onClick={() => setSelectedColor(color)}
+              onClick={() => {
+                setSelectedColour(color)
+                setHasInteracted(true)
+              }}
               className={clx(
                 "h-10 px-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
-                selectedColor === color 
+                selectedColour === color 
                   ? "bg-slate-900 text-white border-slate-900 shadow-md" 
                   : "bg-white text-slate-900 border-slate-100 hover:border-slate-300"
               )}
@@ -93,9 +99,20 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
               {color}
             </button>
           ))}
-          {colors.length === 0 && <p className="text-xs text-slate-400 font-bold italic">No colors available</p>}
+          {colors.length === 0 && <p className="text-xs text-slate-400 font-bold italic">No colours available</p>}
         </div>
       </div>
+
+      {/* One Size Message */}
+      {isOneSize && (hasInteracted || forceShowMessage) && (
+        <div className="bg-maritime-gold/10 border border-maritime-gold/20 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2">
+          <AlertTriangle className="text-maritime-gold flex-shrink-0" size={16} />
+          <p className="text-[10px] font-bold text-slate-600 leading-relaxed uppercase tracking-wider">
+            Note: This item is <span className="text-maritime-gold font-black">ONE SIZE ONLY ({oneSize})</span>. 
+            All member sizes have been automatically adjusted to fit.
+          </p>
+        </div>
+      )}
 
       {/* Crew Selection Dropdown */}
       <div className="space-y-3">
@@ -176,9 +193,9 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
                                Size: {currentOverride.size || member.size}
                                {currentOverride.size && <span className="text-maritime-gold ml-1">(OVERRIDE)</span>}
                              </p>
-                             {currentOverride.color && (
+                             {currentOverride.colour && (
                                <p className="text-[9px] font-bold text-maritime-gold uppercase">
-                                 Color: {currentOverride.color}
+                                 Colour: {currentOverride.colour}
                                </p>
                              )}
                           </div>
@@ -217,13 +234,13 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
                             </select>
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Override Color</label>
+                            <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Override Colour</label>
                             <select 
-                              value={currentOverride.color || "default"}
-                              onChange={(e) => handleUpdateOverride(idx, 'color', e.target.value)}
+                              value={currentOverride.colour || "default"}
+                              onChange={(e) => handleUpdateOverride(idx, 'colour', e.target.value)}
                               className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
                             >
-                              <option value="default">Global ({selectedColor || "None"})</option>
+                              <option value="default">Global ({selectedColour || "None"})</option>
                               {colors.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                           </div>

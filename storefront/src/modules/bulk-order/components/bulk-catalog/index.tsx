@@ -19,18 +19,19 @@ interface BulkCatalogProps {
   products: HttpTypes.StoreProduct[]
   roster: { name: string; size: string }[]
   customer: HttpTypes.StoreCustomer | null
-  onAddToCart: (productId: string, selection: { members: any[], color: string | null }) => void
+  onAddToCart: (productId: string, selection: { members: any[], colour: string | null }) => void
 }
 
 export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCatalogProps) {
-  const [selections, setSelections] = useState<Record<string, { members: any[], color: string | null }>>({})
+  const [selections, setSelections] = useState<Record<string, { members: any[], colour: string | null }>>({})
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set())
 
-  const handleUpdate = React.useCallback((productId: string, selection: { members: any[], color: string | null }) => {
+  const handleUpdate = React.useCallback((productId: string, selection: { members: any[], colour: string | null }) => {
     setSelections(prev => {
       // Small optimization to avoid state churn if same
       const current = prev[productId]
-      if (current?.color === selection.color && current?.members.length === selection.members.length) {
+      if (current?.colour === selection.colour && current?.members.length === selection.members.length) {
         // deep check might be overkill, but let's just always update or just set it
         return { ...prev, [productId]: selection }
       }
@@ -128,6 +129,7 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                   roster={roster} 
                   customer={customer}
                   onUpdate={(selection) => handleUpdate(product.id || "", selection)} 
+                  forceShowMessage={addedProductIds.has(product.id || "")}
                 />
               </div>
 
@@ -139,7 +141,11 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                     <p className="text-2xl font-black text-slate-900">{total} <span className="text-slate-300 text-xs font-bold ml-1">UNITS</span></p>
                   </div>
                   <button 
-                    onClick={() => onAddToCart(product.id || "", selections[product.id || ""] || { members: [], color: null })}
+                    onClick={() => {
+                      const productId = product.id || ""
+                      onAddToCart(productId, selections[productId] || { members: [], colour: null })
+                      setAddedProductIds(prev => new Set(prev).add(productId))
+                    }}
                     disabled={total === 0}
                     className="bg-maritime-gold text-maritime-navy h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >

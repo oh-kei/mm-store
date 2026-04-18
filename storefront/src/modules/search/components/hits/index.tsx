@@ -27,7 +27,7 @@ const Hits = ({
   return (
     <div
       className={clx(
-        "transition-[height,max-height,opacity] duration-300 ease-in-out sm:overflow-hidden w-full mb-1 p-px",
+        "transition-[height,max-height,opacity] duration-300 ease-in-out w-full mb-1 p-px",
         className,
         {
           "max-h-full opacity-100": !!query,
@@ -39,18 +39,17 @@ const Hits = ({
         className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4"
         data-testid="search-results"
       >
-        {hits.slice(0, 6).map((hit, index) => (
+        {hits.map((hit, index) => (
           <li
             key={index}
-            className={clx("list-none", {
-              "hidden sm:block": index > 2,
+            className={clx("list-none snap-start", {
+              "hidden sm:block": !isDropdown && index > 2,
             })}
           >
             <Hit hit={hit as unknown as ProductHit} />
           </li>
         ))}
       </div>
-      {!isDropdown && <ShowAll />}
     </div>
   )
 }

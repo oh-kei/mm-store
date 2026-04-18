@@ -32,7 +32,9 @@ export function FilterDropdown({ title, options, current, onChange }: FilterDrop
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 group py-2"
       >
-        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 group-hover:text-maritime-navy transition-colors">{title}:</span>
+        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 group-hover:text-maritime-navy transition-colors">
+          {title.toLowerCase() === "color" ? "Colour" : title}:
+        </span>
         <span className="text-sm font-black text-maritime-navy flex items-center gap-1">
           {current}
           <svg className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -40,6 +40,7 @@ const FeaturedCatalogue = () => {
                 title="Short Sleeve T-shirt" 
                 className="h-[160px] md:h-[360px]" 
                 image="https://bucket-production-bd41.up.railway.app/medusa-media/mm-tshirt-blue-01KPA0GV69A2MGV0K4CC4Z67VQ.webp"
+                hoverImage="/mm-tshirtblue-closeup.webp"
                 link="/products/short-sleeve-t-shirt"
               />
               <CategoryCard 
@@ -58,6 +59,7 @@ const FeaturedCatalogue = () => {
                 image="/mm-duffel-navy.webp"
                 hoverImage="/mm-navyduffel-closeup.webp"
                 link="/products/duffel-bag"
+                imagePadding="p-1 md:p-2"
               />
               <CategoryCard 
                 title="Compression Polo" 
@@ -65,6 +67,7 @@ const FeaturedCatalogue = () => {
                 image="/mariners-market-polo.webp"
                 hoverImage="/mm-polo-closeup-navy.webp"
                 link="/products/compression-polo"
+                imagePadding="p-1 md:p-2"
               />
             </div>
           </div>

@@ -11,9 +11,10 @@ interface CategoryCardProps {
   subtitle?: string;
   link?: string;
   priority?: boolean;
+  imagePadding?: string;
 }
 
-const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage, subtitle, link = '/catalog', priority = false }: CategoryCardProps) => {
+const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage, subtitle, link = '/catalog', priority = false, imagePadding = 'p-0' }: CategoryCardProps) => {
   // If className has a height defined, we use it, otherwise default to slightly taller baseline
   const heightBase = isBig ? 'h-[500px] md:h-full' : 'h-[300px]';
   const finalClass = className.includes('h-') ? className : `${heightBase} ${className}`;
@@ -28,7 +29,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
       <div className="absolute inset-0 bg-black/[0.02] group-hover:bg-black/[0.04] transition-colors duration-300 z-0" />
       
       {/* Image Container (Inner Box) */}
-      <div className={`absolute top-6 ${isBig ? 'bottom-36' : 'bottom-20 md:bottom-28'} left-6 right-6 rounded-lg bg-[#EDEEF3]/60 backdrop-blur-[2px] border border-gray-200/50 overflow-hidden transition-all duration-500 z-10`}>
+      <div className={`absolute top-6 ${isBig ? 'bottom-36' : 'bottom-20 md:bottom-28'} left-6 right-6 rounded-lg bg-[#EDEEF3]/60 backdrop-blur-[2px] border border-gray-200/50 overflow-hidden transition-all duration-500 z-10 ${imagePadding}`}>
         {image ? (
           <div className="relative w-full h-full">
             <Image
@@ -36,7 +37,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
               alt={title}
               fill
               priority={priority}
-              className={`scale-105 group-hover:scale-110 object-contain md:object-cover transition-all duration-700 ease-out mix-blend-multiply ${hoverImage ? 'group-hover:opacity-0' : ''}`}
+              className={`group-hover:scale-105 ${imagePadding === 'p-0' ? 'object-cover' : 'object-contain'} transition-all duration-700 ease-out mix-blend-multiply ${hoverImage ? 'group-hover:opacity-0' : ''}`}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
             {hoverImage && (
@@ -44,7 +45,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
                 src={hoverImage}
                 alt={`${title} closeup`}
                 fill
-                className="object-contain md:object-cover opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out group-hover:scale-105 mix-blend-multiply"
+                className={`${imagePadding === 'p-0' ? 'object-cover' : 'object-contain'} opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out group-hover:scale-105 mix-blend-multiply`}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             )}

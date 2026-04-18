@@ -47,7 +47,9 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">Select {title}</span>
+      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">
+        Select {title.toLowerCase() === "color" ? "Colour" : title}
+      </span>
       <div
         className="flex flex-wrap gap-3"
         data-testid={dataTestId}

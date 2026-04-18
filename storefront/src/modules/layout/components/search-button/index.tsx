@@ -15,13 +15,29 @@ export default function SearchButton() {
   const isOpen = activeMenu === "search"
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [mode, setMode] = useState<'idle' | 'hover' | 'click'>('idle')
 
   const handleMouseEnter = () => {
-    setActiveMenu("search")
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    if (mode === 'idle') {
+      setMode('hover')
+      setActiveMenu("search")
+    }
   }
-
+  
   const handleMouseLeave = () => {
-    closeMenu()
+    if (mode === 'hover') {
+      timeoutRef.current = setTimeout(() => {
+        // Only close if the search input is not focused
+        const isInputFocused = containerRef.current?.contains(document.activeElement) && document.activeElement?.tagName === 'INPUT'
+        if (!isInputFocused) {
+          setMode('idle')
+          closeMenu()
+        }
+      }, 1000)
+    }
   }
 
   // Focus input when opened
@@ -32,8 +48,20 @@ export default function SearchButton() {
         if (input) input.focus()
       }, 100)
       return () => clearTimeout(timer)
+    } else {
+      setMode('idle')
     }
   }, [isOpen])
+
+  const handleButtonClick = () => {
+    if (mode === 'click') {
+      setMode('idle')
+      closeMenu()
+    } else {
+      setMode('click')
+      setActiveMenu("search")
+    }
+  }
 
   return (
     <div 
@@ -43,7 +71,7 @@ export default function SearchButton() {
       ref={containerRef}
     >
       <button
-        onClick={() => setActiveMenu(isOpen ? null : "search")}
+        onClick={handleButtonClick}
         className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90"
         aria-label="Search"
       >
@@ -78,12 +106,19 @@ export default function SearchButton() {
                   <SearchBox />
                 </div>
                 
-                <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                  <Hits 
-                    hitComponent={Hit} 
-                    className="!sm:w-full !max-h-none !opacity-100"
-                    isDropdown={true} 
-                  />
+                <div className="relative group/scroll">
+                   <div 
+                    ref={scrollRef}
+                    className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar scroll-smooth"
+                    style={{ overscrollBehavior: 'contain' }}
+                  >
+                    <Hits 
+                      hitComponent={Hit} 
+                      className="!sm:w-full !max-h-none !opacity-100"
+                      isDropdown={true} 
+                    />
+                  </div>
+                  
                 </div>
               </div>
             </InstantSearch>

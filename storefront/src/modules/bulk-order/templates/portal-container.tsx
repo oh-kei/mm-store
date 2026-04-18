@@ -152,9 +152,9 @@ export function PortalContainer({ products }: PortalContainerProps) {
        return
      }
 
-     const allHaveColor = selection.members.every(m => m.overrideColor || selection.color)
-     if (!allHaveColor) {
-       setErrorMsg("Please select a color for all members (either globally or via override).")
+     const allHaveColour = selection.members.every(m => m.overrideColour || selection.colour)
+     if (!allHaveColour) {
+       setErrorMsg("Please select a colour for all members (either globally or via override).")
        return
      }
 
@@ -165,19 +165,19 @@ export function PortalContainer({ products }: PortalContainerProps) {
 
      selection.members.forEach(member => {
        // Priority: Member Override > Global Selection > Roster Default
-       const targetColor = member.overrideColor || selection.color
+       const targetColour = member.overrideColour || selection.colour
        const targetSize = member.overrideSize || member.size
 
-       if (!targetColor) {
+       if (!targetColour) {
          // This shouldn't happen with our UI guards but safety first
          return
        }
 
-       // Find variant matching color AND size
+       // Find variant matching colour AND size
        const variant = product.variants?.find(v => {
-         const hasColor = v.options?.some(o => o.value?.toLowerCase() === targetColor.toLowerCase())
+         const hasColour = v.options?.some(o => o.value?.toLowerCase() === targetColour.toLowerCase())
          const hasSize = v.options?.some(o => o.value?.toLowerCase() === targetSize.toLowerCase())
-         return hasColor && hasSize
+         return hasColour && hasSize
        })
 
        if (variant?.id) {
@@ -189,7 +189,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
            itemsToAdd.push({ variantId: variant.id, quantity: 1 })
          }
        } else {
-         console.warn(`No variant found for ${product.title} in color ${targetColor} and size ${targetSize}`)
+         console.warn(`No variant found for ${product.title} in colour ${targetColour} and size ${targetSize}`)
        }
      })
 
