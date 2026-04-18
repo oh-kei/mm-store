@@ -2,7 +2,7 @@
 
 import { Table, Text, clx } from "@medusajs/ui"
 
-import { updateLineItem } from "@lib/data/cart"
+import { updateLineItem, deleteLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -79,8 +79,14 @@ const Item = ({ item, type = "full" }: ItemProps) => {
           <div className="flex items-center gap-x-3 w-28">
             <div className="flex items-center border border-gray-200 rounded-md bg-gray-50/50">
               <button
-                onClick={() => changeQuantity(item.quantity - 1)}
-                disabled={item.quantity <= 1 || updating}
+                onClick={() => {
+                  if (item.quantity > 1) {
+                    changeQuantity(item.quantity - 1)
+                  } else {
+                    deleteLineItem(item.id)
+                  }
+                }}
+                disabled={updating}
                 className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Decrease quantity"
               >

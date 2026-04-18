@@ -7,6 +7,7 @@ import CartButton from "@modules/layout/components/cart-button"
 import NavCatalogueDropdown from "@modules/layout/components/nav-catalogue-dropdown"
 
 import NavAccountDropdown from "@modules/layout/components/nav-account-dropdown"
+import SearchButton from "@modules/layout/components/search-button"
 
 import { NavMenuProvider } from "@modules/layout/components/nav-menu-context"
 
@@ -58,6 +59,7 @@ export default async function Nav() {
         </div>
 
         <div className="flex items-center gap-3 md:gap-6 text-white/90">
+          <SearchButton />
           <NavRegionSelect regions={regions} />
           <NavAccountDropdown />
           

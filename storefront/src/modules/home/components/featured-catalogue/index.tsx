@@ -39,8 +39,7 @@ const FeaturedCatalogue = () => {
               <CategoryCard 
                 title="Short Sleeve T-shirt" 
                 className="h-[160px] md:h-[360px]" 
-                image="/mm-tshirt.png"
-                hoverImage="/mm-polo-closeup-navy.webp"
+                image="https://bucket-production-bd41.up.railway.app/medusa-media/mm-tshirt-blue-01KPA0GV69A2MGV0K4CC4Z67VQ.webp"
                 link="/products/short-sleeve-t-shirt"
               />
               <CategoryCard 
@@ -54,17 +53,17 @@ const FeaturedCatalogue = () => {
             {/* Column 2: Duffel Bags & Accessories */}
             <div className="flex flex-col gap-4 md:gap-6">
               <CategoryCard 
-                title="Rashguard" 
+                title="Duffel Bag" 
                 className="h-[160px] md:h-[300px]" 
-                image="/mm-rashguard.png"
+                image="/mm-duffel-navy.webp"
                 hoverImage="/mm-navyduffel-closeup.webp"
-                link="/products/rashguard"
+                link="/products/duffel-bag"
               />
               <CategoryCard 
                 title="Compression Polo" 
                 className="h-[160px] md:h-[300px]" 
                 image="/mariners-market-polo.webp"
-                hoverImage="/mm-hats-closeup-black.webp"
+                hoverImage="/mm-polo-closeup-navy.webp"
                 link="/products/compression-polo"
               />
             </div>

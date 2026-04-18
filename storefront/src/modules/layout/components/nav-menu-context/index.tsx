@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useRef, ReactNode } from "react"
 
-type NavMenuType = "catalogue" | "region" | "account" | "cart" | null
+type NavMenuType = "catalogue" | "region" | "account" | "cart" | "search" | null
 
 interface NavMenuContextType {
   activeMenu: NavMenuType

@@ -8,6 +8,7 @@ import ChevronDown from "@modules/common/icons/chevron-down"
 import User from "@modules/common/icons/user"
 import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
+import { Users } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 import { signout } from "@lib/data/customer"
@@ -56,6 +57,21 @@ const AccountNav = ({
                       <div className="flex items-center gap-x-2">
                         <User size={20} />
                         <span>Profile</span>
+                      </div>
+                      <ChevronDown className="transform -rotate-90" />
+                    </>
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/account/crew"
+                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
+                    data-testid="crew-link"
+                  >
+                    <>
+                      <div className="flex items-center gap-x-2">
+                        <Users size={20} />
+                        <span>Crew</span>
                       </div>
                       <ChevronDown className="transform -rotate-90" />
                     </>
@@ -117,20 +133,20 @@ const AccountNav = ({
             <ul className="flex mb-0 justify-start items-start flex-col gap-y-4">
               <li>
                 <AccountNavLink
-                  href="/account"
-                  route={route!}
-                  data-testid="overview-link"
-                >
-                  Overview
-                </AccountNavLink>
-              </li>
-              <li>
-                <AccountNavLink
                   href="/account/profile"
                   route={route!}
                   data-testid="profile-link"
                 >
                   Profile
+                </AccountNavLink>
+              </li>
+              <li>
+                <AccountNavLink
+                  href="/account/crew"
+                  route={route!}
+                  data-testid="crew-link"
+                >
+                  Crew
                 </AccountNavLink>
               </li>
               <li>

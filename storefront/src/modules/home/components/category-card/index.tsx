@@ -20,7 +20,6 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
 
   return (
     <div className={`relative group overflow-hidden rounded-xl bg-[#EDEEF3] border border-gray-200/60 shadow-sm transition-all duration-500 hover:shadow-md ${finalClass}`}>
-      <LocalizedClientLink href={link} className="absolute inset-0 z-30" />
       
       {/* Background */}
       <div className="absolute inset-0 bg-[#EDEEF3] transition-colors duration-500 group-hover:bg-[#E2E4EB]" />
@@ -71,7 +70,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 pointer-events-auto">
+        <div className="flex flex-wrap gap-2 pointer-events-auto relative z-40">
           <LocalizedClientLink href="/custom-studio">
             <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none h-9 px-3 border border-gray-200 text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 text-[0.7rem] md:text-sm bg-white/10 backdrop-blur-sm">
               Customise
@@ -93,6 +92,9 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
           </div>
         )}
       </div>
+      
+      {/* Global Card Link Overlay */}
+      <LocalizedClientLink href={link} className="absolute inset-0 z-30" />
     </div>
   );
 };

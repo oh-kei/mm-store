@@ -10,14 +10,14 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import { HttpTypes } from "@medusajs/types"
+import { ProductGalleryProvider } from "@modules/products/components/image-gallery/gallery-context"
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
 }
-
-import Breadcrumbs from "@modules/common/components/breadcrumbs"
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
@@ -34,23 +34,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   ]
 
   return (
-    <>
+    <ProductGalleryProvider images={product?.images || []}>
       <div className="content-container pt-32 pb-4">
         <Breadcrumbs items={breadcrumbItems} />
       </div>
       <div
-        className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
+        className="content-container flex flex-col small:flex-row small:items-start py-6 relative gap-x-12"
         data-testid="product-container"
       >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
-          <ProductTabs product={product} />
-        </div>
         <div className="block w-full relative">
           <ImageGallery images={product?.images || []} />
         </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
+        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[440px] w-full py-8 gap-y-6">
+          <ProductInfo product={product} />
+          
           <Suspense
             fallback={
               <ProductActions
@@ -62,6 +59,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           >
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
+
+          <ProductTabs product={product} />
+          <ProductOnboardingCta />
         </div>
       </div>
       <div
@@ -72,7 +72,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <RelatedProducts product={product} countryCode={countryCode} />
         </Suspense>
       </div>
-    </>
+    </ProductGalleryProvider>
   )
 }
 

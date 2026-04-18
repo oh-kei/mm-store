@@ -30,9 +30,9 @@ export function CrewSelector({ product, roster, customer, onUpdate }: CrewSelect
   const [overrides, setOverrides] = useState<Record<number, { size?: string; color?: string }>>({})
   const [editingMemberIdx, setEditingMemberIdx] = useState<number | null>(null)
 
-  // Extract available colors from product options
+  // Extract available colors from product options and sort alphabetically
   const colorOption = product.options?.find(o => o.title?.toLowerCase().includes("color"))
-  const colors = colorOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+  const colors = (colorOption?.values?.map(v => v.value).filter(Boolean) as string[] || []).sort((a, b) => a.localeCompare(b))
 
   // Extract available sizes
   const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))

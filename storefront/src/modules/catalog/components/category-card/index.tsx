@@ -12,7 +12,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ name, handle, image 
     <LocalizedClientLink href={`/catalog?category=${handle}`} className="group h-full block">
       <div className="h-full flex flex-col transition-all duration-300 border-none rounded-none shadow-none hover:bg-gray-50/30">
         {/* Image Container with Custom #EDEEF3 Background */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
           <img
             src={image}
             alt={name}

@@ -14,6 +14,7 @@ import MobileActions from "./mobile-actions"
 import ProductPrice from "../product-price"
 import { addToCart } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
+import { useProductGallery } from "../image-gallery/gallery-context"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -60,12 +61,25 @@ export default function ProductActions({
     })
   }, [product.variants, options])
 
+  const { handleVariantChange, handleColorChange } = useProductGallery()
+
+  useEffect(() => {
+    if (selectedVariant) {
+      handleVariantChange(selectedVariant)
+    }
+  }, [selectedVariant, handleVariantChange])
+
   // update the options when a variant is selected
   const setOptionValue = (title: string, value: string) => {
     setOptions((prev) => ({
       ...prev,
       [title]: value,
     }))
+
+    // Use the precise color mapping logic when selecting a color
+    if (title.toLowerCase() === "color" || title.toLowerCase() === "colour") {
+      handleColorChange(value, product)
+    }
   }
 
   // check if the selected variant is in stock
@@ -125,6 +139,30 @@ export default function ProductActions({
                       option={option}
                       current={options[option.title ?? ""]}
                       updateOption={setOptionValue}
+                      onMouseEnter={(title, value) => {
+                        if (title.toLowerCase() === "color" || title.toLowerCase() === "colour") {
+                          handleColorChange(value, product)
+                          return
+                        }
+
+                        const tempOptions = { ...options, [title]: value }
+                        const tempVariant = product.variants?.find((v) => {
+                          const variantOptions = optionsAsKeymap(v.options)
+                          return isEqual(variantOptions, tempOptions)
+                        })
+                        if (tempVariant) {
+                          handleVariantChange(tempVariant)
+                        } else {
+                          // If no direct map, find ANY variant with that value to show at least something
+                          const fallbackVariant = product.variants?.find((v) => {
+                            return v.options?.some(opt => opt.option?.title === title && opt.value === value)
+                          })
+                          if (fallbackVariant) handleVariantChange(fallbackVariant)
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (selectedVariant) handleVariantChange(selectedVariant)
+                      }}
                       title={option.title ?? ""}
                       data-testid="product-options"
                       disabled={!!disabled || isAdding}

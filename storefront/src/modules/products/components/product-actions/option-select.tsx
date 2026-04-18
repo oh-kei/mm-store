@@ -6,6 +6,8 @@ type OptionSelectProps = {
   option: HttpTypes.StoreProductOption
   current: string | undefined
   updateOption: (title: string, value: string) => void
+  onMouseEnter?: (title: string, value: string) => void
+  onMouseLeave?: () => void
   title: string
   disabled: boolean
   "data-testid"?: string
@@ -15,13 +17,18 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   option,
   current,
   updateOption,
+  onMouseEnter,
+  onMouseLeave,
   title,
   "data-testid": dataTestId,
   disabled,
 }) => {
-  const filteredOptions = option.values?.map((v) => v.value)
-
   const isColor = title.toLowerCase().includes("color") || title.toLowerCase().includes("colour")
+
+  const filteredOptions = option.values?.map((v) => v.value)
+  if (isColor) {
+    filteredOptions?.sort((a, b) => (a || "").localeCompare(b || ""))
+  }
 
   const getColorHex = (colorName: string) => {
     const map: Record<string, string> = {
@@ -53,6 +60,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
             return (
               <button
                 onClick={() => updateOption(option.title ?? "", v)}
+                onMouseEnter={() => onMouseEnter?.(option.title ?? "", v)}
+                onMouseLeave={() => onMouseLeave?.()}
                 key={v}
                 title={v}
                 className={clx(
@@ -75,6 +84,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
           return (
             <button
               onClick={() => updateOption(option.title ?? "", v)}
+              onMouseEnter={() => onMouseEnter?.(option.title ?? "", v)}
+              onMouseLeave={() => onMouseLeave?.()}
               key={v}
               className={clx(
                 "border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded px-4 min-w-[3rem] transition-all",

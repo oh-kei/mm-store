@@ -32,16 +32,16 @@ export default function BulkOrderLayout({ children }: BulkOrderLayoutProps) {
 
         <nav className="flex flex-col gap-2">
           <NavItem 
-            href="/bulk-order?section=catalog" 
-            icon={<ShoppingBag size={18} />} 
-            label="Catalogue" 
-            isActive={currentSection === "catalog"}
-          />
-          <NavItem 
             href="/bulk-order?section=roster" 
             icon={<Users size={18} />} 
             label="Crew Roster" 
             isActive={currentSection === "roster"}
+          />
+          <NavItem 
+            href="/bulk-order?section=catalog" 
+            icon={<ShoppingBag size={18} />} 
+            label="Catalogue" 
+            isActive={currentSection === "catalog"}
           />
         </nav>
       </aside>
