@@ -23,6 +23,7 @@ const AccountNav = ({
 
   const handleLogout = async () => {
     await signout(countryCode)
+    localStorage.removeItem("mm-crew-roster")
     window.location.href = `/${countryCode}/account`
   }
 

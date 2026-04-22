@@ -106,6 +106,13 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     if (selectedId === id) setSelectedId(null)
   }, [selectedId])
 
+  const setBase = useCallback((base: Partial<Recipe["base"]>) => {
+    setRecipe((prev) => ({
+      ...prev,
+      base: { ...prev.base, ...base },
+    }))
+  }, [])
+
   return {
     recipe,
     setRecipe,
@@ -113,6 +120,7 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     addImageLayer,
     updateLayer,
     removeLayer,
+    setBase,
     selectedId,
     setSelectedId,
   }

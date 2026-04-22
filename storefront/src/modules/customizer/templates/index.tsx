@@ -1,14 +1,15 @@
 "use client"
 
-import React, { useState } from "react"
-import { Heading, Button, Text } from "@medusajs/ui"
-import { Plus, Type, Image as ImageIcon, Trash2, ShoppingBag, Layers, MousePointer2 } from "lucide-react"
+import React, { useState, useMemo, useEffect } from "react"
+import { Heading, Button, Text, clx } from "@medusajs/ui"
+import { Plus, Type, Image as ImageIcon, Trash2, ShoppingBag, Layers, MousePointer2, ChevronLeft, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCustomizer } from "../hooks/use-customizer"
 import { uploadToS3 } from "../utils/upload"
 import { addToCart } from "@lib/data/cart"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { PropertiesPanel } from "../components/PropertiesPanel"
+import { HttpTypes } from "@medusajs/types"
 
 // Dynamically import Stage to avoid SSR issues with Konva
 const CustomizerStage = dynamic(() => import("../components/stage"), {
@@ -16,27 +17,94 @@ const CustomizerStage = dynamic(() => import("../components/stage"), {
 })
 
 interface CustomizerTemplateProps {
-  product: any // Medusa Product
+  products: HttpTypes.StoreProduct[]
+  region: HttpTypes.StoreRegion
 }
 
-export function CustomizerTemplate({ product }: CustomizerTemplateProps) {
+export function CustomizerTemplate({ products, region }: CustomizerTemplateProps) {
   const { countryCode } = useParams() as { countryCode: string }
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const variant = product.variants?.[0]
   
+  const [activeProduct, setActiveProduct] = useState<HttpTypes.StoreProduct | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
   const {
     recipe,
     addTextLayer,
     addImageLayer,
     updateLayer,
     removeLayer,
+    setBase,
     selectedId,
     setSelectedId,
   } = useCustomizer({
-    id: product.id,
-    variantId: variant?.id || "",
-    imageUrl: product.thumbnail || "",
+    id: activeProduct?.id || "",
+    variantId: activeProduct?.variants?.[0]?.id || "",
+    imageUrl: activeProduct?.thumbnail || "",
   })
+
+  // Pre-select product from URL if id matches
+  useEffect(() => {
+    const productId = searchParams.get("id")
+    if (productId && products.length > 0 && !activeProduct) {
+      const product = products.find(p => p.id === productId)
+      if (product) {
+        setActiveProduct(product)
+      }
+    }
+  }, [searchParams, products, activeProduct])
+
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
+
+  // Initialize selected options from active product
+  useEffect(() => {
+    if (activeProduct && Object.keys(selectedOptions).length === 0) {
+      const initialOptions: Record<string, string> = {}
+      activeProduct.options?.forEach(opt => {
+        if (opt.title && opt.values?.[0]) {
+          initialOptions[opt.title] = opt.values[0].value
+        }
+      })
+      setSelectedOptions(initialOptions)
+    }
+  }, [activeProduct])
+
+  // Synchronize active product and variant selection with recipe
+  useEffect(() => {
+    if (!activeProduct) return
+
+    const variant = activeProduct.variants?.find((v) => {
+      return activeProduct.options?.every((opt) => {
+        const optionTitle = opt.title || ""
+        const variantOptionValue = v.options?.find(vo => vo.option_id === opt.id)?.value
+        return selectedOptions[optionTitle] === variantOptionValue
+      })
+    })
+
+    if (variant && (recipe.base.variantId !== variant.id || recipe.base.productId !== activeProduct.id)) {
+       const colorValue = selectedOptions["Color"] || selectedOptions["Colour"]
+       let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
+
+       if (colorValue) {
+         const pattern = new RegExp(`-${colorValue}-`, "i")
+         const matchingImage = activeProduct.images?.find((img) => pattern.test(img.url || ""))
+         if (matchingImage) {
+           imageUrl = matchingImage.url || imageUrl
+         }
+       }
+
+       setBase({
+         productId: activeProduct.id,
+         variantId: variant.id,
+         imageUrl: imageUrl,
+       })
+    }
+  }, [selectedOptions, activeProduct, setBase, recipe.base.productId, recipe.base.variantId])
+
+  const activeVariant = useMemo(() => {
+    return activeProduct?.variants?.find(v => v.id === recipe.base.variantId) || activeProduct?.variants?.[0]
+  }, [activeProduct, recipe.base.variantId])
 
   const [isUploading, setIsUploading] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
@@ -58,12 +126,12 @@ export function CustomizerTemplate({ product }: CustomizerTemplateProps) {
   }
 
   const handleAddToCart = async () => {
-    if (!variant?.id) return
+    if (!activeVariant?.id) return
 
     setIsAddingToCart(true)
     try {
       await addToCart({
-        variantId: variant.id,
+        variantId: activeVariant.id,
         quantity: 1,
         countryCode,
         metadata: {
@@ -78,8 +146,86 @@ export function CustomizerTemplate({ product }: CustomizerTemplateProps) {
     }
   }
 
+  // Filter products for the selection grid
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => p.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [products, searchQuery])
+
+  if (!activeProduct) {
+    return (
+      <div className="fixed inset-0 bg-[#F8FAFC] pt-32 pb-8 px-4 md:px-8 flex flex-col">
+        <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col gap-12 overflow-hidden">
+          {/* Top Section for Product Selection */}
+          <div className="w-full space-y-8 flex flex-col items-center text-center">
+            <div className="space-y-4">
+               <Heading className="text-7xl font-black uppercase tracking-tighter text-slate-900 leading-[0.9]">
+                 CHOOSE ITEM
+               </Heading>
+               <p className="text-slate-400 text-xs font-black uppercase tracking-[0.4em]">Select a base garment to begin</p>
+            </div>
+
+            <div className="relative w-full max-w-md mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+              <input 
+                type="text"
+                placeholder="Search garments..."
+                className="w-full h-14 pl-12 pr-6 rounded-2xl border-none bg-white shadow-sm focus:ring-2 focus:ring-maritime-gold transition-all font-bold text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Bottom Section: Product Grid */}
+          <div data-lenis-prevent className="w-full overflow-y-auto pr-4 custom-scrollbar flex-1 pb-4 overscroll-contain">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((p) => (
+                <div 
+                  key={p.id}
+                  onClick={() => setActiveProduct(p)}
+                  className="group bg-white rounded-2xl p-0 border border-slate-100 hover:border-maritime-gold transition-all cursor-pointer hover:shadow-xl hover:shadow-maritime-gold/5 flex flex-col overflow-hidden"
+                >
+                  <div className="aspect-[4/5] bg-slate-50 relative overflow-hidden">
+                    <img 
+                      src={p.thumbnail || null} 
+                      alt={p.title || ""} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors" />
+                  </div>
+                  <div className="p-4 flex flex-col gap-1">
+                    <div className="flex justify-between items-start">
+                      <Text className="text-sm font-black uppercase tracking-tight text-slate-900 truncate max-w-[70%]">{p.title}</Text>
+                      <Text className="text-xs font-bold text-maritime-navy">
+                        {p.variants?.[0]?.calculated_price?.calculated_amount 
+                          ? `$${p.variants[0].calculated_price.calculated_amount}` 
+                          : ""}
+                      </Text>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 px-4 md:px-8">
+    <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 px-4 md:px-8 relative">
+      {/* Absolute Back Button */}
+      <Button 
+        variant="secondary" 
+        className="absolute top-8 left-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10"
+        onClick={() => {
+          // Hard redirect to clear all states and URL parameters reliably
+          window.location.href = `/${countryCode}/custom-studio`
+        }}
+      >
+        <ChevronLeft size={24} />
+      </Button>
+
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Sidebar: Tools */}
@@ -93,14 +239,14 @@ export function CustomizerTemplate({ product }: CustomizerTemplateProps) {
             <div className="grid grid-cols-2 gap-3">
               <Button 
                 variant="secondary" 
-                className="h-20 flex flex-col gap-2 rounded-2xl border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md transition-all group"
+                className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md transition-all group"
                 onClick={() => addTextLayer()}
               >
                 <Type size={20} className="text-slate-400 group-hover:text-maritime-navy transition-colors" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Text</span>
               </Button>
               
-              <label className="h-20 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
+              <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
                 <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
                 {isUploading ? (
                   <div className="w-5 h-5 border-2 border-maritime-gold border-t-transparent rounded-full animate-spin" />
@@ -189,26 +335,42 @@ export function CustomizerTemplate({ product }: CustomizerTemplateProps) {
             onRemove={removeLayer}
           />
 
-          <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-8">
+          <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-6">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-maritime-gold mb-2">Base Product</p>
-              <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">{product.title}</Heading>
-              <p className="text-slate-400 text-[10px] font-bold uppercase mt-2">{variant?.title}</p>
+              <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">{activeProduct.title}</Heading>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-slate-50 rounded-2xl p-6 space-y-4">
-                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
-                  Every customization is reviewed by our master tailors to ensure high-visibility and maritime durability.
-                </Text>
-              </div>
+            {/* Options Selectors */}
+            <div className="space-y-6">
+              {activeProduct.options?.map((option) => (
+                <div key={option.id} className="space-y-3">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{option.title}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {option.values?.map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setSelectedOptions(prev => ({ ...prev, [option.title || ""]: v.value }))}
+                        className={clx(
+                          "h-10 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
+                          selectedOptions[option.title || ""] === v.value 
+                            ? "bg-maritime-navy text-white border-maritime-navy shadow-lg" 
+                            : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200"
+                        )}
+                      >
+                        {v.value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="mt-auto pt-8 border-t border-slate-50">
+            <div className="pt-6 border-t border-slate-50">
                <Button 
                 onClick={handleAddToCart}
                 disabled={isAddingToCart}
-                className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group overflow-hidden relative"
+                className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group"
               >
                 {isAddingToCart ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

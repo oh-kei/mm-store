@@ -1,9 +1,9 @@
 "use client"
 
-import React from "react"
+import React, { useRef } from "react"
 import { CustomLayer, LayerProps } from "../hooks/use-customizer"
 import { Heading, Input, Label, Text, Button } from "@medusajs/ui"
-import { Trash2, Type, Move, RotateCcw, Palette } from "lucide-react"
+import { Trash2, Type, Move, RotateCcw, Palette, Pipette } from "lucide-react"
 
 interface PropertiesPanelProps {
   layer: CustomLayer | null
@@ -12,21 +12,26 @@ interface PropertiesPanelProps {
 }
 
 const FONT_FAMILIES = [
-  { label: "Panchang (Default)", value: "Panchang" },
+  { label: "Panchang", value: "Panchang" },
+  { label: "Outfit", value: "Outfit" },
   { label: "Inter", value: "Inter" },
-  { label: "Roboto", value: "Roboto" },
+  { label: "Montserrat", value: "Montserrat" },
+  { label: "Playfair Display", value: "Playfair Display" },
+  { label: "Manrope", value: "Manrope" },
   { label: "Monospace", value: "monospace" },
 ]
 
-const BRAND_COLORS = [
-  { name: "Navy", value: "#0F172A" },
-  { name: "Gold", value: "#D4AF37" },
+const DEFAULT_COLORS = [
+  { name: "Black", value: "#000000" },
+  { name: "Blue", value: "#2563EB" },
   { name: "White", value: "#FFFFFF" },
-  { name: "Slate", value: "#64748B" },
+  { name: "Gray", value: "#94A3B8" },
   { name: "Red", value: "#EF4444" },
 ]
 
 export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelProps) => {
+  const colorInputRef = useRef<HTMLInputElement>(null)
+
   if (!layer) {
     return (
       <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center min-h-[400px] text-center">
@@ -118,18 +123,40 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
 
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Color</Label>
-                <div className="flex gap-2">
-                  {BRAND_COLORS.map((color) => (
+                <div className="flex flex-wrap gap-2">
+                  {DEFAULT_COLORS.map((color) => (
                     <button
                       key={color.value}
                       onClick={() => onUpdate(layer.id, { fill: color.value })}
                       className={`w-8 h-8 rounded-full border-2 transition-all ${
-                        layer.props.fill === color.value ? "border-maritime-gold scale-110 shadow-md" : "border-transparent"
+                        layer.props.fill === color.value ? "border-maritime-gold scale-110 shadow-md" : "border-slate-100"
                       }`}
                       style={{ backgroundColor: color.value }}
                       title={color.name}
                     />
                   ))}
+                  
+                  {/* Custom Color Picker */}
+                  <div className="relative group">
+                    <button
+                      onClick={() => colorInputRef.current?.click()}
+                      className={`w-8 h-8 rounded-full border-2 p-0.5 transition-all overflow-hidden ${
+                        !DEFAULT_COLORS.some(c => c.value === layer.props.fill) ? "border-maritime-gold scale-110 shadow-md" : "border-slate-100"
+                      }`}
+                      title="Custom Color"
+                    >
+                      <div className="w-full h-full rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 p-0.5 to-pink-500 flex items-center justify-center">
+                         <Pipette size={10} className="text-white" />
+                      </div>
+                    </button>
+                    <input 
+                      type="color"
+                      ref={colorInputRef}
+                      className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      value={layer.props.fill || "#000000"}
+                      onChange={(e) => onUpdate(layer.id, { fill: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
             </>

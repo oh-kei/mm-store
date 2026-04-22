@@ -39,6 +39,12 @@ export function PortalContainer({ products }: PortalContainerProps) {
       const cust = await getCustomer()
       setCustomer(cust)
 
+      if (!cust) {
+        setRoster([])
+        localStorage.removeItem("mm-crew-roster")
+        return
+      }
+
       if (cust?.metadata?.roster) {
         try {
           const loadedRoster = JSON.parse(cust.metadata.roster as string)

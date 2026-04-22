@@ -44,11 +44,11 @@ const FeaturedCatalogue = () => {
                 link="/products/short-sleeve-t-shirt"
               />
               <CategoryCard 
-                title="Regatta Banner" 
+                title="Regatta Vinyl Banner" 
                 className="h-[160px] md:h-[240px]" 
                 image="/mm-regatta-banner.webp"
                 hoverImage="/mm-regatta-closeup.webp"
-                link="/products/regatta-banner"
+                link="/products/regatta-vinyl-banner"
               />
             </div>
             {/* Column 2: Duffel Bags & Accessories */}
@@ -62,11 +62,11 @@ const FeaturedCatalogue = () => {
                 imagePadding="p-1 md:p-2"
               />
               <CategoryCard 
-                title="Compression Polo" 
+                title="Snap Button Polo" 
                 className="h-[160px] md:h-[300px]" 
                 image="/mariners-market-polo.webp"
                 hoverImage="/mm-polo-closeup-navy.webp"
-                link="/products/compression-polo"
+                link="/products/snap-button-polo"
                 imagePadding="p-1 md:p-2"
               />
             </div>

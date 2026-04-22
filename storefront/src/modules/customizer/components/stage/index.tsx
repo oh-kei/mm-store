@@ -175,15 +175,14 @@ export const CustomizerStage = ({ recipe, selectedId, setSelectedId, onUpdateLay
           {/* Design Layers */}
           {recipe.layers.map((layer: CustomLayer) => {
             const commonProps = {
-              key: layer.id,
               data: layer,
               isSelected: layer.id === selectedId,
               onSelect: () => setSelectedId(layer.id),
               onChange: (newProps: any) => onUpdateLayer(layer.id, newProps),
             }
 
-            if (layer.type === "image") return <ImageLayer {...commonProps} />
-            if (layer.type === "text") return <TextLayer {...commonProps} />
+            if (layer.type === "image") return <ImageLayer key={layer.id} {...commonProps} />
+            if (layer.type === "text") return <TextLayer key={layer.id} {...commonProps} />
             return null
           })}
 

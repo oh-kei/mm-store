@@ -2,6 +2,8 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Montserrat:wght@400;700;900&family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;700;900&display=swap');
+
 @theme {
   --color-maritime-navy: #0F172A;
   --color-maritime-gold: #D4AF37;
