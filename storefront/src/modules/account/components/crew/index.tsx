@@ -8,7 +8,21 @@ type CrewProps = {
 }
 
 const CrewTemplate = ({ customer }: CrewProps) => {
-  const roster = Array.isArray(customer?.metadata?.roster) ? (customer.metadata.roster as any[]) : []
+  const getRoster = () => {
+    const rawRoster = customer?.metadata?.roster
+    if (!rawRoster) return []
+    if (Array.isArray(rawRoster)) return rawRoster
+    if (typeof rawRoster === "string") {
+      try {
+        return JSON.parse(rawRoster)
+      } catch (e) {
+        return []
+      }
+    }
+    return []
+  }
+
+  const roster = getRoster()
 
   return (
     <div className="w-full" data-testid="crew-page-wrapper">

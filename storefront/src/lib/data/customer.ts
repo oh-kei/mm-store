@@ -76,15 +76,15 @@ export async function signup(_currentState: unknown, formData: FormData) {
       return "An account with this email already exists."
     }
     if (msg.includes("400")) {
-      return "Invalid information provided. Please ensure all fields are correct and your password is secure."
+      return "Unable to create account. Please ensure your email is valid and your password is at least 8 characters long."
     }
     if (msg.includes("401")) {
-      return "Registration successful, but auto-login failed. Please sign in manually."
+      return "Your account was created, but we couldn't log you in automatically. Please sign in manually."
     }
-    return msg || "Something went wrong during registration. Please try again."
+    return "We encountered an unexpected error during registration. Please try again later."
   }
   
-  redirect('/account')
+  redirect('/')
 }
 
 export async function login(_currentState: unknown, formData: FormData) {
@@ -104,12 +104,14 @@ export async function login(_currentState: unknown, formData: FormData) {
       revalidateTag("customer")
     }
   } catch (error: any) {
-    let msg = error.toString()
-    if (msg.includes("401")) msg = "Incorrect email or password. Please try again."
-    return msg || "Failed to log in. Please check your credentials."
+    const msg = error.toString()
+    if (msg.includes("401")) {
+      return "The email or password you entered is incorrect. Please double-check and try again."
+    }
+    return "We couldn't sign you in at the moment. Please try again later or contact support if the issue persists."
   }
 
-  redirect('/account')
+  redirect('/')
 }
 
 export async function signout(countryCode: string) {

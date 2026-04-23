@@ -6,10 +6,15 @@ import { Plus, Type, Image as ImageIcon, Trash2, ShoppingBag, Layers, MousePoint
 import dynamic from "next/dynamic"
 import { useCustomizer } from "../hooks/use-customizer"
 import { uploadToS3 } from "../utils/upload"
-import { addToCart } from "@lib/data/cart"
+import { addToCart, addBulkToCart } from "@lib/data/cart"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { PropertiesPanel } from "../components/PropertiesPanel"
 import { HttpTypes } from "@medusajs/types"
+import { Users } from "lucide-react"
+import useToggleState from "@lib/hooks/use-toggle-state"
+import Modal from "@modules/common/components/modal"
+import { CrewSelector } from "@modules/bulk-order/components/crew-selector"
+import { getCustomer } from "@lib/data/customer"
 
 // Dynamically import Stage to avoid SSR issues with Konva
 const CustomizerStage = dynamic(() => import("../components/stage"), {
@@ -87,11 +92,15 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
        let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
 
        if (colorValue) {
-         const pattern = new RegExp(`-${colorValue}-`, "i")
-         const matchingImage = activeProduct.images?.find((img) => pattern.test(img.url || ""))
-         if (matchingImage) {
-           imageUrl = matchingImage.url || imageUrl
-         }
+          const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
+          const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+          
+          const matchingImage = activeProduct.images?.find((img) => pattern.test(img.url || ""))
+          if (matchingImage) {
+            imageUrl = matchingImage.url || imageUrl
+          }
        }
 
        setBase({
@@ -108,6 +117,23 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   const [isUploading, setIsUploading] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const { state: isCrewModalOpen, open: openCrewModal, close: closeCrewModal } = useToggleState(false)
+  const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null }>({ members: [], colour: null })
+  const [roster, setRoster] = useState<any[]>([])
+
+  useEffect(() => {
+    const init = async () => {
+      const cust = await getCustomer()
+      setCustomer(cust)
+      
+      const saved = localStorage.getItem("mm-crew-roster")
+      if (saved) {
+        try { setRoster(JSON.parse(saved)) } catch(e) {}
+      }
+    }
+    init()
+  }, [])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -146,6 +172,56 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
   }
 
+  const [isAddingBulk, setIsAddingBulk] = useState(false)
+
+  const handleApplyToCrew = async () => {
+    if (!activeProduct || crewSelection.members.length === 0) return
+
+    setIsAddingBulk(true)
+    try {
+      const itemsToAdd: { variantId: string; quantity: number; metadata: any }[] = []
+      
+      const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
+
+      for (const member of crewSelection.members) {
+        const targetSize = member.overrideSize || member.size
+        const targetColor = member.overrideColour || globalColor
+
+        // Find variant matching size and color
+        const variant = activeProduct.variants?.find(v => {
+          const hasSize = v.options?.some(o => o.value?.toLowerCase() === targetSize.toLowerCase())
+          const hasColor = !targetColor || v.options?.some(o => o.value?.toLowerCase() === targetColor.toLowerCase())
+          return hasSize && hasColor
+        })
+
+        if (variant) {
+          await addToCart({
+            variantId: variant.id,
+            quantity: 1,
+            countryCode,
+            metadata: {
+              recipe: {
+                ...recipe,
+                base: {
+                  ...recipe.base,
+                  variantId: variant.id
+                }
+              },
+              crew_member: member.name
+            }
+          })
+        }
+      }
+
+      closeCrewModal()
+      router.push(`/${countryCode}/cart`)
+    } catch (err) {
+      console.error("Bulk add failed", err)
+    } finally {
+      setIsAddingBulk(false)
+    }
+  }
+
   // Filter products for the selection grid
   const filteredProducts = useMemo(() => {
     return products.filter(p => p.title?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -178,7 +254,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
           {/* Bottom Section: Product Grid */}
           <div data-lenis-prevent className="w-full overflow-y-auto pr-4 custom-scrollbar flex-1 pb-4 overscroll-contain">
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {filteredProducts.map((p) => (
                 <div 
                   key={p.id}
@@ -193,12 +269,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                     />
                     <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors" />
                   </div>
-                  <div className="p-4 flex flex-col gap-1">
+                  <div className="p-3 flex flex-col gap-1">
                     <div className="flex justify-between items-start">
-                      <Text className="text-sm font-black uppercase tracking-tight text-slate-900 truncate max-w-[70%]">{p.title}</Text>
-                      <Text className="text-xs font-bold text-maritime-navy">
+                      <Text className="text-[10px] font-black uppercase tracking-tight text-slate-900 truncate max-w-[80%]">{p.title}</Text>
+                      <Text className="text-[10px] font-bold text-maritime-navy">
                         {p.variants?.[0]?.calculated_price?.calculated_amount 
-                          ? `$${p.variants[0].calculated_price.calculated_amount}` 
+                          ? `$${Math.round(p.variants[0].calculated_price.calculated_amount)}` 
                           : ""}
                       </Text>
                     </div>
@@ -369,7 +445,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             <div className="pt-6 border-t border-slate-50">
                <Button 
                 onClick={handleAddToCart}
-                disabled={isAddingToCart}
+                disabled={isAddingToCart || isAddingBulk}
                 className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group"
               >
                 {isAddingToCart ? (
@@ -381,11 +457,71 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                   </>
                 )}
               </Button>
+
+              <Button 
+                onClick={openCrewModal}
+                disabled={isAddingToCart || isAddingBulk || roster.length === 0}
+                variant="secondary"
+                className="w-full h-12 mt-3 bg-white hover:bg-slate-50 border-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 group"
+              >
+                <Users size={16} className="text-maritime-gold group-hover:scale-110 transition-transform" />
+                <span>Buy for all crew</span>
+              </Button>
             </div>
           </div>
         </div>
         
       </div>
+
+      {/* Crew Selection Modal */}
+      <Modal isOpen={isCrewModalOpen} close={closeCrewModal} size="large">
+        <Modal.Title>
+          <div className="flex items-center gap-3">
+             <div className="h-10 w-10 rounded-full bg-maritime-gold/10 flex items-center justify-center text-maritime-gold">
+               <Users size={20} />
+             </div>
+             <div>
+               <Heading className="text-xl font-black uppercase tracking-tight text-slate-900">Buy for Crew</Heading>
+               <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select members and verify sizes/colours</Text>
+             </div>
+          </div>
+        </Modal.Title>
+        <Modal.Body>
+          <div className="py-4">
+             {activeProduct && (
+               <CrewSelector 
+                 product={activeProduct}
+                 roster={roster}
+                 customer={customer}
+                 onUpdate={setCrewSelection}
+                 initialColour={selectedOptions["Color"] || selectedOptions["Colour"]}
+                 forceShowMessage={true}
+               />
+             )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="flex items-center justify-between w-full">
+            <div className="text-left">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Items Selected</p>
+              <p className="text-lg font-black text-maritime-navy">{crewSelection.members.length} {crewSelection.members.length === 1 ? 'Garment' : 'Garments'}</p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={closeCrewModal} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleApplyToCrew} 
+                disabled={isAddingBulk || crewSelection.members.length === 0}
+                className="h-12 px-8 bg-maritime-navy text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-maritime-navy/20"
+              >
+                {isAddingBulk ? "Adding..." : "Add to Bag"}
+              </Button>
+            </div>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   )
 }

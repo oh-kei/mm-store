@@ -18,8 +18,14 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
   const findImageByColorPattern = useCallback((color: string) => {
     if (!color) return null
     
-    // Pattern: -[color]- case-insensitive
-    const pattern = new RegExp(`-${color}-`, "i")
+    const normalizedColor = color.toLowerCase().replace(/\s+/g, "")
+    const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Pattern to match color in filename:
+    // Preceded by a dash or underscore
+    // Followed by a dash, underscore, dot, or end of string
+    const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
     
     // Find first image matching the pattern
     const matchIndex = images.findIndex((img) => pattern.test(img.url || ""))
@@ -29,7 +35,7 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
       return matchIndex
     }
     
-    console.warn(`[Color Match] No image found matching pattern "-${color}-" in product images.`)
+    console.warn(`[Color Match] No image found matching pattern for "${color}" in product images.`)
     return null
   }, [images])
 

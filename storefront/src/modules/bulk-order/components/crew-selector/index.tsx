@@ -17,10 +17,11 @@ interface CrewSelectorProps {
   customer: HttpTypes.StoreCustomer | null
   onUpdate: (selection: { members: SelectionMember[], colour: string | null }) => void
   forceShowMessage?: boolean
+  initialColour?: string | null
 }
 
-export function CrewSelector({ product, roster, customer, onUpdate, forceShowMessage }: CrewSelectorProps) {
-  const [selectedColour, setSelectedColour] = useState<string | null>(null)
+export function CrewSelector({ product, roster, customer, onUpdate, forceShowMessage, initialColour }: CrewSelectorProps) {
+  const [selectedColour, setSelectedColour] = useState<string | null>(initialColour || null)
   const [selectionMode, setSelectionMode] = useState<"all" | "select">("all")
   const [selectedMemberIndices, setSelectedMemberIndices] = useState<number[]>([])
   const [overrides, setOverrides] = useState<Record<number, { size?: string; colour?: string }>>({})

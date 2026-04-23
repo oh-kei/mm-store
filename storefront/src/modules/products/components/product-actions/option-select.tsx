@@ -41,6 +41,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       red: "#EF4444",
       green: "#10B981",
       yellow: "#F59E0B",
+      "light blue": "#ADD8E6",
+      lightblue: "#ADD8E6",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }

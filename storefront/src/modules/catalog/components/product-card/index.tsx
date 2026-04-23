@@ -27,9 +27,12 @@ export function ProductCard({ product, region }: ProductCardProps) {
   const productImage = useMemo(() => {
     // 1. Try to find image matching the current color pattern
     if (displayColor) {
-      const colorMatch = product.images?.find(img => 
-        img.url?.toLowerCase().includes(`-${displayColor.toLowerCase()}-`)
-      );
+      const normalizedColor = displayColor.toLowerCase().replace(/\s+/g, "")
+      const escapedColor = displayColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+
+      const colorMatch = product.images?.find(img => pattern.test(img.url || ""));
       if (colorMatch?.url) return colorMatch.url;
     }
 
@@ -63,6 +66,8 @@ export function ProductCard({ product, region }: ProductCardProps) {
       red: "#EF4444",
       green: "#10B981",
       yellow: "#F59E0B",
+      "light blue": "#ADD8E6",
+      lightblue: "#ADD8E6",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }

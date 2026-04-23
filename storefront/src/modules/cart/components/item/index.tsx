@@ -72,6 +72,18 @@ const Item = ({ item, type = "full" }: ItemProps) => {
           {item.product_title}
         </Text>
         <LineItemOptions variant={item.variant} data-testid="product-variant" />
+        {item.metadata?.recipe && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className="bg-maritime-gold/10 text-maritime-gold text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-maritime-gold/20">
+              Custom Design
+            </span>
+            {item.metadata?.crew_member && (
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                For: {item.metadata.crew_member as string}
+              </span>
+            )}
+          </div>
+        )}
       </Table.Cell>
 
       {type === "full" && (
