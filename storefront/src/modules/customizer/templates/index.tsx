@@ -49,11 +49,13 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     imageUrl: activeProduct?.thumbnail || "",
   })
 
-  // Pre-select product from URL if id matches
+  // Pre-select product from URL if id or handle matches
   useEffect(() => {
     const productId = searchParams.get("id")
-    if (productId && products.length > 0 && !activeProduct) {
-      const product = products.find(p => p.id === productId)
+    const handle = searchParams.get("handle")
+    
+    if ((productId || handle) && products.length > 0 && !activeProduct) {
+      const product = products.find(p => p.id === productId || p.handle === handle)
       if (product) {
         setActiveProduct(product)
       }

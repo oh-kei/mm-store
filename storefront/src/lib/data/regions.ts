@@ -20,17 +20,14 @@ export const retrieveRegion = cache(async function (id: string) {
 const regionMap = new Map<string, HttpTypes.StoreRegion>()
 
 export const getRegion = cache(async function (countryCode: string) {
-  console.time(`getRegion: ${countryCode}`)
   try {
     if (regionMap.has(countryCode)) {
-      console.timeEnd(`getRegion: ${countryCode}`)
       return regionMap.get(countryCode)
     }
 
     const regions = await listRegions()
 
     if (!regions) {
-      console.timeEnd(`getRegion: ${countryCode}`)
       return null
     }
 
@@ -44,10 +41,8 @@ export const getRegion = cache(async function (countryCode: string) {
       ? regionMap.get(countryCode)
       : regionMap.get("us")
 
-    console.timeEnd(`getRegion: ${countryCode}`)
     return region
   } catch (e: any) {
-    console.timeEnd(`getRegion: ${countryCode}`)
     return null
   }
 })

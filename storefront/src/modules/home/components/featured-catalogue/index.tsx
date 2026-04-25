@@ -59,7 +59,8 @@ const FeaturedCatalogue = () => {
                 image="/mm-duffel-navy.webp"
                 hoverImage="/mm-navyduffel-closeup.webp"
                 link="/products/duffel-bag"
-                imagePadding="p-1 md:p-2"
+                imagePadding="p-0"
+                isImageBig={true}
               />
               <CategoryCard 
                 title="Snap Button Polo" 
@@ -67,7 +68,8 @@ const FeaturedCatalogue = () => {
                 image="/mariners-market-polo.webp"
                 hoverImage="/mm-polo-closeup-navy.webp"
                 link="/products/snap-button-polo"
-                imagePadding="p-1 md:p-2"
+                imagePadding="p-0"
+                isImageBig={true}
               />
             </div>
           </div>
