@@ -88,6 +88,7 @@ async function getCountryCode(
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
+  console.time(`Middleware: ${request.nextUrl.pathname}`)
   const searchParams = request.nextUrl.searchParams
   const isOnboarding = searchParams.get("onboarding") === "true"
   const cartId = searchParams.get("cart_id")
@@ -95,7 +96,9 @@ export async function middleware(request: NextRequest) {
   const onboardingCookie = request.cookies.get("_medusa_onboarding")
   const cartIdCookie = request.cookies.get("_medusa_cart_id")
 
+  console.time("Middleware: getRegionMap")
   const regionMap = await getRegionMap()
+  console.timeEnd("Middleware: getRegionMap")
 
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
 
@@ -138,6 +141,7 @@ export async function middleware(request: NextRequest) {
     response.cookies.set("_medusa_onboarding", "true", { maxAge: 60 * 60 * 24 })
   }
 
+  console.timeEnd(`Middleware: ${request.nextUrl.pathname}`)
   return response
 }
 
