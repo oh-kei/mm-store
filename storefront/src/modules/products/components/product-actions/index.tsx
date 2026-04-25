@@ -44,6 +44,8 @@ export default function ProductActions({
   const prevProductIdRef = useRef<string | null>(null)
   const hasPreselectedRef = useRef(false)
 
+  const { handleVariantChange, handleColorChange } = useProductGallery()
+
   // Preselect options if there's only one choice available for that option
   useEffect(() => {
     // Only run this once per product to avoid infinite loops with the context
@@ -98,7 +100,7 @@ export default function ProductActions({
     })
   }, [product.variants, options])
 
-  const { handleVariantChange, handleColorChange } = useProductGallery()
+
 
   useEffect(() => {
     if (selectedVariant) {
