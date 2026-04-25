@@ -28,9 +28,9 @@ loadEnv(process.env.NODE_ENV, process.cwd());
 
 const medusaConfig = {
   projectConfig: {
-    databaseUrl: DATABASE_URL,
+    databaseUrl: DATABASE_URL?.includes('family=') ? DATABASE_URL : (DATABASE_URL?.includes('?') ? `${DATABASE_URL}&family=0` : `${DATABASE_URL}?family=0`),
     databaseLogging: false,
-    redisUrl: REDIS_URL,
+    redisUrl: REDIS_URL?.includes('family=') ? REDIS_URL : (REDIS_URL?.includes('?') ? `${REDIS_URL}&family=0` : `${REDIS_URL}?family=0`),
     workerMode: WORKER_MODE,
     http: {
       adminCors: ADMIN_CORS,
@@ -79,7 +79,7 @@ const medusaConfig = {
       key: Modules.EVENT_BUS,
       resolve: '@medusajs/event-bus-redis',
       options: {
-        redisUrl: REDIS_URL
+        redisUrl: REDIS_URL?.includes('family=') ? REDIS_URL : (REDIS_URL?.includes('?') ? `${REDIS_URL}&family=0` : `${REDIS_URL}?family=0`)
       }
     },
     {
@@ -87,7 +87,7 @@ const medusaConfig = {
       resolve: '@medusajs/workflow-engine-redis',
       options: {
         redis: {
-          url: REDIS_URL,
+          url: REDIS_URL?.includes('family=') ? REDIS_URL : (REDIS_URL?.includes('?') ? `${REDIS_URL}&family=0` : `${REDIS_URL}?family=0`),
         }
       }
     }] : []),
@@ -166,5 +166,5 @@ const medusaConfig = {
   ]
 };
 
-console.log(JSON.stringify(medusaConfig, null, 2));
 export default defineConfig(medusaConfig);
+
