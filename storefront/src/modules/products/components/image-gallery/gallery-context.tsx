@@ -65,8 +65,15 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
     }
   }, [findImageByColorPattern])
 
+  const value = React.useMemo(() => ({ 
+    activeIndex, 
+    setActiveIndex, 
+    handleVariantChange, 
+    handleColorChange 
+  }), [activeIndex, setActiveIndex, handleVariantChange, handleColorChange])
+
   return (
-    <ProductGalleryContext.Provider value={{ activeIndex, setActiveIndex, handleVariantChange, handleColorChange }}>
+    <ProductGalleryContext.Provider value={value}>
       {children}
     </ProductGalleryContext.Provider>
   )

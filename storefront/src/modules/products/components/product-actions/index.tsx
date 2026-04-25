@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@medusajs/ui"
-import { isEqual } from "lodash"
+import isEqual from "lodash/isEqual"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -41,9 +41,19 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
+  const prevProductIdRef = useRef<string | null>(null)
+  const hasPreselectedRef = useRef(false)
 
   // Preselect options if there's only one choice available for that option
   useEffect(() => {
+    // Only run this once per product to avoid infinite loops with the context
+    if (prevProductIdRef.current === product.id && hasPreselectedRef.current) {
+      return
+    }
+    
+    prevProductIdRef.current = product.id
+    hasPreselectedRef.current = true
+
     // If there's only one variant, preselect all its options
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
@@ -75,7 +85,7 @@ export default function ProductActions({
     if (changed) {
       setOptions(newOptions)
     }
-  }, [product.options, product.variants, product, handleColorChange])
+  }, [product.options, product.variants, product.id, handleColorChange])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
