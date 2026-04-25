@@ -39,11 +39,6 @@ const medusaConfig = {
       jwtSecret: JWT_SECRET,
       cookieSecret: COOKIE_SECRET,
       port: process.env.PORT ? parseInt(process.env.PORT) : 9000
-    },
-    build: {
-      rollupOptions: {
-        external: ["@medusajs/dashboard", "@medusajs/admin-shared"]
-      }
     }
   },
   admin: {
