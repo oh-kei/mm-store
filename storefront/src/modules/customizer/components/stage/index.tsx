@@ -191,8 +191,8 @@ export const CustomizerStage = ({ recipe, selectedId, setSelectedId, onUpdateLay
             ref={transformerRef}
             rotateEnabled={true}
             enabledAnchors={[
-              "top-left", "top-right", "bottom-left", "bottom-right",
-              "top-center", "bottom-center", "left-center", "right-center"
+              "top-left", "top-center", "top-right", "middle-right",
+              "middle-left", "bottom-left", "bottom-center", "bottom-right"
             ]}
             boundBoxFunc={(oldBox, newBox) => {
               // limit resize
