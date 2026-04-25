@@ -28,16 +28,17 @@ loadEnv(process.env.NODE_ENV, process.cwd());
 
 const medusaConfig = {
   projectConfig: {
-    databaseUrl: DATABASE_URL?.includes('family=') ? DATABASE_URL : (DATABASE_URL?.includes('?') ? `${DATABASE_URL}&family=0` : `${DATABASE_URL}?family=0`),
+    databaseUrl: DATABASE_URL ? (DATABASE_URL.includes('family=') ? DATABASE_URL : (DATABASE_URL.includes('?') ? `${DATABASE_URL}&family=0` : `${DATABASE_URL}?family=0`)) : undefined,
     databaseLogging: false,
-    redisUrl: REDIS_URL?.includes('family=') ? REDIS_URL : (REDIS_URL?.includes('?') ? `${REDIS_URL}&family=0` : `${REDIS_URL}?family=0`),
+    redisUrl: REDIS_URL ? (REDIS_URL.includes('family=') ? REDIS_URL : (REDIS_URL.includes('?') ? `${REDIS_URL}&family=0` : `${REDIS_URL}?family=0`)) : undefined,
     workerMode: WORKER_MODE,
     http: {
       adminCors: ADMIN_CORS,
       authCors: AUTH_CORS,
       storeCors: STORE_CORS,
       jwtSecret: JWT_SECRET,
-      cookieSecret: COOKIE_SECRET
+      cookieSecret: COOKIE_SECRET,
+      port: process.env.PORT ? parseInt(process.env.PORT) : 9000
     },
     build: {
       rollupOptions: {
