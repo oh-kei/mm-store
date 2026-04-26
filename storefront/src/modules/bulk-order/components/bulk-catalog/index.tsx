@@ -74,9 +74,9 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                 alt={cat.name}
                 className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-1000 ease-out"
               />
-              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/20 to-transparent">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-black mb-1">Category</p>
-                <h3 className="font-black text-xl text-white tracking-tight uppercase">{cat.name}</h3>
+              <div className="absolute inset-x-0 bottom-0 p-2 md:p-6 bg-gradient-to-t from-black/20 to-transparent">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-black mb-1 hidden md:block">Category</p>
+                <h3 className="font-black text-lg md:text-xl text-white tracking-tight uppercase">{cat.name}</h3>
               </div>
             </button>
           ))}

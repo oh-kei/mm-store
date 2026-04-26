@@ -20,8 +20,15 @@ export default async function Nav() {
       {/* ... */}
       {/* Navbar Background Layer */}
       <div 
-        className="absolute inset-0 max-w-5xl mx-auto h-full bg-black/30 backdrop-blur-md border border-white/10 rounded-full -z-10 shadow-lg" 
-        style={{ margin: "0 auto", height: "100%", top: "0" }} 
+        className="absolute inset-0 max-w-5xl mx-auto h-full bg-black/30 backdrop-blur-md border border-white/10 rounded-full -z-10" 
+        style={{ 
+          margin: "0 auto", 
+          height: "100%", 
+          top: "0",
+          transform: "translateZ(0)",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden"
+        }} 
       />
       
       <nav 
@@ -34,7 +41,7 @@ export default async function Nav() {
               src="/logo.png" 
               alt="Mariners Market" 
               className="object-contain rounded-md" 
-              style={{ width: "clamp(2rem, 4vw, 3.25rem)", height: "clamp(2rem, 4vw, 3.25rem)" }}
+              style={{ width: "clamp(2.75rem, 6vw, 3.25rem)", height: "clamp(2.75rem, 6vw, 3.25rem)" }}
             />
             <span 
               className="hidden md:inline font-bold text-white tracking-wider"
@@ -45,16 +52,22 @@ export default async function Nav() {
           </LocalizedClientLink>
 
           <div 
-            className="flex items-center gap-3 md:gap-8 font-medium text-white/90"
+            className="flex items-center gap-4 md:gap-8 font-medium text-white/90"
             style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
           >
-            <NavCatalogueDropdown />
-            <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
-              Custom Studio
-            </LocalizedClientLink>
-            <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2">
-              Bulk Order
-            </LocalizedClientLink>
+            <div className="md:order-1">
+              <NavCatalogueDropdown />
+            </div>
+            <div className="order-3 md:order-2">
+              <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
+                Custom Studio
+              </LocalizedClientLink>
+            </div>
+            <div className="order-2 md:order-3 ml-2 md:ml-0">
+              <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2">
+                Bulk Order
+              </LocalizedClientLink>
+            </div>
           </div>
         </div>
 

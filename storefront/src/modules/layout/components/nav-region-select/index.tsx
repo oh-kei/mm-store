@@ -31,6 +31,7 @@ export default function NavRegionSelect({ regions = [] }: { regions?: HttpTypes.
   }
 
   const handleMouseEnter = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return
     setActiveMenu("region")
   }
 

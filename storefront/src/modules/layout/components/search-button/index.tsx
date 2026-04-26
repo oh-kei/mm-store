@@ -20,6 +20,7 @@ export default function SearchButton() {
   const [mode, setMode] = useState<'idle' | 'hover' | 'click'>('idle')
 
   const handleMouseEnter = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     if (mode === 'idle') {
       setMode('hover')

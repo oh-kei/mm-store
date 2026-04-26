@@ -69,7 +69,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                 key={v}
                 title={v}
                 className={clx(
-                  "h-8 w-8 rounded-full border-2 transition-all duration-200",
+                  "h-12 w-12 md:h-8 md:w-8 rounded-full border-2 transition-all duration-200",
                   {
                     "border-maritime-navy scale-110 shadow-md": v === current,
                     "border-transparent hover:border-gray-300": v !== current,

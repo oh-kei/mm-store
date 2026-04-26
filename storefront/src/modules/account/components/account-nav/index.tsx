@@ -109,15 +109,11 @@ const AccountNav = ({
                 <li>
                   <button
                     type="button"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
+                    className="flex items-center justify-start py-4 border-b border-gray-200 px-8 w-full text-red-600"
                     onClick={handleLogout}
                     data-testid="logout-button"
                   >
-                    <div className="flex items-center gap-x-2">
-                      <ArrowRightOnRectangle />
-                      <span>Log out</span>
-                    </div>
-                    <ChevronDown className="transform -rotate-90" />
+                    <span>Log out</span>
                   </button>
                 </li>
               </ul>
@@ -168,7 +164,7 @@ const AccountNav = ({
                   Orders
                 </AccountNavLink>
               </li>
-              <li className="text-grey-700">
+              <li className="text-red-600">
                 <button
                   type="button"
                   onClick={handleLogout}

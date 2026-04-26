@@ -19,6 +19,7 @@ export default function NavCatalogueDropdown() {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleMouseEnter = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       setActiveMenu("catalogue")
@@ -51,9 +52,9 @@ export default function NavCatalogueDropdown() {
         Catalogue
       </LocalizedClientLink>
       
-      {/* Stateful Dropdown */}
+      {/* Stateful Dropdown - hidden on mobile */}
       <div 
-        className={`absolute left-1/2 -translate-x-1/2 w-48 z-[100] transition-all duration-300 pointer-events-none ${
+        className={`absolute left-1/2 -translate-x-1/2 w-48 z-[100] transition-all duration-300 pointer-events-none hidden md:block ${
           isDropdownOpen ? 'visible opacity-100 pointer-events-auto mt-4' : 'invisible opacity-0 mt-6'
         }`}
         style={{ top: "100%" }}

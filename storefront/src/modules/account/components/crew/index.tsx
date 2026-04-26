@@ -29,7 +29,7 @@ const CrewTemplate = ({ customer }: CrewProps) => {
       <div className="mb-8 flex flex-col gap-y-4">
         <h1 className="text-2xl-semi">Crew</h1>
         <p className="text-base-regular">
-          Manage your vessel's roster of crew members. This list is used for quick bulk ordering and sizing management.
+          Manage all your crew members. This list is used for quick bulk ordering and sizing management.
         </p>
       </div>
 

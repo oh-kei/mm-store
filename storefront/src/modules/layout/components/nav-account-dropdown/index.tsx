@@ -32,6 +32,7 @@ export default function NavAccountDropdown() {
   }, [isOpen]) // Re-fetch when menu opens to ensure fresh state
 
   const handleMouseEnter = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return
     setActiveMenu("account")
   }
 

@@ -104,7 +104,7 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
                       onChange={(e) => setEditSize(e.target.value)}
                       className="bg-white px-2 py-1 rounded-lg text-xs font-black uppercase text-slate-900 border border-slate-200 w-24 text-center outline-none focus:border-maritime-gold appearance-none cursor-pointer"
                     >
-                      {["XS", "S", "M", "L", "XL", "XXL"].map(size => (
+                      {["XS", "S", "M", "L", "XL"].map(size => (
                         <option key={size} value={size}>{size}</option>
                       ))}
                     </select>

@@ -65,7 +65,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
       <div className={`absolute inset-0 transition-colors duration-300 z-0 ${isRevealed ? 'bg-black/[0.04]' : 'bg-black/[0.02] group-hover:bg-black/[0.04]'}`} />
       
       {/* Image Container (Inner Box) - Fills top 75% on mobile, original inset on desktop */}
-      <div className={`absolute transition-all duration-500 z-10 ${imagePadding} ${isBig ? 'top-6 left-6 right-6 bottom-36 rounded-lg border border-gray-200/50' : `top-0 md:top-6 left-0 md:left-6 right-0 md:right-6 ${isImageBig ? 'bottom-[15%] md:bottom-20' : 'bottom-[25%] md:bottom-28'} md:rounded-lg md:border md:border-gray-200/50`} bg-[#EDEEF3]/60 backdrop-blur-[2px] overflow-hidden`}>
+      <div className={`absolute transition-all duration-500 z-10 ${imagePadding} ${isBig ? 'top-6 left-6 right-6 bottom-36 rounded-lg border border-gray-200/50' : `top-0 md:top-6 left-0 md:left-6 right-0 md:right-6 bottom-[25%] md:bottom-28 md:rounded-lg md:border md:border-gray-200/50`} bg-[#EDEEF3]/60 backdrop-blur-[2px] overflow-hidden`}>
         {image ? (
           <div className="relative w-full h-full">
             <Image

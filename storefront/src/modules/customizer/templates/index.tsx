@@ -239,7 +239,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                <Heading className="text-7xl font-black uppercase tracking-tighter text-slate-900 leading-[0.9]">
                  CHOOSE ITEM
                </Heading>
-               <p className="text-slate-400 text-xs font-black uppercase tracking-[0.4em]">Select a base garment to begin</p>
+               <p className="text-slate-400 text-xs font-black uppercase tracking-[0.4em]">Select something to design</p>
             </div>
 
             <div className="relative w-full max-w-md mx-auto">
@@ -271,9 +271,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                     />
                     <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors" />
                   </div>
-                  <div className="p-3 flex flex-col gap-1">
-                    <div className="flex justify-between items-start">
-                      <Text className="text-[10px] font-black uppercase tracking-tight text-slate-900 truncate max-w-[80%]">{p.title}</Text>
+                  <div className="p-3">
+                    <div className="flex flex-col gap-0.5">
+                      <Text className="text-[10px] font-black uppercase tracking-tight text-slate-900 truncate w-full">{p.title}</Text>
                       <Text className="text-[10px] font-bold text-maritime-navy">
                         {p.variants?.[0]?.calculated_price?.calculated_amount 
                           ? `$${Math.round(p.variants[0].calculated_price.calculated_amount)}` 

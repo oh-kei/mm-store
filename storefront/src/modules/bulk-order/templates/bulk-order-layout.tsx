@@ -18,7 +18,7 @@ export default function BulkOrderLayout({ children }: BulkOrderLayoutProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col md:flex-row">
       {/* Sidebar Navigation - Kept Dark as requested */}
-      <aside className="w-full md:w-64 bg-[#0F172A] border-r border-white/5 p-6 flex flex-col gap-8 shrink-0 z-20">
+      <aside className="w-full md:w-64 bg-[#0F172A] border-r border-white/5 p-6 pt-32 md:pt-6 flex flex-col gap-8 shrink-0 z-20">
         <div className="flex flex-col gap-2">
           <LocalizedClientLink 
             href="/catalog" 
