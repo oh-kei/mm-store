@@ -7,6 +7,7 @@ import Input from "@modules/common/components/input"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import { login } from "@lib/data/customer"
+import { sdk } from "@lib/config"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -50,8 +51,17 @@ const Login = ({ setCurrentView }: Props) => {
         </SubmitButton>
         <button
           type="button"
-          onClick={() => {
-            window.location.href = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/google`;
+          onClick={async () => {
+            try {
+              const res = await sdk.auth.login("customer", "google")
+              if (typeof res === "object" && res.location) {
+                window.location.href = res.location
+              } else {
+                console.error("Google login failed: No location returned", res)
+              }
+            } catch (err) {
+              console.error("Google login error:", err)
+            }
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
         >
