@@ -50,23 +50,8 @@ const Login = ({ setCurrentView }: Props) => {
         </SubmitButton>
         <button
           type="button"
-          onClick={async () => {
-            try {
-              const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/google`, {
-                method: "GET",
-                headers: {
-                  "Accept": "application/json"
-                }
-              });
-              const data = await res.json();
-              if (data.location) {
-                window.location.href = data.location;
-              } else {
-                console.error("No location returned from auth endpoint");
-              }
-            } catch (e) {
-              console.error("Failed to initialize Google auth:", e);
-            }
+          onClick={() => {
+            window.location.href = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/google`;
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
         >
