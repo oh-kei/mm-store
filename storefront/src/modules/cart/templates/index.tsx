@@ -1,9 +1,10 @@
 import ItemsTemplate from "./items"
 import Summary from "./summary"
 import EmptyCartMessage from "../components/empty-cart-message"
-import SignInPrompt from "../components/sign-in-prompt"
 import Divider from "@modules/common/components/divider"
 import { HttpTypes } from "@medusajs/types"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { Button } from "@medusajs/ui"
 
 const CartTemplate = ({
   cart,
@@ -19,11 +20,15 @@ const CartTemplate = ({
       <div className="grid grid-cols-1 small:grid-cols-[1fr_360px] gap-x-40">
         <div className="flex flex-col bg-white py-6 gap-y-6">
           {!customer ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-              <SignInPrompt />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-6 max-w-[250px]">
-                Authentication required to view and manage your shopping bag.
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <p className="text-xl font-bold mb-6">
+                Please Sign in or Create an account to view the cart.
               </p>
+              <LocalizedClientLink href="/account">
+                <Button className="h-10" data-testid="sign-in-button">
+                  Sign In / Create Account
+                </Button>
+              </LocalizedClientLink>
             </div>
           ) : (
             <ItemsTemplate items={cart?.items} />

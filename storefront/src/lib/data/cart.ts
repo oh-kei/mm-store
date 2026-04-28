@@ -12,13 +12,14 @@ import { getRegion } from "./regions"
 
 export async function retrieveCart() {
   const cartId = await getCartId()
+  const authHeaders = await getAuthHeaders()
 
-  if (!cartId) {
+  if (!cartId || !("authorization" in authHeaders)) {
     return null
   }
 
   return await sdk.store.cart
-    .retrieve(cartId, {}, { next: { tags: ["cart"] }, ...(await getAuthHeaders()) })
+    .retrieve(cartId, {}, { next: { tags: ["cart"] }, ...authHeaders })
     .then(({ cart }) => cart)
     .catch(() => {
       return null
@@ -33,8 +34,13 @@ export async function getOrSetCart(countryCode: string) {
     throw new Error(`Region not found for country code: ${countryCode}`)
   }
 
+  const authHeaders = await getAuthHeaders()
+  if (!("authorization" in authHeaders)) {
+    return null
+  }
+
   if (!cart) {
-    const cartResp = await sdk.store.cart.create({ region_id: region.id })
+    const cartResp = await sdk.store.cart.create({ region_id: region.id }, {}, authHeaders)
     cart = cartResp.cart
     await setCartId(cart.id)
     revalidateTag("cart")

@@ -5,18 +5,21 @@ import { HttpTypes } from "@medusajs/types";
 import { convertToLocale } from "@lib/util/money";
 import { addToCart } from "@lib/data/cart";
 import { useParams, useRouter } from "next/navigation";
+import { getVariantImage } from "@modules/products/utils/get-variant-image";
 
 interface ProductCardProps {
   product: HttpTypes.StoreProduct;
   region: HttpTypes.StoreRegion;
+  customer?: HttpTypes.StoreCustomer | null;
 }
 
-export function ProductCard({ product, region }: ProductCardProps) {
+export function ProductCard({ product, region, customer }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
+  const [showColorError, setShowColorError] = useState(false);
   const { countryCode } = useParams() as { countryCode: string };
   const router = useRouter(); 
   const title = product.title || "";
@@ -24,30 +27,15 @@ export function ProductCard({ product, region }: ProductCardProps) {
   // Custom Image Overrides and Color Matching
   const displayColor = hoveredColor || selectedColor;
 
+  const variant = useMemo(() => {
+    if (!selectedColor) return product.variants?.[0];
+    return product.variants?.find(v => v.options?.some(o => o.value === selectedColor)) || product.variants?.[0];
+  }, [product.variants, selectedColor]);
+
   const productImage = useMemo(() => {
-    // 1. Try to find image matching the current color pattern
-    if (displayColor) {
-      const normalizedColor = displayColor.toLowerCase().replace(/\s+/g, "")
-      const escapedColor = displayColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+    return getVariantImage(variant) || product.thumbnail;
+  }, [variant, product.thumbnail]);
 
-      const colorMatch = product.images?.find(img => pattern.test(img.url || ""));
-      if (colorMatch?.url) return colorMatch.url;
-    }
-
-    // 2. Hardcoded fallbacks
-    if (product.handle === "technical-long-sleeve-rashguard") {
-      return "https://bucket-production-bd41.up.railway.app/medusa-media/mm-rashguard-black-01KPA0EEFK50TC99MNDS685YFC.webp"
-    }
-    if (product.handle === "short-sleeve-t-shirt") {
-      return "https://bucket-production-bd41.up.railway.app/medusa-media/mm-tshirt-blue-01KPA0GV69A2MGV0K4CC4Z67VQ.webp"
-    }
-
-    // 3. Fallback to thumbnail
-    return product.thumbnail;
-  }, [product.handle, product.thumbnail, product.images, displayColor]);
-  
   // Get all unique sizes and colors
   const { sizes, colors } = useMemo(() => {
     const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
@@ -71,11 +59,6 @@ export function ProductCard({ product, region }: ProductCardProps) {
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }
-
-  const variant = useMemo(() => {
-    if (!selectedColor) return product.variants?.[0];
-    return product.variants?.find(v => v.options?.some(o => o.value === selectedColor)) || product.variants?.[0];
-  }, [product.variants, selectedColor]);
 
   const price = variant?.calculated_price;
   const formattedPrice = price && price.calculated_amount !== null && price.calculated_amount !== undefined && price.currency_code
@@ -113,6 +96,18 @@ export function ProductCard({ product, region }: ProductCardProps) {
   const handleQuickAddClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!customer) {
+      router.push(`/${countryCode}/account`);
+      return;
+    }
+
+    if (colors.length > 0 && !selectedColor) {
+      setShowColorError(true);
+      setTimeout(() => setShowColorError(false), 3000);
+      return;
+    }
+
     if (sizes.length > 1) {
       setShowSizeSelector(true);
     } else {
@@ -159,6 +154,15 @@ export function ProductCard({ product, region }: ProductCardProps) {
                 >
                   Cancel
                 </button>
+              </div>
+            )}
+            
+            {/* Color Error Overlay */}
+            {showColorError && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex justify-center">
+                <div className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
+                  Select a colour
+                </div>
               </div>
             )}
           </div>
@@ -225,7 +229,7 @@ export function ProductCard({ product, region }: ProductCardProps) {
           })}
           onClick={handleQuickAddClick}
         >
-          {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : 'Add to Bag'}
+          {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Cart' : 'Add to Cart'}
         </button>
       </div>
     </div>

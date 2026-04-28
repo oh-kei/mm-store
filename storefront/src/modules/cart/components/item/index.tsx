@@ -13,9 +13,10 @@ import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { useNotification } from "@modules/common/context/notification-context"
 import { useParams } from "next/navigation"
+import { getVariantImage } from "@modules/products/utils/get-variant-image"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -56,6 +57,8 @@ const Item = ({ item, type = "full" }: ItemProps) => {
     }
   }
 
+  const variantImage = useMemo(() => getVariantImage(item.variant), [item.variant])
+
   const changeQuantity = async (quantity: number) => {
     setError(null)
     setUpdating(true)
@@ -87,7 +90,7 @@ const Item = ({ item, type = "full" }: ItemProps) => {
           })}
         >
           <Thumbnail
-            thumbnail={item.variant?.product?.thumbnail}
+            thumbnail={variantImage || item.variant?.product?.thumbnail}
             images={item.variant?.product?.images}
             size="square"
           />

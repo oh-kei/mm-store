@@ -8,11 +8,13 @@ import NavCatalogueDropdown from "@modules/layout/components/nav-catalogue-dropd
 
 import NavAccountDropdown from "@modules/layout/components/nav-account-dropdown"
 import SearchButton from "@modules/layout/components/search-button"
+import { getCustomer } from "@lib/data/customer"
 
 import { NavMenuProvider } from "@modules/layout/components/nav-menu-context"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
+  const customer = await getCustomer()
 
   return (
     <NavMenuProvider>
@@ -20,14 +22,13 @@ export default async function Nav() {
       {/* ... */}
       {/* Navbar Background Layer */}
       <div 
-        className="absolute inset-0 max-w-5xl mx-auto h-full bg-black/30 backdrop-blur-md border border-white/10 rounded-full -z-10" 
+        className="absolute inset-0 max-w-5xl mx-auto h-full bg-[#1c1c1c]/75 backdrop-blur-xl border border-white/10 rounded-full" 
         style={{ 
           margin: "0 auto", 
           height: "100%", 
           top: "0",
           transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden"
+          pointerEvents: "none"
         }} 
       />
       
@@ -74,7 +75,7 @@ export default async function Nav() {
         <div className="flex items-center gap-3 md:gap-6 text-white/90">
           <SearchButton />
           <NavRegionSelect regions={regions} />
-          <NavAccountDropdown />
+          <NavAccountDropdown customer={customer} />
           
           <Suspense
             fallback={

@@ -10,14 +10,20 @@ import { HttpTypes } from "@medusajs/types"
 
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
-export default function NavAccountDropdown() {
+export default function NavAccountDropdown({ customer: initialCustomer }: { customer: HttpTypes.StoreCustomer | null }) {
   const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
   const isOpen = activeMenu === "account"
   const { countryCode } = useParams() as { countryCode: string }
-  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
+  const [loading, setLoading] = useState(!initialCustomer)
 
   useEffect(() => {
+    // If we have an initial customer from the server, we don't need to fetch unless the menu opens
+    if (initialCustomer && !isOpen) {
+       setCustomer(initialCustomer)
+       return
+    }
+
     const fetchCustomer = async () => {
       try {
         const c = await getCustomer()
@@ -29,7 +35,7 @@ export default function NavAccountDropdown() {
       }
     }
     fetchCustomer()
-  }, [isOpen]) // Re-fetch when menu opens to ensure fresh state
+  }, [isOpen, initialCustomer]) // Re-fetch when menu opens or initial customer changes
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.innerWidth < 768) return
@@ -77,9 +83,12 @@ export default function NavAccountDropdown() {
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <div className="absolute right-0 mt-4 w-48 bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] overflow-hidden">
-          <div className="py-2">
-            <div className="px-4 py-2 border-b border-white/5 mb-1">
+        <div className="absolute right-0 top-full pt-1 w-48 z-[100]">
+          {/* Bridge to prevent hover flickering */}
+          <div className="absolute -top-2 left-0 right-0 h-4 bg-transparent -z-10" />
+          <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
+            <div className="py-2">
+              <div className="px-4 py-2 border-b border-white/5 mb-1">
               <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">
                 {customer ? `Hi, ${customer.first_name}` : "Account"}
               </span>
@@ -114,6 +123,7 @@ export default function NavAccountDropdown() {
               </LocalizedClientLink>
             )}
           </div>
+        </div>
         </div>
       </Transition>
     </div>

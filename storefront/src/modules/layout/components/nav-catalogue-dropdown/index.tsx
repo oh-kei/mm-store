@@ -59,7 +59,7 @@ export default function NavCatalogueDropdown() {
         }`}
         style={{ top: "100%" }}
       >
-        <div className="bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
+        <div className="bg-[#1c1c1c] border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (
             <LocalizedClientLink 
               key={idx}

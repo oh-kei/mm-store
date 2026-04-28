@@ -19,9 +19,10 @@ const CATEGORIES = [
 interface CatalogTemplateProps {
   products: HttpTypes.StoreProduct[];
   region: HttpTypes.StoreRegion;
+  customer?: HttpTypes.StoreCustomer | null;
 }
 
-export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
+export function CatalogTemplate({ products, region, customer }: CatalogTemplateProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -103,6 +104,7 @@ export function CatalogTemplate({ products, region }: CatalogTemplateProps) {
                 <ProductCard
                   product={product}
                   region={region}
+                  customer={customer}
                 />
               </div>
             ))}

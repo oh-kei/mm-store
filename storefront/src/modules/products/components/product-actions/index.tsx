@@ -40,6 +40,7 @@ export default function ProductActions({
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [quantity, setQuantity] = useState<string | number>(1)
   const countryCode = useParams().countryCode as string
   const prevProductIdRef = useRef<string | null>(null)
   const hasPreselectedRef = useRef(false)
@@ -158,7 +159,7 @@ export default function ProductActions({
 
     await addToCart({
       variantId: selectedVariant.id,
-      quantity: 1,
+      quantity: Number(quantity),
       countryCode,
     })
 
@@ -214,7 +215,46 @@ export default function ProductActions({
           )}
         </div>
 
-        <ProductPrice product={product} variant={selectedVariant} />
+        <div className="flex items-center justify-between pt-1">
+          <ProductPrice product={product} variant={selectedVariant} />
+          
+          {/* Quantity Selector */}
+          <div className="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm h-10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <button 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(q => q > 1 ? q - 1 : 1) }}
+              className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-maritime-navy transition-colors font-bold text-lg"
+            >
+              -
+            </button>
+            <input 
+              type="text" 
+              value={quantity}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "") {
+                  setQuantity("");
+                  return;
+                }
+                const num = parseInt(val);
+                if (!isNaN(num) && num > 0 && num <= 99) {
+                  setQuantity(num);
+                }
+              }}
+              onBlur={() => {
+                if (quantity === "" || isNaN(Number(quantity))) {
+                  setQuantity(1);
+                }
+              }}
+              className="w-12 h-full text-center text-xs font-bold text-maritime-navy focus:outline-none p-0 border-none bg-transparent"
+            />
+            <button 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(q => q < 99 ? q + 1 : q) }}
+              className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-maritime-navy transition-colors font-bold text-lg"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         {!customer ? (
           <LocalizedClientLink href="/account">

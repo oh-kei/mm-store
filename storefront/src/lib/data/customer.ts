@@ -6,7 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import { cache } from "react"
-import { getAuthHeaders, removeAuthToken, setAuthToken } from "./cookies"
+import { getAuthHeaders, removeAuthToken, setAuthToken, removeCartId } from "./cookies"
 
 export const getCustomer = cache(async function () {
   return await sdk.store.customer
@@ -119,6 +119,7 @@ export async function signout(countryCode: string) {
   await removeAuthToken()
   revalidateTag("auth")
   revalidateTag("customer")
+  revalidateTag("cart")
   return { success: true }
 }
 

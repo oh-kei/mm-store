@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import { getProductsList } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
+import { getCustomer } from "@lib/data/customer"
 import { CatalogTemplate } from "@modules/catalog/templates"
 
 export const metadata: Metadata = {
@@ -22,12 +23,13 @@ export default async function CatalogPage({
   })
 
   const region = await getRegion(countryCode)
+  const customer = await getCustomer()
 
   if (!products || !region) {
     return null
   }
 
   return (
-    <CatalogTemplate products={products} region={region} />
+    <CatalogTemplate products={products} region={region} customer={customer} />
   )
 }

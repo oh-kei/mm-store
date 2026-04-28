@@ -17,7 +17,7 @@ const Login = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm w-full flex flex-col items-center"
+      className="max-w-sm w-full flex flex-col items-center pt-16"
       data-testid="login-page"
     >
       <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
@@ -48,8 +48,26 @@ const Login = ({ setCurrentView }: Props) => {
         <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
           Sign in
         </SubmitButton>
-        <a
-          href={`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/google`}
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/google`, {
+                method: "GET",
+                headers: {
+                  "Accept": "application/json"
+                }
+              });
+              const data = await res.json();
+              if (data.location) {
+                window.location.href = data.location;
+              } else {
+                console.error("No location returned from auth endpoint");
+              }
+            } catch (e) {
+              console.error("Failed to initialize Google auth:", e);
+            }
+          }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2">
@@ -71,7 +89,7 @@ const Login = ({ setCurrentView }: Props) => {
             />
           </svg>
           Sign in with Google
-        </a>
+        </button>
       </form>
       <div className="flex flex-col items-center gap-y-4 mt-8 pt-8 border-t border-gray-100 w-full">
         <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">New to Mariners Market?</span>

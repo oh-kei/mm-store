@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react"
 import { Heading, Button, Text, clx } from "@medusajs/ui"
-import { Plus, Type, Image as ImageIcon, Trash2, ShoppingBag, Layers, MousePointer2, ChevronLeft, Search } from "lucide-react"
+import { Plus, Type, Image as ImageIcon, Trash2, ShoppingCart, Layers, MousePointer2, ChevronLeft, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCustomizer } from "../hooks/use-customizer"
 import { uploadToS3 } from "../utils/upload"
@@ -36,6 +36,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   const {
     recipe,
+    setRecipe,
     addTextLayer,
     addImageLayer,
     updateLayer,
@@ -133,9 +134,39 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       if (saved) {
         try { setRoster(JSON.parse(saved)) } catch(e) {}
       }
+
+      const savedRecipe = localStorage.getItem("mm-customizer-recipe")
+      const savedOptions = localStorage.getItem("mm-customizer-options")
+      
+      if (savedRecipe && savedOptions) {
+        try {
+          const parsedRecipe = JSON.parse(savedRecipe)
+          const parsedOptions = JSON.parse(savedOptions)
+          
+          // Set options
+          setSelectedOptions(parsedOptions)
+          
+          // Set recipe
+          setRecipe(parsedRecipe)
+          
+          // Find and set active product if not already set
+          if (!activeProduct && products.length > 0) {
+            const product = products.find(p => p.id === parsedRecipe.base.productId)
+            if (product) {
+              setActiveProduct(product)
+            }
+          }
+          
+          // Clear storage so it doesn't persist forever
+          localStorage.removeItem("mm-customizer-recipe")
+          localStorage.removeItem("mm-customizer-options")
+        } catch (e) {
+          console.error("Failed to restore design", e)
+        }
+      }
     }
     init()
-  }, [])
+  }, [products, activeProduct, setRecipe])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -154,6 +185,13 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   }
 
   const handleAddToCart = async () => {
+    if (!customer) {
+      localStorage.setItem("mm-customizer-recipe", JSON.stringify(recipe))
+      localStorage.setItem("mm-customizer-options", JSON.stringify(selectedOptions))
+      router.push(`/${countryCode}/account`)
+      return
+    }
+
     if (!activeVariant?.id) return
 
     setIsAddingToCart(true)
@@ -454,8 +492,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <ShoppingBag size={18} className="group-hover:-translate-y-1 transition-transform" />
-                    <span>Add Design to Bag</span>
+                    <ShoppingCart size={18} className="group-hover:-translate-y-1 transition-transform" />
+                    <span>{customer ? "Add Design to Cart" : "Sign In to Add to Cart"}</span>
                   </>
                 )}
               </Button>
@@ -517,7 +555,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 disabled={isAddingBulk || crewSelection.members.length === 0}
                 className="h-12 px-8 bg-maritime-navy text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-maritime-navy/20"
               >
-                {isAddingBulk ? "Adding..." : "Add to Bag"}
+                {isAddingBulk ? "Adding..." : "Add to Cart"}
               </Button>
             </div>
           </div>

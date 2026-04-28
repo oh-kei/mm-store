@@ -96,7 +96,7 @@ export default function SearchButton() {
           className="absolute right-0 mt-4 w-[90vw] sm:w-[500px] z-[100]"
           style={{ top: "100%" }}
         >
-          <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4">
+          <div className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" style={{ transform: "translateZ(0)" }}>
             <InstantSearch
               indexName={SEARCH_INDEX_NAME}
               searchClient={searchClient}
