@@ -1,27 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
-import * as Minio from "minio"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 
-const MINIO_ENDPOINT = process.env.MINIO_ENDPOINT || ""
-const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || ""
-const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || ""
-const MINIO_BUCKET = process.env.MINIO_BUCKET || "mariners-market-assets"
-const MINIO_PUBLIC_URL = process.env.MINIO_PUBLIC_URL || ""
-
-function getMinioClient() {
-  // Parse the endpoint URL
-  const url = new URL(MINIO_ENDPOINT.startsWith("http") ? MINIO_ENDPOINT : `https://${MINIO_ENDPOINT}`)
-  const useSSL = url.protocol === "https:"
-  const port = url.port ? parseInt(url.port) : (useSSL ? 443 : 80)
-
-  return new Minio.Client({
-    endPoint: url.hostname,
-    port,
-    useSSL,
-    accessKey: MINIO_ACCESS_KEY,
-    secretKey: MINIO_SECRET_KEY,
-    pathStyle: true,
-  })
-}
+// Initialize S3 client for Minio
+const s3 = new S3Client({
+  region: process.env.S3_REGION || "us-east-1",
+  endpoint: process.env.S3_ENDPOINT || process.env.MINIO_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID || process.env.MINIO_ACCESS_KEY || "",
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || process.env.MINIO_SECRET_KEY || "",
+  },
+  forcePathStyle: true,
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,22 +21,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    const key = `custom-studio/uploads/${Date.now()}-${file.name}`
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const filename = file.name
+    const contentType = file.type
+    const key = `custom-studio/uploads/${Date.now()}-${filename}`
+    const bucket = process.env.S3_BUCKET || process.env.MINIO_BUCKET || "mariners-market-assets"
+    
+    // Convert file to buffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
 
-    const client = getMinioClient()
-    await client.putObject(MINIO_BUCKET, key, buffer, buffer.length, {
-      "Content-Type": file.type,
+    // Upload directly from the server to Minio
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType,
     })
 
-    // Build the public URL
-    const publicUrl = MINIO_PUBLIC_URL
-      ? `${MINIO_PUBLIC_URL}/${MINIO_BUCKET}/${key}`
-      : `${MINIO_ENDPOINT}/${MINIO_BUCKET}/${key}`
+    await s3.send(command)
 
-    return NextResponse.json({ publicUrl, key })
+    // Construct the public URL
+    const endpoint = process.env.S3_ENDPOINT || process.env.MINIO_ENDPOINT || ""
+    const publicUrl = process.env.S3_PUBLIC_URL 
+      ? `${process.env.S3_PUBLIC_URL}/${key}`
+      : `${endpoint}/${bucket}/${key}`
+
+    return NextResponse.json({ 
+      publicUrl,
+      key
+    })
   } catch (err: any) {
-    console.error("Minio Upload Error:", err)
+    console.error("Server-side Upload Error:", err)
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 })
   }
 }
