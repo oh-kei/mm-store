@@ -56,7 +56,7 @@ const Login = ({ setCurrentView }: Props) => {
             const callbackUrl = "https://mariner.up.railway.app/api/auth/google/callback"
             
             try {
-              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=${callbackUrl}`, {
+              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=${callbackUrl}&redirect_url=${callbackUrl}`, {
                 method: "GET",
                 headers: {
                   "Accept": "application/json"

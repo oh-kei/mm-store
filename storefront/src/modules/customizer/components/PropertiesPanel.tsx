@@ -178,6 +178,29 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
               />
             </div>
           )}
+          
+          {/* Rotation Section */}
+          <div className="space-y-4 pt-6 border-t border-slate-50">
+            <div className="flex items-center gap-2">
+              <RotateCcw size={14} className="text-maritime-gold" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Rotation</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[0, 90, 180, 270].map((angle) => (
+                <button
+                  key={angle}
+                  onClick={() => onUpdate(layer.id, { rotation: angle })}
+                  className={`h-10 rounded-xl text-[10px] font-black transition-all ${
+                    Math.round(layer.props.rotation || 0) === angle
+                      ? "bg-maritime-navy text-white shadow-lg"
+                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                  }`}
+                >
+                  {angle}°
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

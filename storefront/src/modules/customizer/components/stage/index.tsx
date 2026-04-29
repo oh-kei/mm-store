@@ -194,6 +194,8 @@ export const CustomizerStage = ({ recipe, selectedId, setSelectedId, onUpdateLay
               "top-left", "top-center", "top-right", "middle-right",
               "middle-left", "bottom-left", "bottom-center", "bottom-right"
             ]}
+            rotationSnaps={[0, 90, 180, 270]}
+            rotationSnapTolerance={5}
             boundBoxFunc={(oldBox, newBox) => {
               // limit resize
               if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) return oldBox
