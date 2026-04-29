@@ -54,7 +54,8 @@ const Login = ({ setCurrentView }: Props) => {
           onClick={async () => {
             const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://marineradmin.up.railway.app"
             try {
-              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=https://mariner.up.railway.app/api/auth/google/callback`, {
+              const callbackUrl = "https://mariner.up.railway.app/api/auth/google/callback"
+              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=${callbackUrl}&redirect_url=${callbackUrl}`, {
                 method: "GET",
                 headers: {
                   "Accept": "application/json"

@@ -11,9 +11,10 @@ interface ProductCardProps {
   product: HttpTypes.StoreProduct;
   region: HttpTypes.StoreRegion;
   customer?: HttpTypes.StoreCustomer | null;
+  mode?: "default" | "customizer"
 }
 
-export function ProductCard({ product, region, customer }: ProductCardProps) {
+export function ProductCard({ product, region, customer, mode = "default" }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -28,13 +29,13 @@ export function ProductCard({ product, region, customer }: ProductCardProps) {
   const displayColor = hoveredColor || selectedColor;
 
   const variant = useMemo(() => {
-    if (!selectedColor) return product.variants?.[0];
-    return product.variants?.find(v => v.options?.some(o => o.value === selectedColor)) || product.variants?.[0];
-  }, [product.variants, selectedColor]);
+    if (!displayColor) return product.variants?.[0];
+    return product.variants?.find(v => v.options?.some(o => o.value === displayColor)) || product.variants?.[0];
+  }, [product.variants, displayColor]);
 
   const productImage = useMemo(() => {
-    return getVariantImage(variant) || product.thumbnail;
-  }, [variant, product.thumbnail]);
+    return getVariantImage(variant, product) || product.thumbnail;
+  }, [variant, product]);
 
   // Get all unique sizes and colors
   const { sizes, colors } = useMemo(() => {
@@ -118,72 +119,91 @@ export function ProductCard({ product, region, customer }: ProductCardProps) {
   return (
     <div className="group h-full flex flex-col transition-all duration-300 border-none rounded-none shadow-none hover:bg-gray-50/30 relative">
       <div className="flex flex-col flex-grow">
-        <Link href={`/products/${product.handle}`} className="flex flex-col">
-          {/* Image Container with Custom #EDEEF3 Background */}
-          <div className="relative aspect-[4/3] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
-            {productImage ? (
-              <img
-                src={productImage}
-                alt={title}
-                className="w-full h-full object-contain mix-blend-multiply scale-[1.1] group-hover:scale-[1.15] transition-transform duration-1000 ease-out"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                No image
-              </div>
-            )}
-            
-            {/* Size Selector Overlay */}
-            {showSizeSelector && (
-              <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-maritime-navy">Select Size</h4>
-                <div className="grid grid-cols-3 gap-2 w-full">
-                  {sizes.map(size => (
-                    <button
-                      key={size}
-                      onClick={(e) => { e.preventDefault(); handleAddToCart(size); }}
-                      className="h-10 border border-gray-200 text-[10px] font-bold hover:bg-maritime-navy hover:text-white transition-all"
+        {/* Wrap the main content in either a Link (default) or a div (customizer) */}
+        {(() => {
+          const Content = (
+            <>
+              {/* Image Container with Custom #EDEEF3 Background */}
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#EDEEF3] p-2 flex items-center justify-center">
+                {productImage ? (
+                  <img
+                    src={productImage}
+                    alt={title}
+                    className="w-full h-full object-contain mix-blend-multiply scale-[1.1] group-hover:scale-[1.15] transition-transform duration-1000 ease-out"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-300">
+                    No image
+                  </div>
+                )}
+                
+                {/* Size Selector Overlay (Only in default mode) */}
+                {mode !== "customizer" && showSizeSelector && (
+                  <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-maritime-navy">Select Size</h4>
+                    <div className="grid grid-cols-3 gap-2 w-full">
+                      {sizes.map(size => (
+                        <button
+                          key={size}
+                          onClick={(e) => { e.preventDefault(); handleAddToCart(size); }}
+                          className="h-10 border border-gray-200 text-[10px] font-bold hover:bg-maritime-navy hover:text-white transition-all"
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    <button 
+                      onClick={(e) => { e.preventDefault(); setShowSizeSelector(false); }}
+                      className="mt-4 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4"
                     >
-                      {size}
+                      Cancel
                     </button>
-                  ))}
-                </div>
-                <button 
-                  onClick={(e) => { e.preventDefault(); setShowSizeSelector(false); }}
-                  className="mt-4 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4"
-                >
-                  Cancel
-                </button>
+                  </div>
+                )}
+                
+                {/* Color Error Overlay (Only in default mode) */}
+                {mode !== "customizer" && showColorError && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex justify-center">
+                    <div className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
+                      Select a colour
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Color Error Overlay */}
-            {showColorError && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex justify-center">
-                <div className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
-                  Select a colour
-                </div>
-              </div>
-            )}
-          </div>
 
-          <div className="p-5 pb-0 space-y-1.5">
-            {product.type?.value && (
-              <p className="text-[10px] uppercase tracking-[0.2em] text-maritime-navy/40 font-black">
-                {product.type.value}
-              </p>
-            )}
-            <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase font-sans">
-              {title}
-            </h3>
-            
-            <div className="flex items-center justify-between pt-1">
-              <p className="font-black text-sm text-maritime-navy">
-                {formattedPrice}
-              </p>
-            </div>
-          </div>
-        </Link>
+              <div className="p-5 pb-0 space-y-1.5">
+                {product.type?.value && (
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-maritime-navy/40 font-black">
+                    {product.type.value}
+                  </p>
+                )}
+                <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase font-sans">
+                  {title}
+                </h3>
+                
+                <div className="flex items-center justify-between pt-1">
+                  <p className="font-black text-sm text-maritime-navy">
+                    {formattedPrice}
+                  </p>
+                </div>
+              </div>
+            </>
+          )
+
+          if (mode === "customizer") {
+            return (
+              <div className="flex flex-col cursor-pointer">
+                {Content}
+              </div>
+            )
+          }
+
+          return (
+            <Link href={`/products/${product.handle}`} className="flex flex-col">
+              {Content}
+            </Link>
+          )
+        })()}
 
         <div className="px-5 pb-5 pt-3">
           {/* DYNAMIC COLOR SWATCHES - Outside the Link to fix nesting and navigation */}
@@ -212,25 +232,35 @@ export function ProductCard({ product, region, customer }: ProductCardProps) {
       </div>
 
       {/* Permanent Action Buttons */}
-      <div className="grid grid-cols-2 gap-2 p-5 pt-0">
-        <Link href={`/products/${product.handle}`} className="w-full">
-          <button 
-            className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+      <div className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}>
+        {mode === "customizer" ? (
+           <button 
+            className="w-full h-9 text-[10px] uppercase tracking-widest font-bold bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
           >
-            Details
+            Customise
           </button>
-        </Link>
-        <button 
-          disabled={isAdding}
-          className={clx("w-full h-9 text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
-            "bg-green-600 border border-green-600": isAdded,
-            "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
-            "opacity-50 cursor-not-allowed": isAdding
-          })}
-          onClick={handleQuickAddClick}
-        >
-          {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Cart' : 'Add to Cart'}
-        </button>
+        ) : (
+          <>
+            <Link href={`/products/${product.handle}`} className="w-full">
+              <button 
+                className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+              >
+                Details
+              </button>
+            </Link>
+            <button 
+              disabled={isAdding}
+              className={clx("w-full h-9 text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
+                "bg-green-600 border border-green-600": isAdded,
+                "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
+                "opacity-50 cursor-not-allowed": isAdding
+              })}
+              onClick={handleQuickAddClick}
+            >
+              {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Cart' : 'Add to Cart'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

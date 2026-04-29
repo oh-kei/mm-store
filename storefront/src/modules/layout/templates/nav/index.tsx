@@ -18,23 +18,14 @@ export default async function Nav() {
 
   return (
     <NavMenuProvider>
-      <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 isolate pointer-events-none">
-      {/* ... */}
-      {/* Navbar Background Layer */}
-      <div 
-        className="absolute inset-0 max-w-5xl mx-auto h-full bg-[#1c1c1c]/75 backdrop-blur-xl border border-white/10 rounded-full" 
-        style={{ 
-          margin: "0 auto", 
-          height: "100%", 
-          top: "0",
-          transform: "translateZ(0)",
-          pointerEvents: "none"
-        }} 
-      />
+      <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 pointer-events-none">
       
       <nav 
-        className="flex items-center justify-between w-full max-w-5xl relative pointer-events-auto"
-        style={{ padding: "clamp(0.5rem, 1.5vh, 0.75rem) clamp(1rem, 3vw, 2rem)" }}
+        className="flex items-center justify-between w-full max-w-5xl relative pointer-events-auto bg-[#1c1c1c]/75 backdrop-blur-xl border border-white/10 rounded-full"
+        style={{ 
+          padding: "clamp(0.5rem, 1.5vh, 0.75rem) clamp(1rem, 3vw, 2rem)",
+          transform: "translateZ(0)"
+        }}
       >
         <div className="flex items-center gap-3 md:gap-8">
           <LocalizedClientLink href="/" className="flex items-center gap-3">

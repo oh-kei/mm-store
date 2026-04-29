@@ -31,11 +31,9 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
     const matchIndex = images.findIndex((img) => pattern.test(img.url || ""))
     
     if (matchIndex !== -1) {
-      console.log(`[Color Match] Found image for "${color}" at index ${matchIndex}: ${images[matchIndex].url}`)
       return matchIndex
     }
     
-    console.warn(`[Color Match] No image found matching pattern for "${color}" in product images.`)
     return null
   }, [images])
 
@@ -57,8 +55,6 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
   }, [findImageByColorPattern])
 
   const handleColorChange = useCallback((colorValue: string, product: any) => {
-    console.log(`[Color Change] Started for color: "${colorValue}"`)
-    
     const matchIndex = findImageByColorPattern(colorValue)
     if (matchIndex !== null) {
       setActiveIndex(matchIndex)

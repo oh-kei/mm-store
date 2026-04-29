@@ -15,6 +15,8 @@ import useToggleState from "@lib/hooks/use-toggle-state"
 import Modal from "@modules/common/components/modal"
 import { CrewSelector } from "@modules/bulk-order/components/crew-selector"
 import { getCustomer } from "@lib/data/customer"
+import { ProductCard } from "@modules/catalog/components/product-card"
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
 
 // Dynamically import Stage to avoid SSR issues with Konva
 const CustomizerStage = dynamic(() => import("../components/stage"), {
@@ -269,59 +271,27 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   if (!activeProduct) {
     return (
-      <div className="fixed inset-0 bg-[#F8FAFC] pt-32 pb-8 px-4 md:px-8 flex flex-col">
-        <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col gap-12 overflow-hidden">
-          {/* Top Section for Product Selection */}
-          <div className="w-full space-y-8 flex flex-col items-center text-center">
-            <div className="space-y-4">
-               <Heading className="text-7xl font-black uppercase tracking-tighter text-slate-900 leading-[0.9]">
-                 CHOOSE ITEM
-               </Heading>
-               <p className="text-slate-400 text-xs font-black uppercase tracking-[0.4em]">Select something to design</p>
-            </div>
-
-            <div className="relative w-full max-w-md mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input 
-                type="text"
-                placeholder="Search garments..."
-                className="w-full h-14 pl-12 pr-6 rounded-2xl border-none bg-white shadow-sm focus:ring-2 focus:ring-maritime-gold transition-all font-bold text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      <div className="min-h-screen bg-white pt-32 pb-20 px-4 md:px-8">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold text-gray-900 tracking-tight uppercase font-sans">Choose something to design</h1>
           </div>
 
-          {/* Bottom Section: Product Grid */}
-          <div data-lenis-prevent className="w-full overflow-y-auto pr-4 custom-scrollbar flex-1 pb-4 overscroll-contain">
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {filteredProducts.map((p) => (
-                <div 
-                  key={p.id}
-                  onClick={() => setActiveProduct(p)}
-                  className="group bg-white rounded-2xl p-0 border border-slate-100 hover:border-maritime-gold transition-all cursor-pointer hover:shadow-xl hover:shadow-maritime-gold/5 flex flex-col overflow-hidden"
-                >
-                  <div className="aspect-[4/5] bg-slate-50 relative overflow-hidden">
-                    <img 
-                      src={p.thumbnail || null} 
-                      alt={p.title || ""} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
-                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors" />
-                  </div>
-                  <div className="p-3">
-                    <div className="flex flex-col gap-0.5">
-                      <Text className="text-[10px] font-black uppercase tracking-tight text-slate-900 truncate w-full">{p.title}</Text>
-                      <Text className="text-[10px] font-bold text-maritime-navy">
-                        {p.variants?.[0]?.calculated_price?.calculated_amount 
-                          ? `$${Math.round(p.variants[0].calculated_price.calculated_amount)}` 
-                          : ""}
-                      </Text>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-[4px] bg-white border border-white overflow-hidden">
+            {filteredProducts.map((p) => (
+              <div 
+                key={p.id}
+                onClick={() => setActiveProduct(p)}
+                className="bg-white"
+              >
+                <ProductCard 
+                  product={p}
+                  region={region}
+                  customer={customer}
+                  mode="customizer"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

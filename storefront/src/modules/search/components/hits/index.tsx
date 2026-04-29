@@ -24,6 +24,10 @@ const Hits = ({
   const { query } = useSearchBox()
   const { hits } = useHits(props)
 
+  if (!query) {
+    return null
+  }
+
   return (
     <div
       className={clx(
