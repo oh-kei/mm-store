@@ -51,25 +51,11 @@ const Login = ({ setCurrentView }: Props) => {
         </SubmitButton>
         <button
           type="button"
-          onClick={async () => {
+          onClick={() => {
             const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://marineradmin.up.railway.app"
-            try {
-              const callbackUrl = "https://mariner.up.railway.app/api/auth/google/callback"
-              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=${callbackUrl}&redirect_url=${callbackUrl}`, {
-                method: "GET",
-                headers: {
-                  "Accept": "application/json"
-                }
-              })
-              const data = await res.json()
-              if (data.location) {
-                window.location.href = data.location
-              } else {
-                console.error("No location returned from auth endpoint", data)
-              }
-            } catch (error) {
-              console.error("Error fetching Google auth url", error)
-            }
+            const successUrl = "https://mariner.up.railway.app/account"
+            // Redirect directly to the backend auth endpoint
+            window.location.href = `${backendUrl}/auth/customer/google?success_url=${successUrl}`
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
         >

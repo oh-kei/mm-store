@@ -16,14 +16,12 @@ export async function uploadToS3(file: File): Promise<{ publicUrl: string; key: 
   }
 
   const { uploadUrl, publicUrl, key } = await response.json()
-  console.log("Customizer Upload: Received signed URL", { uploadUrl, publicUrl, key })
 
   if (!uploadUrl) {
     throw new Error("Received empty upload URL from server")
   }
 
   // 2. Upload directly to S3
-  console.log(`Customizer Upload: Starting PUT request to ${new URL(uploadUrl).origin}...`)
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
     body: file,
@@ -33,8 +31,6 @@ export async function uploadToS3(file: File): Promise<{ publicUrl: string; key: 
   })
 
   if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text()
-    console.error("S3 Upload Failed:", uploadResponse.status, errorText)
     throw new Error(`S3 Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`)
   }
 
