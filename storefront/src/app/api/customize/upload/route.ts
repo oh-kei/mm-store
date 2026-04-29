@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const filename = file.name
     const contentType = file.type
     const key = `custom-studio/uploads/${Date.now()}-${filename}`
-    const bucket = process.env.S3_BUCKET || process.env.MINIO_BUCKET || "mariners-market-assets"
+    const bucket = process.env.S3_BUCKET || process.env.MINIO_BUCKET || "medusa-media"
     
     // Convert file to buffer for upload
     const arrayBuffer = await file.arrayBuffer()
@@ -51,7 +51,15 @@ export async function POST(req: NextRequest) {
       key
     })
   } catch (err: any) {
-    console.error("Server-side Upload Error:", err)
-    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 })
+    console.error("Server-side Upload Error Details:", {
+      message: err.message,
+      stack: err.stack,
+      endpoint: process.env.S3_ENDPOINT || process.env.MINIO_ENDPOINT,
+      bucket: process.env.S3_BUCKET || process.env.MINIO_BUCKET || "medusa-media"
+    })
+    return NextResponse.json({ 
+      error: "Failed to upload file", 
+      details: err.message 
+    }, { status: 500 })
   }
 }

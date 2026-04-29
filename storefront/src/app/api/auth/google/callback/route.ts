@@ -1,40 +1,38 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { sdk } from "@lib/config"
 
-export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const token = url.searchParams.get("token")
-  const error = url.searchParams.get("error")
-
-  // Determine the base URL for redirects
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                  (request.headers.get("x-forwarded-proto") ? 
-                    `${request.headers.get("x-forwarded-proto")}://${request.headers.get("host")}` : 
-                    url.origin)
+export async function GET(req: NextRequest) {
+  const searchParams = req.nextUrl.searchParams
+  const code = searchParams.get("code")
+  const state = searchParams.get("state")
+  const error = searchParams.get("error")
 
   if (error) {
-    console.error("Auth Error:", error)
-    return NextResponse.redirect(new URL("/login?error=" + error, baseUrl))
+    console.error("Google Auth Error:", error)
+    return NextResponse.redirect(new URL("/login?error=" + error, req.url))
   }
 
-  // If the backend has finished the Google flow and sent us a token
-  if (token) {
-    console.log("Received auth token from backend, logging in...")
-    
-    const redirectResponse = NextResponse.redirect(new URL("/account", baseUrl))
-    
-    // Set the JWT token in the storefront's cookie
-    redirectResponse.cookies.set("_medusa_jwt", token, {
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+  if (!code) {
+    return NextResponse.redirect(new URL("/login", req.url))
+  }
+
+  try {
+    // Exchange the code for a token using the Medusa SDK
+    // This will also set the authentication cookies because we are on the same domain as the storefront
+    const { token } = await sdk.auth.fetchToken("google", {
+      code,
+      state: state || "",
     })
 
-    return redirectResponse
-  }
+    if (!token) {
+      throw new Error("No token returned from Medusa")
+    }
 
-  // If we got here without a token or error, something went wrong
-  console.error("No token received in callback")
-  return NextResponse.redirect(new URL("/login?error=auth_failed", baseUrl))
+    // Redirect to the account page or the success_url if provided in state
+    // In many cases, success_url is encoded in the state or we can just go to /account
+    return NextResponse.redirect(new URL("/account", req.url))
+  } catch (err: any) {
+    console.error("Callback processing error:", err)
+    return NextResponse.redirect(new URL("/login?error=callback_failed", req.url))
+  }
 }
