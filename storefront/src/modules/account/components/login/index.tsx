@@ -51,11 +51,24 @@ const Login = ({ setCurrentView }: Props) => {
         </SubmitButton>
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://marineradmin.up.railway.app"
-            // Redirect directly to the backend. The backend will handle the Google redirect.
-            // We pass the success_url so the backend knows where to send the user after login.
-            window.location.href = `${backendUrl}/auth/customer/google?success_url=https://mariner.up.railway.app/account`
+            try {
+              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=https://mariner.up.railway.app/api/auth/google/callback`, {
+                method: "GET",
+                headers: {
+                  "Accept": "application/json"
+                }
+              })
+              const data = await res.json()
+              if (data.location) {
+                window.location.href = data.location
+              } else {
+                console.error("No location returned from auth endpoint", data)
+              }
+            } catch (error) {
+              console.error("Error fetching Google auth url", error)
+            }
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
         >
