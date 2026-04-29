@@ -3,36 +3,40 @@ import { sdk } from "@lib/config"
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
-  const code = searchParams.get("code")
-  const state = searchParams.get("state")
-  const error = searchParams.get("error")
+  const queryParams = Object.fromEntries(searchParams.entries())
 
+  const error = searchParams.get("error")
   if (error) {
     console.error("Google Auth Error:", error)
-    return NextResponse.redirect(new URL("/login?error=" + error, req.url))
-  }
-
-  if (!code) {
-    return NextResponse.redirect(new URL("/login", req.url))
+    return NextResponse.redirect(new URL("/login?error=" + error, req.nextUrl.origin))
   }
 
   try {
-    // Exchange the code for a token using the Medusa SDK
-    // This will also set the authentication cookies because we are on the same domain as the storefront
-    const { token } = await sdk.auth.fetchToken("google", {
-      code,
-      state: state || "",
-    })
-
+    // Official Medusa v2 Callback Flow
+    const token = await sdk.auth.callback("customer", "google", queryParams)
+    
     if (!token) {
       throw new Error("No token returned from Medusa")
     }
 
-    // Redirect to the account page or the success_url if provided in state
-    // In many cases, success_url is encoded in the state or we can just go to /account
-    return NextResponse.redirect(new URL("/account", req.url))
+    // Decode token to check if it's a new customer
+    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString())
+    
+    if (payload.actor_id === "") {
+      // New customer — create account and refresh
+      // metadata contains email, name, etc.
+      const email = payload.user_metadata?.email
+      if (email) {
+        await sdk.store.customer.create({ email })
+        await sdk.auth.refresh()
+      }
+    }
+
+    // Redirect to the account page
+    // Using req.nextUrl.origin ensures we redirect to the correct public domain
+    return NextResponse.redirect(new URL("/account", req.nextUrl.origin))
   } catch (err: any) {
     console.error("Callback processing error:", err)
-    return NextResponse.redirect(new URL("/login?error=callback_failed", req.url))
+    return NextResponse.redirect(new URL("/login?error=callback_failed", req.nextUrl.origin))
   }
 }

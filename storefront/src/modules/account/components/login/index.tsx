@@ -52,26 +52,13 @@ const Login = ({ setCurrentView }: Props) => {
         <button
           type="button"
           onClick={async () => {
-            const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://marineradmin.up.railway.app"
-            const callbackUrl = "https://mariner.up.railway.app/api/auth/google/callback"
-            
             try {
-              const res = await fetch(`${backendUrl}/auth/customer/google?success_url=${callbackUrl}&redirect_url=${callbackUrl}`, {
-                method: "GET",
-                headers: {
-                  "Accept": "application/json"
-                }
-              })
-              const data = await res.json()
-              if (data.location) {
-                window.location.href = data.location
-              } else {
-                // Fallback to direct navigation if no location returned
-                window.location.href = `${backendUrl}/auth/customer/google?success_url=${successUrl}`
+              const result = await sdk.auth.login("customer", "google")
+              if (typeof result === "object" && result.location) {
+                window.location.href = result.location
               }
             } catch (error) {
-              console.error("Error fetching Google auth url", error)
-              window.location.href = `${backendUrl}/auth/customer/google?success_url=${successUrl}`
+              console.error("Google login error:", error)
             }
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
