@@ -50,7 +50,21 @@ const nextConfig = {
   },
   serverRuntimeConfig: {
     port: process.env.PORT || 3000
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/:countryCode/store',
+        destination: '/:countryCode/catalog',
+        permanent: true,
+      },
+      {
+        source: '/store',
+        destination: '/catalog',
+        permanent: true,
+      }
+    ]
+  },
 }
 
 module.exports = nextConfig
