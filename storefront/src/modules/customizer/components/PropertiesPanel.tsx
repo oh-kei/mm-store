@@ -101,8 +101,11 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
                   </button>
 
                   {isFontListExpanded && (
-                    <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white rounded-xl border border-slate-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="max-h-[240px] overflow-y-auto custom-scrollbar p-1 overscroll-contain">
+                    <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white rounded-xl border border-slate-100 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div 
+                        className="max-h-[200px] overflow-y-auto custom-scrollbar p-1 overscroll-contain"
+                        onWheel={(e) => e.stopPropagation()}
+                      >
                         {FONT_FAMILIES.map((font) => (
                           <button
                             key={font.value}
