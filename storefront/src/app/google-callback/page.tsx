@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation"
 import { decodeToken } from "react-jwt"
 import { sdk } from "@lib/config"
 
-// Inner component that uses useSearchParams — must be wrapped in <Suspense>
 function GoogleCallbackInner() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
@@ -25,8 +24,7 @@ function GoogleCallbackInner() {
 
     const validateCallback = async () => {
       try {
-        // Step 1: Exchange the Google code for a Medusa JWT (runs client-side
-        // so the SDK stores it in the browser session automatically)
+        // Step 1: Exchange Google code for a Medusa JWT (client-side SDK call)
         const token = await sdk.auth.callback("customer", "google", queryParams)
 
         // Step 2: Decode to check if this is a brand-new customer
@@ -45,7 +43,20 @@ function GoogleCallbackInner() {
           await sdk.auth.refresh()
         }
 
-        // Step 4: Confirm login succeeded
+        // Step 4: Persist the token in the httpOnly _medusa_jwt cookie so the
+        // server-side getAuthHeaders() can find it after the page navigates away.
+        // (The SDK holds the token in-memory only — it's lost on full navigation.)
+        const persistRes = await fetch("/api/auth/set-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        })
+
+        if (!persistRes.ok) {
+          throw new Error("Failed to persist auth token")
+        }
+
+        // Step 5: Confirm login succeeded
         const { customer: customerData } = await sdk.store.customer.retrieve()
         setCustomer(customerData)
         setLoading(false)
@@ -61,6 +72,8 @@ function GoogleCallbackInner() {
 
   useEffect(() => {
     if (!customer) return
+    // Navigate to account — the _medusa_jwt cookie is now set so the server
+    // will recognise the session correctly
     window.location.href = "/account"
   }, [customer])
 
@@ -81,7 +94,6 @@ function GoogleCallbackInner() {
   )
 }
 
-// Suspense boundary is required by Next.js App Router when using useSearchParams
 export default function GoogleCallback() {
   return (
     <Suspense
