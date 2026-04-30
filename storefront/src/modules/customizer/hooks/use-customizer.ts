@@ -64,7 +64,7 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
         scaleY: 1,
         text,
         fontSize: 40,
-        fontFamily: "Panchang",
+        fontFamily: "Inter",
         fill: "#0F172A", // maritime-navy
         fontWeight: "black",
       },

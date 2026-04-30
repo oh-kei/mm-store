@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useRef } from "react"
+import React, { useRef, useState } from "react"
 import { CustomLayer, LayerProps } from "../hooks/use-customizer"
 import { Heading, Input, Label, Text, Button } from "@medusajs/ui"
-import { Trash2, Type, Move, RotateCcw, Palette, Pipette } from "lucide-react"
+import { Trash2, Type, Move, RotateCcw, Palette, Pipette, ChevronDown, ChevronUp } from "lucide-react"
 
 interface PropertiesPanelProps {
   layer: CustomLayer | null
@@ -31,6 +31,7 @@ const DEFAULT_COLORS = [
 
 export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelProps) => {
   const colorInputRef = useRef<HTMLInputElement>(null)
+  const [isFontListExpanded, setIsFontListExpanded] = useState(false)
 
   if (!layer) {
     return (
@@ -88,21 +89,43 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
             <>
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Font Family</Label>
-                <div className="grid grid-cols-1 gap-2">
-                  {FONT_FAMILIES.map((font) => (
-                    <button
-                      key={font.value}
-                      onClick={() => onUpdate(layer.id, { fontFamily: font.value })}
-                      className={`h-10 px-4 rounded-xl text-left text-xs font-bold transition-all ${
-                        layer.props.fontFamily === font.value 
-                          ? "bg-maritime-navy text-white shadow-lg" 
-                          : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                      }`}
-                      style={{ fontFamily: font.value }}
-                    >
-                      {font.label}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsFontListExpanded(!isFontListExpanded)}
+                    className="w-full h-12 px-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between transition-all hover:bg-slate-100"
+                  >
+                    <span className="text-xs font-bold" style={{ fontFamily: layer.props.fontFamily || "Inter" }}>
+                      {FONT_FAMILIES.find(f => f.value === layer.props.fontFamily)?.label || "Inter"}
+                    </span>
+                    {isFontListExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </button>
+
+                  {isFontListExpanded && (
+                    <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white rounded-xl border border-slate-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="max-h-[240px] overflow-y-auto custom-scrollbar p-1 overscroll-contain">
+                        {FONT_FAMILIES.map((font) => (
+                          <button
+                            key={font.value}
+                            onClick={() => {
+                              onUpdate(layer.id, { fontFamily: font.value })
+                              setIsFontListExpanded(false)
+                            }}
+                            className={`w-full h-10 px-3 rounded-lg text-left text-xs font-bold transition-all flex items-center justify-between ${
+                              layer.props.fontFamily === font.value 
+                                ? "bg-maritime-navy text-white shadow-md" 
+                                : "text-slate-500 hover:bg-slate-50"
+                            }`}
+                            style={{ fontFamily: font.value }}
+                          >
+                            {font.label}
+                            {layer.props.fontFamily === font.value && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-maritime-gold" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
