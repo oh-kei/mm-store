@@ -18,7 +18,7 @@ function GoogleCallbackInner() {
     const error = queryParams["error"]
 
     if (error) {
-      window.location.href = "/login?error=" + encodeURIComponent(error)
+      window.location.href = "/account?error=" + encodeURIComponent(error)
       return
     }
 
@@ -52,7 +52,7 @@ function GoogleCallbackInner() {
               // This email already has an emailpass account — tell the user clearly
               const msg = createErr?.toString() ?? ""
               if (msg.includes("already exists") || msg.includes("409")) {
-                window.location.href = "/login?error=account_exists"
+                window.location.href = "/account?error=account_exists"
                 return
               }
               throw createErr
@@ -94,7 +94,7 @@ function GoogleCallbackInner() {
         setLoading(false)
       } catch (err: any) {
         console.error("[Google Auth] Callback failed:", err)
-        window.location.href = "/login?error=callback_failed"
+        window.location.href = "/account?error=callback_failed"
       }
     }
 

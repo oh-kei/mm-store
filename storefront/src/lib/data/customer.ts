@@ -117,6 +117,7 @@ export async function login(_currentState: unknown, formData: FormData) {
 export async function signout(countryCode: string) {
   await sdk.auth.logout()
   await removeAuthToken()
+  await removeCartId()
   revalidateTag("auth")
   revalidateTag("customer")
   revalidateTag("cart")
