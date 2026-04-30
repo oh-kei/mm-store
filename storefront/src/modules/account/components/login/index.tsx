@@ -1,6 +1,8 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import { Button } from "@medusajs/ui"
 import Input from "@modules/common/components/input"
@@ -13,8 +15,24 @@ type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
 
-const Login = ({ setCurrentView }: Props) => {
+function googleErrorMessage(error: string | null): string | null {
+  if (!error) return null
+  if (error === "callback_failed") {
+    return "Google sign-in failed. If you already have an account with this email address, please sign in with your email and password instead."
+  }
+  if (error === "account_exists") {
+    return "An account with this email already exists. Please sign in with your email and password."
+  }
+  return `Google sign-in error: ${error}. Please try again or use email/password.`
+}
+
+function LoginInner({ setCurrentView }: Props) {
   const [message, formAction] = useActionState(login, null)
+  const [googleError, setGoogleError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+
+  // Show error passed back from the /google-callback page via query param
+  const oauthError = googleErrorMessage(searchParams.get("error"))
 
   return (
     <div
@@ -49,16 +67,34 @@ const Login = ({ setCurrentView }: Props) => {
         <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
           Sign in
         </SubmitButton>
+
+        {/* Google sign-in error (from OAuth callback redirect) */}
+        {oauthError && (
+          <p className="text-rose-500 text-small-regular pt-2 text-center">
+            {oauthError}
+          </p>
+        )}
+        {/* Google sign-in error (from button click) */}
+        {googleError && (
+          <p className="text-rose-500 text-small-regular pt-2 text-center">
+            {googleError}
+          </p>
+        )}
+
         <button
           type="button"
           onClick={async () => {
+            setGoogleError(null)
             try {
               const result = await sdk.auth.login("customer", "google")
               if (typeof result === "object" && result.location) {
                 window.location.href = result.location
               }
-            } catch (error) {
+            } catch (error: any) {
               console.error("Google login error:", error)
+              setGoogleError(
+                "Unable to connect to Google. Please try again."
+              )
             }
           }}
           className="w-full mt-4 flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md"
@@ -98,5 +134,12 @@ const Login = ({ setCurrentView }: Props) => {
     </div>
   )
 }
+
+// Suspense required because LoginInner uses useSearchParams
+const Login = ({ setCurrentView }: Props) => (
+  <Suspense fallback={null}>
+    <LoginInner setCurrentView={setCurrentView} />
+  </Suspense>
+)
 
 export default Login

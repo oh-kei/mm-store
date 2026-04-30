@@ -37,7 +37,17 @@ function GoogleCallbackInner() {
           // Step 3a: Register the new customer in Medusa
           const email = decoded.user_metadata?.email as string
           if (email) {
-            await sdk.store.customer.create({ email })
+            try {
+              await sdk.store.customer.create({ email })
+            } catch (createErr: any) {
+              // This email already has an emailpass account — tell the user clearly
+              const msg = createErr?.toString() ?? ""
+              if (msg.includes("already exists") || msg.includes("409")) {
+                window.location.href = "/login?error=account_exists"
+                return
+              }
+              throw createErr
+            }
           }
           // Step 3b: Refresh token so actor_id is populated
           await sdk.auth.refresh()
