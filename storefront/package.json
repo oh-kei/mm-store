@@ -64,6 +64,7 @@
     "react-dropzone": "^15.0.0",
     "react-instantsearch-hooks-web": "^6.47.3",
     "react-intersection-observer": "^9.3.4",
+    "react-jwt": "^2.1.1",
     "react-konva": "^19.2.3",
     "server-only": "^0.0.1",
     "tailwindcss-radix": "^2.8.0",
