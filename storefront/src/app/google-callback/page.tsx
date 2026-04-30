@@ -33,12 +33,21 @@ function GoogleCallbackInner() {
           user_metadata: Record<string, unknown>
         }
 
+        // Extract profile fields Google provides in the JWT user_metadata
+        const meta = decoded?.user_metadata ?? {}
+        const email = meta?.email as string | undefined
+        const firstName = (meta?.given_name ?? meta?.first_name ?? "") as string
+        const lastName = (meta?.family_name ?? meta?.last_name ?? "") as string
+
         if (decoded?.actor_id === "") {
-          // Step 3a: Register the new customer in Medusa
-          const email = decoded.user_metadata?.email as string
+          // Step 3a: Register the new customer in Medusa with full name from Google
           if (email) {
             try {
-              await sdk.store.customer.create({ email })
+              await sdk.store.customer.create({
+                email,
+                first_name: firstName || undefined,
+                last_name: lastName || undefined,
+              })
             } catch (createErr: any) {
               // This email already has an emailpass account — tell the user clearly
               const msg = createErr?.toString() ?? ""
@@ -51,6 +60,19 @@ function GoogleCallbackInner() {
           }
           // Step 3b: Refresh token so actor_id is populated
           await sdk.auth.refresh()
+        } else if (firstName || lastName) {
+          // Existing Google customer — update their name if it's missing in Medusa
+          try {
+            const { customer: existing } = await sdk.store.customer.retrieve()
+            if (!existing.first_name && !existing.last_name) {
+              await sdk.store.customer.update({
+                first_name: firstName || undefined,
+                last_name: lastName || undefined,
+              })
+            }
+          } catch {
+            // Non-fatal: name update failure shouldn't block login
+          }
         }
 
         // Step 4: Persist the token in the httpOnly _medusa_jwt cookie so the
