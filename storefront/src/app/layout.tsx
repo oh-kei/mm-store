@@ -11,6 +11,9 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  icons: {
+    icon: "/logo.png",
+  },
 }
 
 import { SmoothScroll } from "@modules/layout/components/smooth-scroll"

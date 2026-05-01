@@ -250,14 +250,14 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
             </Link>
             <button 
               disabled={isAdding}
-              className={clx("w-full h-9 text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
+              className={clx("w-full h-9 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
                 "bg-green-600 border border-green-600": isAdded,
                 "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
                 "opacity-50 cursor-not-allowed": isAdding
               })}
               onClick={handleQuickAddClick}
             >
-              {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Cart' : 'Add to Cart'}
+              {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
             </button>
           </>
         )}

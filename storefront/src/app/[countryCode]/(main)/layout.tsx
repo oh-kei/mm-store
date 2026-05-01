@@ -8,6 +8,9 @@ import UndoNotification from "@modules/common/components/undo-notification"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  icons: {
+    icon: "/logo.png",
+  },
 }
 
 export default async function PageLayout(props: { children: React.ReactNode }) {

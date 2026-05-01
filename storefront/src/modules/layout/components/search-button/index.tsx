@@ -66,7 +66,7 @@ export default function SearchButton() {
 
   return (
     <div 
-      className="relative flex items-center"
+      className="static sm:relative flex items-center"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       ref={containerRef}
@@ -93,8 +93,7 @@ export default function SearchButton() {
         leaveTo="opacity-0 translate-y-1"
       >
         <div 
-          className="absolute right-0 mt-4 w-[90vw] sm:w-[500px] z-[100]"
-          style={{ top: "100%" }}
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[85vw] max-w-[400px] sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-4 sm:w-[500px] z-[100]"
         >
           <div className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" style={{ transform: "translateZ(0)" }}>
             <InstantSearch

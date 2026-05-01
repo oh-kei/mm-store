@@ -260,9 +260,9 @@ export default function ProductActions({
           <LocalizedClientLink href="/account">
             <Button
               variant="primary"
-              className="w-full h-10 uppercase font-black tracking-widest text-[10px]"
+              className="w-full h-10 uppercase font-black tracking-widest text-[9px] sm:text-[10px]"
             >
-              Sign in to purchase
+              Sign In to Add to Bag
             </Button>
           </LocalizedClientLink>
         ) : (
