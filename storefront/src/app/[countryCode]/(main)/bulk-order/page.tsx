@@ -4,7 +4,7 @@ import BulkOrderLayout from "@modules/bulk-order/templates/bulk-order-layout"
 import { PortalContainer } from "@modules/bulk-order/templates/portal-container"
 
 export const metadata: Metadata = {
-  title: "Fleet Portal | Mariners Market",
+  title: "Bulk Order | Mariners Market's",
   description: "B2B Team Portal for bulk fleet orders.",
 }
 

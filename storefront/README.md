@@ -1,6 +1,6 @@
 # mm-store storefront
 
-this is the next.js frontend for mariner market.
+this is the next.js frontend for mariners market's.
 
 ### features
 - **app router**: modern next.js routing.

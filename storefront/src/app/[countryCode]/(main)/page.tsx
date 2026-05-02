@@ -7,7 +7,7 @@ import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Mariners Market",
+  title: "Mariners Market's",
   description:
     "Elevate Your Voyage with premium maritime gear.",
 }

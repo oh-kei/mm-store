@@ -2,6 +2,12 @@ import { getProductsList } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { CustomizerTemplate } from "@modules/customizer/templates"
 import { notFound } from "next/navigation"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Custom Studio | Mariners Market's",
+  description: "Customise your maritime gear in our interactive studio.",
+}
 
 interface Props {
   params: Promise<{ countryCode: string }>

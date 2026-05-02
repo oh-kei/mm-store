@@ -1,6 +1,6 @@
 # mm-store
 
-mariner market is a prebaked ecommerce monorepo built with medusa 2.0 and next.js.
+mariners market's is a prebaked ecommerce monorepo built with medusa 2.0 and next.js.
 hosted on railway
 
 ### how it works

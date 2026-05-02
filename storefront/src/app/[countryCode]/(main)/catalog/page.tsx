@@ -5,7 +5,7 @@ import { getCustomer } from "@lib/data/customer"
 import { CatalogTemplate } from "@modules/catalog/templates"
 
 export const metadata: Metadata = {
-  title: "Catalogue | Mariners Market",
+  title: "Catalogue | Mariners Market's",
   description: "Explore our collection of premium maritime gear.",
 }
 

@@ -11,8 +11,8 @@ import { listRegions } from "@lib/data/regions"
 import { getCustomer } from "@lib/data/customer"
 
 export const metadata: Metadata = {
-  title: "Profile",
-  description: "View and edit your Medusa Store profile.",
+  title: "Profile | Mariners Market's",
+  description: "View and edit your Mariners Market's profile.",
 }
 
 export default async function Profile() {

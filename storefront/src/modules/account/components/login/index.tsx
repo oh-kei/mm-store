@@ -121,7 +121,7 @@ function LoginInner({ setCurrentView }: Props) {
         </button>
       </form>
       <div className="flex flex-col items-center gap-y-4 mt-8 pt-8 border-t border-gray-100 w-full">
-        <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">New to Mariners Market?</span>
+        <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">New to Mariners Market's?</span>
         <Button
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
           variant="secondary"

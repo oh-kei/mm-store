@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Mariners Market",
-  description: "Learn how Mariners Market collects, uses, and protects your personal information.",
+  title: "Privacy Policy | Mariners Market's",
+  description: "Learn how Mariners Market's collects, uses, and protects your personal information.",
 }
 
 export default function PrivacyPolicyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-4">
           <p className="text-sm leading-relaxed">
-            This Privacy Policy describes how Mariners Market (the "Site", "we", "us", or "our") collects, uses, and discloses your personal information when you visit, use our services, or make a purchase from <a href="https://www.marinersmarkets.com" className="underline font-bold">www.marinersmarkets.com</a> (the "Site") or otherwise communicate with us (collectively, the "Services").
+            This Privacy Policy describes how Mariners Market's (the "Site", "we", "us", or "our") collects, uses, and discloses your personal information when you visit, use our services, or make a purchase from <a href="https://www.marinersmarkets.com" className="underline font-bold">www.marinersmarkets.com</a> (the "Site") or otherwise communicate with us (collectively, the "Services").
           </p>
         </section>
 
@@ -111,7 +111,7 @@ export default function PrivacyPolicyPage() {
           <div className="bg-slate-50 p-6 rounded-2xl space-y-2 border border-slate-100">
             <p className="text-sm"><strong>Email:</strong> <a href="mailto:christopherlam@marinersmarkets.com" className="underline">christopherlam@marinersmarkets.com</a></p>
             <p className="text-sm"><strong>Address:</strong> 129 Lung Mei Tsuen Road, Sai Kung, NT, HK</p>
-            <p className="text-sm"><strong>Data Controller:</strong> Mariners Market</p>
+            <p className="text-sm"><strong>Data Controller:</strong> Mariners Market's</p>
           </div>
         </section>
       </div>

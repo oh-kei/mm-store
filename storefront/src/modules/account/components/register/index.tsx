@@ -22,7 +22,7 @@ const Register = ({ setCurrentView }: Props) => {
       data-testid="register-page"
     >
       <h1 className="text-large-semi uppercase mb-6 text-center">
-        Create a Mariners Market profile to place orders, customise items and more.
+        Create a Mariners Market's profile to place orders, customise items and more.
       </h1>
       <form className="w-full flex flex-col" action={formAction}>
         <div className="flex flex-col w-full gap-y-2">

@@ -1,6 +1,6 @@
 # mm-store backend
 
-this is the medusa 2.0 core for mariner market.
+this is the medusa 2.0 core for mariners market's.
 
 ### features
 - **postgres**: primary database.

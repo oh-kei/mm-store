@@ -35,7 +35,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "",
         {
           user_email: email,
-          to_name: "Mariners Market Team",
+          to_name: "Mariners Market's Team",
           message: `New subscription from: ${email}`
         },
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || ""
@@ -138,7 +138,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
               </LocalizedClientLink>
               <span className={isLight ? "text-slate-300" : "text-slate-800"}>|</span>
               <p className={isLight ? "text-slate-400" : "text-slate-500"}>
-                © {new Date().getFullYear()} Mariners Market
+                © {new Date().getFullYear()} Mariners Market's
               </p>
             </div>
           </div>
