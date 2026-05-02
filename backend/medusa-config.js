@@ -15,6 +15,8 @@ import {
   STORE_CORS,
   STRIPE_API_KEY,
   STRIPE_WEBHOOK_SECRET,
+  STRIPE_CAPTURE,
+  STRIPE_AUTOMATIC_PAYMENT_METHODS,
   WORKER_MODE,
   MINIO_ENDPOINT,
   MINIO_ACCESS_KEY,
@@ -124,6 +126,8 @@ const medusaConfig = {
             options: {
               apiKey: STRIPE_API_KEY,
               webhookSecret: STRIPE_WEBHOOK_SECRET,
+              capture: STRIPE_CAPTURE,
+              automatic_payment_methods: STRIPE_AUTOMATIC_PAYMENT_METHODS,
             },
           },
         ],

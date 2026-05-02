@@ -83,6 +83,8 @@ export const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || process.en
  */
 export const STRIPE_API_KEY = process.env.STRIPE_API_KEY;
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+export const STRIPE_CAPTURE = process.env.STRIPE_CAPTURE === 'true';
+export const STRIPE_AUTOMATIC_PAYMENT_METHODS = process.env.STRIPE_AUTOMATIC_PAYMENT_METHODS === 'true';
 
 /**
  * (optional) Meilisearch configuration
