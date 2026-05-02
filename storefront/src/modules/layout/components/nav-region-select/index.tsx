@@ -30,20 +30,10 @@ export default function NavRegionSelect({ regions = [] }: { regions?: HttpTypes.
     setActiveMenu(null)
   }
 
-  const handleMouseEnter = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) return
-    setActiveMenu("region")
-  }
-
-  const handleMouseLeave = () => {
-    closeMenu()
-  }
 
   return (
     <div 
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <button 
         className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2"

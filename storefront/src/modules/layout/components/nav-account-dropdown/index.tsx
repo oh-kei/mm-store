@@ -37,14 +37,6 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
     fetchCustomer()
   }, [isOpen, initialCustomer]) // Re-fetch when menu opens or initial customer changes
 
-  const handleMouseEnter = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) return
-    setActiveMenu("account")
-  }
-
-  const handleMouseLeave = () => {
-    closeMenu()
-  }
 
   const handleLogout = async () => {
     await signout(countryCode)
@@ -61,17 +53,14 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
   return (
     <div 
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      <LocalizedClientLink 
-        href="/account" 
-        className="hover:text-white transition-colors flex items-center justify-center py-2 relative"
-        onClick={() => setActiveMenu(null)}
+      <button 
+        className="hover:text-white transition-colors flex items-center justify-center py-2 relative outline-none"
+        onClick={() => setActiveMenu(isOpen ? null : "account")}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         {customer && <div className="absolute top-1 right-[-4px] w-2 h-2 bg-emerald-500 rounded-full border border-black" />}
-      </LocalizedClientLink>
+      </button>
 
       <Transition
         show={isOpen}

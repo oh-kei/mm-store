@@ -15,12 +15,15 @@ export const convertToLocale = ({
   maximumFractionDigits,
   locale = "en-US",
 }: ConvertToLocaleParams) => {
+  // Handle NaN or invalid amounts gracefully
+  const safeAmount = isNaN(amount) || amount === null ? 0 : amount
+
   return currency_code && !isEmpty(currency_code)
     ? new Intl.NumberFormat(locale, {
         style: "currency",
         currency: currency_code,
         minimumFractionDigits,
         maximumFractionDigits,
-      }).format(amount)
-    : amount.toString()
+      }).format(safeAmount)
+    : safeAmount.toString()
 }

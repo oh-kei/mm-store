@@ -19,27 +19,6 @@ export default function SearchButton() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [mode, setMode] = useState<'idle' | 'hover' | 'click'>('idle')
 
-  const handleMouseEnter = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) return
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    if (mode === 'idle') {
-      setMode('hover')
-      setActiveMenu("search")
-    }
-  }
-  
-  const handleMouseLeave = () => {
-    if (mode === 'hover') {
-      timeoutRef.current = setTimeout(() => {
-        // Only close if the search input is not focused
-        const isInputFocused = containerRef.current?.contains(document.activeElement) && document.activeElement?.tagName === 'INPUT'
-        if (!isInputFocused) {
-          setMode('idle')
-          closeMenu()
-        }
-      }, 1000)
-    }
-  }
 
   // Focus input when opened
   useEffect(() => {
@@ -67,8 +46,6 @@ export default function SearchButton() {
   return (
     <div 
       className="static sm:relative flex items-center"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       ref={containerRef}
     >
       <button

@@ -14,43 +14,19 @@ const CATEGORIES = [
 ]
 
 export default function NavCatalogueDropdown() {
-  const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
+  const { activeMenu, setActiveMenu } = useNavMenu()
   const isDropdownOpen = activeMenu === "catalogue"
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const handleMouseEnter = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) return
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      setActiveMenu("catalogue")
-    }, 150) // Small delay to avoid accidental triggers
-  }
-
-  const handleMouseLeave = () => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      closeMenu()
-    }, 1000) // 1 second delay to improve hover-out behavior
-  }
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
 
   return (
     <div 
       className="relative flex items-center"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      <LocalizedClientLink 
-        href="/catalog" 
-        className="hover:text-white transition-colors py-2 text-white/90"
+      <button 
+        onClick={() => setActiveMenu(isDropdownOpen ? null : "catalogue")}
+        className="hover:text-white transition-colors py-2 text-white/90 outline-none"
       >
         Catalogue
-      </LocalizedClientLink>
+      </button>
       
       {/* Stateful Dropdown - hidden on mobile */}
       <div 

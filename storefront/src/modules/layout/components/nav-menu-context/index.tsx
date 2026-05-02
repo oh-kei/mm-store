@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, useRef, ReactNode } from "react"
+import React, { createContext, useContext, useState, useRef, ReactNode, useEffect } from "react"
+import { usePathname } from "next/navigation"
 
 type NavMenuType = "catalogue" | "region" | "account" | "cart" | "search" | null
 
@@ -15,6 +16,12 @@ const NavMenuContext = createContext<NavMenuContextType | undefined>(undefined)
 export function NavMenuProvider({ children }: { children: ReactNode }) {
   const [activeMenu, setActiveMenuState] = useState<NavMenuType>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const pathname = usePathname()
+
+  // Close menu on route change
+  useEffect(() => {
+    setActiveMenuState(null)
+  }, [pathname])
 
   const setActiveMenu = (menu: NavMenuType) => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -23,9 +30,7 @@ export function NavMenuProvider({ children }: { children: ReactNode }) {
 
   const closeMenu = () => {
     if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      setActiveMenuState(null)
-    }, 500)
+    setActiveMenuState(null)
   }
 
   return (
