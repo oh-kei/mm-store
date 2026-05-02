@@ -88,19 +88,61 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
             <Text style={{ fontWeight: 'bold' }}>Quantity</Text>
             <Text style={{ fontWeight: 'bold' }}>Price</Text>
           </div>
-          {order.items.map((item) => (
-            <div key={item.id} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '8px',
-              borderBottom: '1px solid #ddd'
-            }}>
-              <Text>{item.title} - {item.product_title}</Text>
-              <Text>{item.quantity}</Text>
-              <Text>{item.unit_price} {order.currency_code}</Text>
-            </div>
-          ))}
+          {order.items.map((item) => {
+            const recipe = (item as any).metadata?.recipe
+            const crewMember = (item as any).metadata?.crew_member
+
+            return (
+              <div key={item.id} style={{
+                padding: '12px 8px',
+                borderBottom: '1px solid #ddd'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <Text style={{ fontWeight: 'bold', margin: 0 }}>{item.title} - {item.product_title}</Text>
+                  <Text style={{ margin: 0 }}>{item.quantity} x {item.unit_price} {order.currency_code}</Text>
+                </div>
+                
+                {/* Custom Design Details for Staff */}
+                {recipe && (
+                  <div style={{ 
+                    backgroundColor: '#f9f9f9', 
+                    padding: '12px', 
+                    borderRadius: '8px', 
+                    marginTop: '8px',
+                    border: '1px solid #eee'
+                  }}>
+                    <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', margin: '0 0 8px' }}>
+                      Production Details {crewMember ? `(For Member: ${crewMember})` : ''}
+                    </Text>
+                    {recipe.layers?.map((layer: any, idx: number) => (
+                      <div key={idx} style={{ marginBottom: '8px' }}>
+                        <Text style={{ fontSize: '11px', fontWeight: 'bold', margin: '0 0 2px' }}>
+                          {layer.type === 'text' ? 'TEXT LAYER' : 'LOGO LAYER'}
+                        </Text>
+                        <Text style={{ fontSize: '11px', margin: 0 }}>
+                          {layer.type === 'text' 
+                            ? `Content: "${layer.props.text}" | Font: ${layer.props.fontFamily} | Color: ${layer.props.fill}` 
+                            : `Asset Link: ${layer.props.url}`}
+                        </Text>
+                        {layer.type === 'image' && (
+                          <div style={{ marginTop: '5px' }}>
+                             <a href={layer.props.url} style={{ fontSize: '10px', color: '#2563EB', textDecoration: 'underline' }}>
+                               Download High-Res Logo
+                             </a>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
+        
+        <Text style={{ fontSize: '12px', color: '#666', marginTop: '40px', textAlign: 'center' }}>
+          Production team: Please use the links above to download original assets.
+        </Text>
       </Section>
     </Base>
   )

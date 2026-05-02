@@ -5,6 +5,7 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
+import { getVariantImage } from "@modules/products/utils/get-variant-image"
 
 type OrderCardProps = {
   order: HttpTypes.StoreOrder
@@ -44,13 +45,18 @@ const OrderCard = ({ order }: OrderCardProps) => {
       </div>
       <div className="grid grid-cols-2 small:grid-cols-4 gap-4 my-4">
         {order.items?.slice(0, 3).map((i) => {
+          const variantImage = getVariantImage(i.variant as any)
           return (
             <div
               key={i.id}
               className="flex flex-col gap-y-2"
               data-testid="order-item"
             >
-              <Thumbnail thumbnail={i.thumbnail} images={[]} size="full" />
+              <Thumbnail 
+                thumbnail={variantImage || i.variant?.thumbnail || (i.variant?.metadata?.image as string) || i.thumbnail} 
+                images={[]} 
+                size="full" 
+              />
               <div className="flex items-center text-small-regular text-ui-fg-base">
                 <span
                   className="text-ui-fg-base font-semibold"

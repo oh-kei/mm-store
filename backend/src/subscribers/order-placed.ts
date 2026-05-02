@@ -20,12 +20,13 @@ export default async function orderPlacedHandler({
       template: EmailTemplates.ORDER_PLACED,
       data: {
         emailOptions: {
-          replyTo: 'info@example.com',
-          subject: 'Your order has been placed'
+          replyTo: 'kkeipohl@gmail.com',
+          subject: `New Order #${order.display_id} | Mariners Market's`,
+          cc: 'kkeipohl@gmail.com' // Send production copy to staff
         },
         order,
         shippingAddress,
-        preview: 'Thank you for your order!'
+        preview: 'New production order received!'
       }
     })
   } catch (error) {
