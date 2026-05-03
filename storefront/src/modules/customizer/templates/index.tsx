@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, useRef } from "react"
 import { Heading, Button, Text, clx } from "@medusajs/ui"
 import { Plus, Type, Image as ImageIcon, Trash2, ShoppingCart, Layers, MousePointer2, ChevronLeft, Search } from "lucide-react"
 import dynamic from "next/dynamic"
