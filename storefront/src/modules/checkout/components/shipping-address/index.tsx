@@ -68,7 +68,16 @@ const ShippingAddress = ({
     if (cart && !cart.email && customer?.email) {
       setFormAddress(undefined, customer.email)
     }
-  }, [cart]) // Add cart as a dependency
+
+    // Auto-fill name from customer if not already set in cart
+    if (customer && (!cart?.shipping_address?.first_name || !cart?.shipping_address?.last_name)) {
+      setFormData((prevState) => ({
+        ...prevState,
+        "shipping_address.first_name": prevState["shipping_address.first_name"] || customer.first_name || "",
+        "shipping_address.last_name": prevState["shipping_address.last_name"] || customer.last_name || "",
+      }))
+    }
+  }, [cart, customer])
 
   const handleChange = (
     e: React.ChangeEvent<

@@ -4,6 +4,8 @@ import { CustomizerTemplate } from "@modules/customizer/templates"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Custom Studio | Mariners Market's",
   description: "Customise your maritime gear in our interactive studio.",

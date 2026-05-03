@@ -17,9 +17,17 @@ export default async function orderPlacedHandler({
     const { data: [order] } = await query.graph({
       entity: "order",
       fields: [
-        "*",
+        "id",
+        "display_id",
+        "created_at",
+        "email",
+        "currency_code",
+        "total",
+        "subtotal",
         "items.*",
         "items.variant.*",
+        "items.variant.images.*",
+        "items.variant.product.*",
         "shipping_address.*",
         "billing_address.*"
       ],
@@ -31,14 +39,30 @@ export default async function orderPlacedHandler({
       return
     }
 
+    // Calculate total if missing or 0
+    const calculatedTotal = order.items?.reduce((acc: number, item: any) => {
+      return acc + (item.unit_price * item.quantity)
+    }, 0) || order.total || 0
+
     // Ensure summary exists for the template
     if (!order.summary) {
       order.summary = {
         raw_current_order_total: {
-          value: order.total || 0
+          value: calculatedTotal
         }
       }
     }
+
+    // Ensure items have correct thumbnail from variant if missing
+    order.items?.forEach((item: any) => {
+      if (!item.thumbnail && item.variant?.product?.thumbnail) {
+        item.thumbnail = item.variant.product.thumbnail
+      }
+      if (item.variant?.images?.length > 0) {
+        // Use variant specific image if available
+        item.thumbnail = item.variant.images[0].url
+      }
+    })
 
     console.log(`[OrderPlacedSubscriber] Sending notification for order ${order.id} to ${order.email}`)
 
