@@ -8,6 +8,7 @@ import { SEARCH_INDEX_NAME, searchClient } from "@lib/search-client"
 import Hit from "@modules/search/components/hit"
 import Hits from "@modules/search/components/hits"
 import SearchBox from "@modules/search/components/search-box"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 export default function SearchButton() {
@@ -34,19 +35,17 @@ export default function SearchButton() {
       onMouseEnter={() => openMenu("search")}
       onMouseLeave={() => closeMenu(300)}
     >
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          toggleMenu("search")
-        }}
-        className={`flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer ${isOpen && isLocked ? 'text-white' : ''}`}
+      <LocalizedClientLink
+        href="/catalog"
+        onClick={() => toggleMenu("search")}
+        className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer"
         aria-label="Search"
       >
         <MagnifyingGlassMini className="text-white/70" />
         <span className="uppercase text-[10px] tracking-widest font-bold hidden md:inline">
           Search
         </span>
-      </button>
+      </LocalizedClientLink>
 
       <Transition
         show={isOpen}

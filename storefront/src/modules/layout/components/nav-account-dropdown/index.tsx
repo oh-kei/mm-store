@@ -50,16 +50,14 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
       onMouseEnter={() => openMenu("account")}
       onMouseLeave={() => closeMenu(300)}
     >
-      <button 
-        className={`flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer ${isOpen && isLocked ? 'text-white' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation()
-          toggleMenu("account")
-        }}
+      <LocalizedClientLink 
+        href="/account"
+        onClick={() => toggleMenu("account")}
+        className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer relative"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         {customer && <div className="absolute top-1 right-[-4px] w-2 h-2 bg-emerald-500 rounded-full border border-black" />}
-      </button>
+      </LocalizedClientLink>
 
       <Transition
         show={isOpen}
