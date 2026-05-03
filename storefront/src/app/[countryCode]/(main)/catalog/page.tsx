@@ -16,14 +16,17 @@ export default async function CatalogPage({
 }) {
   const { countryCode } = await params
   
-  // Fetch all products for client-side filtering
-  const { response: { products } } = await getProductsList({
-    countryCode,
-    queryParams: { limit: 100 },
-  })
+  // Parallelize fetches for better performance
+  const [productsData, region, customer] = await Promise.all([
+    getProductsList({
+      countryCode,
+      queryParams: { limit: 100 },
+    }),
+    getRegion(countryCode),
+    getCustomer(),
+  ])
 
-  const region = await getRegion(countryCode)
-  const customer = await getCustomer()
+  const { response: { products } } = productsData
 
   if (!products || !region) {
     return null

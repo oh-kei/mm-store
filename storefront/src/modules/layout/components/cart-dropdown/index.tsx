@@ -21,15 +21,17 @@ const CartDropdown = ({
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
-  const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
-  const cartDropdownOpen = activeMenu === "cart"
-  
   const [activeTimer, setActiveTimer] = useState<NodeJS.Timer | undefined>(
     undefined
   )
+  const [cartDropdownOpen, setCartDropdownOpen] = useState(false)
 
-  const open = () => setActiveMenu("cart")
-  const close = () => closeMenu()
+  const { closeMenu: closeGlobalMenu } = useNavMenu()
+  const open = () => {
+    closeGlobalMenu(0)
+    setCartDropdownOpen(true)
+  }
+  const close = () => setCartDropdownOpen(false)
 
   const totalItems =
     cartState?.items?.reduce((acc, item) => {
@@ -46,7 +48,10 @@ const CartDropdown = ({
   }
 
   const openAndCancel = () => {
-    setActiveMenu("cart")
+    if (activeTimer) {
+      clearTimeout(activeTimer)
+    }
+    open()
   }
 
   // Clean up the timer when the component unmounts
@@ -82,7 +87,6 @@ const CartDropdown = ({
             data-testid="nav-cart-link"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-            {/* Removed "Cart" text as requested */}
             {totalItems > 0 && (
               <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-maritime-gold text-white text-[8px] font-black rounded-full flex items-center justify-center">
                 {totalItems}
@@ -202,7 +206,7 @@ const CartDropdown = ({
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">Your cart is empty</p>
                 <LocalizedClientLink href="/catalog">
-                  <button onClick={close} className="px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] bg-white text-black rounded-lg hover:bg-gray-200 transition-all">
+                  <button className="px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] bg-white text-black rounded-lg hover:bg-gray-200 transition-all">
                     Explore Shop
                   </button>
                 </LocalizedClientLink>

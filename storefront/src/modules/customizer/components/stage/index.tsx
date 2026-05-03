@@ -13,6 +13,7 @@ interface StageComponentProps {
 }
 
 const ProductBaseImage = ({ url, stageSize }: { url: string; stageSize: number }) => {
+  if (!url) return null
   const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`
   const [image] = useImage(proxyUrl, "anonymous")
   if (!image) return null
@@ -35,8 +36,9 @@ const ProductBaseImage = ({ url, stageSize }: { url: string; stageSize: number }
 }
 
 const ImageLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer; isSelected: boolean; onSelect: () => void; onChange: (props: any) => void }) => {
-  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(data.props.url || "")}`
-  const [image] = useImage(proxyUrl, "anonymous")
+  const url = data.props.url
+  const proxyUrl = url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : ""
+  const [image] = useImage(proxyUrl || "", "anonymous")
   const shapeRef = useRef<any>(null)
 
   return (

@@ -11,19 +11,10 @@ import SearchBox from "@modules/search/components/search-box"
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 export default function SearchButton() {
-  const { activeMenu, setActiveMenu, closeMenu } = useNavMenu()
+  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "search"
   const containerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const [isLocked, setIsLocked] = useState(false)
-
-  // Sync locked state with global state
-  useEffect(() => {
-    if (!isOpen) setIsLocked(false)
-  }, [isOpen])
 
   // Focus input when opened
   useEffect(() => {
@@ -31,51 +22,24 @@ export default function SearchButton() {
       const timer = setTimeout(() => {
         const input = containerRef.current?.querySelector('input[type="search"]') as HTMLInputElement
         if (input) input.focus()
-      }, 100)
+      }, 300)
       return () => clearTimeout(timer)
     }
   }, [isOpen])
 
-  const handleMouseEnter = () => {
-    if (window.innerWidth >= 768) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-      setActiveMenu("search")
-    }
-  }
-
-  const handleMouseLeave = () => {
-    if (window.innerWidth >= 768 && !isLocked) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      timeoutRef.current = setTimeout(() => {
-        closeMenu()
-      }, 200)
-    }
-  }
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (isLocked) {
-      setIsLocked(false)
-      closeMenu()
-    } else {
-      setIsLocked(true)
-      setActiveMenu("search")
-    }
-  }
-
   return (
     <div 
-      className="static sm:relative flex items-center group"
+      className="static sm:relative flex items-center group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
       ref={containerRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => openMenu("search")}
+      onMouseLeave={() => closeMenu(300)}
     >
       <button
-        onClick={handleButtonClick}
-        className={`flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 ${isLocked ? 'text-white' : ''}`}
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleMenu("search")
+        }}
+        className={`flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer ${isOpen && isLocked ? 'text-white' : ''}`}
         aria-label="Search"
       >
         <MagnifyingGlassMini className="text-white/70" />
@@ -87,6 +51,7 @@ export default function SearchButton() {
       <Transition
         show={isOpen}
         as={Fragment}
+        unmount={false}
         enter="transition ease-out duration-200"
         enterFrom="opacity-0 translate-y-1"
         enterTo="opacity-100 translate-y-0"
@@ -95,17 +60,18 @@ export default function SearchButton() {
         leaveTo="opacity-0 translate-y-1"
       >
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[85vw] max-w-[400px] sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-4 sm:w-[500px] z-[100]"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[85vw] max-w-[400px] sm:w-[450px] z-[100]"
+          onMouseEnter={() => openMenu("search")}
+          onMouseLeave={() => closeMenu(300)}
+          onClick={(e) => e.stopPropagation()}
         >
-        {/* Bridge to prevent hover flickering */}
-        <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent hidden sm:block" />
-        <div 
-          className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" 
-          style={{ transform: "translateZ(0)" }}
-          onWheel={(e) => e.stopPropagation()}
-        >
+          {/* Bridge to prevent hover flickering - centered and narrow */}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-transparent hidden sm:block" />
+          <div 
+            className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" 
+            style={{ transform: "translateZ(0)" }}
+            onWheel={(e) => e.stopPropagation()}
+          >
             <InstantSearch
               indexName={SEARCH_INDEX_NAME}
               searchClient={searchClient}
@@ -117,19 +83,18 @@ export default function SearchButton() {
                 </div>
                 
                 <div className="relative group/scroll">
-                    <div 
-                     ref={scrollRef}
-                     className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar scroll-smooth"
-                     style={{ overscrollBehavior: 'contain' }}
-                     onWheel={(e) => e.stopPropagation()}
-                   >
+                  <div 
+                    ref={scrollRef}
+                    className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar scroll-smooth"
+                    style={{ overscrollBehavior: 'contain' }}
+                    onWheel={(e) => e.stopPropagation()}
+                  >
                     <Hits 
                       hitComponent={Hit} 
                       className="!sm:w-full !max-h-none !opacity-100"
                       isDropdown={true} 
                     />
                   </div>
-                  
                 </div>
               </div>
             </InstantSearch>

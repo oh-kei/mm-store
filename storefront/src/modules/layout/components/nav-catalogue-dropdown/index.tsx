@@ -5,7 +5,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 const CATEGORIES = [
-  { href: "/catalog", label: "All" },
+  { href: "/catalog?category=all", label: "All" },
   { href: "/catalog?category=tops", label: "Tops" },
   { href: "/catalog?category=jackets", label: "Jackets" },
   { href: "/catalog?category=hats", label: "Hats" },
@@ -14,58 +14,25 @@ const CATEGORIES = [
 ]
 
 export default function NavCatalogueDropdown() {
-  const { activeMenu, setActiveMenu } = useNavMenu()
-  const [isLocked, setIsLocked] = useState(false)
-  const closeTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isDropdownOpen = activeMenu === "catalogue"
-
-  // Sync locked state with global state
-  useEffect(() => {
-    if (!isDropdownOpen) setIsLocked(false)
-  }, [isDropdownOpen])
-
-  const handleMouseEnter = () => {
-    if (window.innerWidth >= 768) {
-      if (closeTimerRef.current) {
-        clearTimeout(closeTimerRef.current)
-        closeTimerRef.current = null
-      }
-      setActiveMenu("catalogue")
-    }
-  }
-
-  const handleMouseLeave = () => {
-    if (window.innerWidth >= 768 && !isLocked) {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-      closeTimerRef.current = setTimeout(() => {
-        setActiveMenu(null)
-      }, 200)
-    }
-  }
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (isLocked) {
-      setIsLocked(false)
-      setActiveMenu(null)
-    } else {
-      setIsLocked(true)
-      setActiveMenu("catalogue")
-    }
-  }
 
   return (
     <div 
-      className="relative flex items-center group"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className="relative flex items-center group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
+      onMouseEnter={() => openMenu("catalogue")}
+      onMouseLeave={() => closeMenu(300)}
     >
-      <button 
-        onClick={handleButtonClick}
-        className={`hover:text-white transition-colors py-2 text-white/90 outline-none ${isLocked ? 'text-white' : ''}`}
+      <LocalizedClientLink 
+        href="/catalog"
+        onClick={(e) => {
+          // Keep toggle for mobile/lock, but allow navigation
+          toggleMenu("catalogue")
+        }}
+        className={`hover:text-white transition-colors py-2 text-white/90 outline-none cursor-pointer ${isDropdownOpen && isLocked ? 'text-white' : ''}`}
       >
         Catalogue
-      </button>
+      </LocalizedClientLink>
       
       {/* Stateful Dropdown - hidden on mobile */}
       <div 
@@ -73,11 +40,12 @@ export default function NavCatalogueDropdown() {
           isDropdownOpen ? 'visible opacity-100 pointer-events-auto mt-4' : 'invisible opacity-0 mt-2'
         }`}
         style={{ top: "100%" }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => openMenu("catalogue")}
+        onMouseLeave={() => closeMenu(300)}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Bridge to prevent hover flickering */}
-        <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent" />
+        {/* Bridge to prevent hover flickering - centered and narrow */}
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-10 h-12 bg-transparent" />
         <div className="bg-[#1c1c1c] border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (
             <LocalizedClientLink 
@@ -89,7 +57,7 @@ export default function NavCatalogueDropdown() {
               style={{ 
                 transitionDelay: isDropdownOpen ? `${idx * 50}ms` : '0ms' 
               }}
-              onClick={() => setActiveMenu(null)}
+              onClick={() => toggleMenu("catalogue")}
             >
               {item.label}
             </LocalizedClientLink>
