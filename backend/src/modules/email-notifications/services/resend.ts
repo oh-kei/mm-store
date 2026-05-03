@@ -95,17 +95,26 @@ export class ResendNotificationService extends AbstractNotificationProviderServi
 
     // Send the email via Resend
     try {
-      await this.resend.emails.send(message)
+      const { data, error } = await this.resend.emails.send(message)
+
+      if (error) {
+        throw new MedusaError(
+          MedusaError.Types.UNEXPECTED_STATE,
+          `Resend API error: ${error.name} - ${error.message}`
+        )
+      }
+
       this.logger_.log(
-        `Successfully sent "${notification.template}" email to ${notification.to} via Resend`
+        `Successfully sent "${notification.template}" email to ${notification.to} via Resend (ID: ${data?.id})`
       )
-      return {} // Return an empty object on success
+      return { id: data?.id }
     } catch (error) {
-      const errorCode = error.code
-      const responseError = error.response?.body?.errors?.[0]
+      this.logger_.error(
+        `Failed to send "${notification.template}" email to ${notification.to} via Resend: ${error.message}`
+      )
       throw new MedusaError(
         MedusaError.Types.UNEXPECTED_STATE,
-        `Failed to send "${notification.template}" email to ${notification.to} via Resend: ${errorCode} - ${responseError?.message ?? 'unknown error'}`
+        `Failed to send "${notification.template}" email to ${notification.to} via Resend: ${error.message}`
       )
     }
   }

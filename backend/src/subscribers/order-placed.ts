@@ -10,10 +10,20 @@ export default async function orderPlacedHandler({
   const notificationModuleService: INotificationModuleService = container.resolve(Modules.NOTIFICATION)
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   
-  const order = await orderModuleService.retrieveOrder(data.id, { relations: ['items', 'items.variant', 'summary', 'shipping_address'] })
-  const shippingAddress = await (orderModuleService as any).orderAddressService_.retrieve(order.shipping_address.id)
-
+  console.log(`[OrderPlacedSubscriber] Processing order: ${data.id}`)
+  
   try {
+    const order = await orderModuleService.retrieveOrder(data.id, { 
+      relations: ['items', 'items.variant', 'summary', 'shipping_address', 'billing_address'] 
+    })
+
+    if (!order) {
+      console.error(`[OrderPlacedSubscriber] Order not found: ${data.id}`)
+      return
+    }
+
+    console.log(`[OrderPlacedSubscriber] Sending notification for order ${order.id} to ${order.email}`)
+
     await notificationModuleService.createNotifications({
       to: order.email,
       channel: 'email',
@@ -22,15 +32,17 @@ export default async function orderPlacedHandler({
         emailOptions: {
           replyTo: 'christopherlam@marinersmarkets.com',
           subject: `Order Confirmation for Mariner's Market`,
-          cc: 'kkeipohl@gmail.com' // Send production copy to staff
+          cc: 'kkeipohl@gmail.com'
         },
         order,
-        shippingAddress,
+        shippingAddress: order.shipping_address,
         preview: 'New production order received!'
       }
     })
+    
+    console.log(`[OrderPlacedSubscriber] Notification created successfully for order ${order.id}`)
   } catch (error) {
-    console.error('Error sending order confirmation notification:', error)
+    console.error('[OrderPlacedSubscriber] Error processing notification:', error)
   }
 }
 
