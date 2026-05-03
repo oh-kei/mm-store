@@ -51,6 +51,18 @@ const Item = ({ item }: ItemProps) => {
             </div>
             
             <div className="space-y-3">
+               {/* Design Snapshot if available */}
+               {item.metadata?.preview_url && (
+                 <div className="mb-4">
+                   <p className="text-[9px] font-black uppercase tracking-widest text-maritime-gold mb-2">Design Preview</p>
+                   <img 
+                    src={item.metadata.preview_url as string} 
+                    alt="Design Preview" 
+                    className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
+                   />
+                 </div>
+               )}
+
                {recipe.layers?.map((layer: any) => (
                  <div key={layer.id} className="flex items-start gap-3 border-b border-slate-100 last:border-0 pb-3 last:pb-0">
                     <div className="w-10 h-10 rounded-lg bg-white border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
@@ -67,11 +79,6 @@ const Item = ({ item }: ItemProps) => {
                       {layer.type === 'text' && (
                         <p className="text-[9px] text-slate-400 font-medium">
                           {layer.props.fontFamily} | {layer.props.fill}
-                        </p>
-                      )}
-                      {layer.type === 'image' && (
-                        <p className="text-[8px] text-slate-300 font-medium truncate">
-                          ID: {layer.props.originalAsset || 'External'}
                         </p>
                       )}
                    </div>

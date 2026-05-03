@@ -25,50 +25,74 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   return (
     <Base preview={preview}>
       <Section>
-        <Text style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 30px' }}>
+        <Text style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 10px', color: '#0F172A' }}>
           Order Confirmation
         </Text>
+        <Text style={{ fontSize: '14px', textAlign: 'center', margin: '0 0 30px', color: '#D4AF37', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>
+          Mariner's Market
+        </Text>
 
-        <Text style={{ margin: '0 0 15px' }}>
+        <Text style={{ margin: '0 0 15px', color: '#334155' }}>
           Dear {shippingAddress.first_name} {shippingAddress.last_name},
         </Text>
 
-        <Text style={{ margin: '0 0 30px' }}>
-          Thank you for your recent order! Here are your order details:
+        <Text style={{ margin: '0 0 30px', color: '#64748b', fontSize: '14px' }}>
+          Thank you for your recent order! We're excited to start preparing your items. You can find your order details and summary below.
         </Text>
 
-        <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px' }}>
-          Order Summary
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          Order ID: {order.display_id}
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          Order Date: {new Date(order.created_at).toLocaleDateString()}
-        </Text>
-        <Text style={{ margin: '0 0 20px' }}>
-          Total: {order.summary.raw_current_order_total.value} {order.currency_code}
+        <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+          <Text style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 15px', color: '#0F172A' }}>
+            Order Summary
+          </Text>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Text style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Order ID</Text>
+              <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>#{order.display_id}</Text>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Text style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Date</Text>
+              <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>{new Date(order.created_at).toLocaleDateString()}</Text>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '8px', marginTop: '4px' }}>
+              <Text style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>Total</Text>
+              <Text style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>{order.summary.raw_current_order_total.value} {order.currency_code.toUpperCase()}</Text>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
+            <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
+            {order.items.map((item, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'medium' }}>{item.quantity}x {item.title}</Text>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Text style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', margin: '30px 0' }}>
+          Questions? Contact us at <a href="mailto:christopherlam@marinersmarkets.com" style={{ color: '#D4AF37', fontWeight: 'bold', textDecoration: 'none' }}>christopherlam@marinersmarkets.com</a>
         </Text>
 
-        <Hr style={{ margin: '20px 0' }} />
+        <Hr style={{ margin: '30px 0', borderColor: '#f1f5f9' }} />
 
-        <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px' }}>
-          Shipping Address
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          {shippingAddress.address_1}
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          {shippingAddress.city}, {shippingAddress.province} {shippingAddress.postal_code}
-        </Text>
-        <Text style={{ margin: '0 0 20px' }}>
-          {shippingAddress.country_code}
-        </Text>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+          <div>
+            <Text style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 10px', color: '#0F172A' }}>
+              Shipping Address
+            </Text>
+            <Text style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: '1.6' }}>
+              {shippingAddress.first_name} {shippingAddress.last_name}<br />
+              {shippingAddress.address_1}<br />
+              {shippingAddress.city}, {shippingAddress.province} {shippingAddress.postal_code}<br />
+              {shippingAddress.country_code.toUpperCase()}
+            </Text>
+          </div>
+        </div>
 
-        <Hr style={{ margin: '20px 0' }} />
+        <Hr style={{ margin: '30px 0', borderColor: '#f1f5f9' }} />
 
-        <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 15px' }}>
-          Order Items
+        <Text style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 20px', color: '#0F172A' }}>
+          Detailed Item Breakdown
         </Text>
 
         <div style={{
@@ -97,10 +121,29 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 padding: '12px 8px',
                 borderBottom: '1px solid #ddd'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <Text style={{ fontWeight: 'bold', margin: 0 }}>{item.title} - {item.product_title}</Text>
-                  <Text style={{ margin: 0 }}>{item.quantity} x {item.unit_price} {order.currency_code}</Text>
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
+                  {item.thumbnail && (
+                    <img src={item.thumbnail} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: 'bold', margin: '0 0 4px' }}>{item.title} - {item.product_title}</Text>
+                    <Text style={{ margin: 0, color: '#666' }}>{item.quantity} x {item.unit_price} {order.currency_code}</Text>
+                  </div>
                 </div>
+                
+                {/* Composite Design Preview */}
+                {(item as any).metadata?.preview_url && (
+                  <div style={{ margin: '15px 0' }}>
+                    <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase', margin: '0 0 10px' }}>
+                      Final Design Preview (Composite)
+                    </Text>
+                    <img 
+                      src={(item as any).metadata.preview_url} 
+                      alt="Design Preview" 
+                      style={{ width: '100%', maxWidth: '400px', borderRadius: '12px', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} 
+                    />
+                  </div>
+                )}
                 
                 {/* Custom Design Details for Staff */}
                 {recipe && (
@@ -126,7 +169,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                         </Text>
                         {layer.type === 'image' && (
                           <div style={{ marginTop: '5px' }}>
-                             <a href={layer.props.url} style={{ fontSize: '10px', color: '#2563EB', textDecoration: 'underline' }}>
+                             <a href={encodeURI(layer.props.url)} style={{ fontSize: '10px', color: '#2563EB', textDecoration: 'underline' }}>
                                Download High-Res Logo
                              </a>
                           </div>

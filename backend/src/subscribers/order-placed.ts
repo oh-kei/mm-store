@@ -20,8 +20,8 @@ export default async function orderPlacedHandler({
       template: EmailTemplates.ORDER_PLACED,
       data: {
         emailOptions: {
-          replyTo: 'kkeipohl@gmail.com',
-          subject: `New Order #${order.display_id} | Mariners Market's`,
+          replyTo: 'christopherlam@marinersmarkets.com',
+          subject: `Order Confirmation for Mariner's Market | Order #${order.display_id}`,
           cc: 'kkeipohl@gmail.com' // Send production copy to staff
         },
         order,

@@ -66,7 +66,7 @@ export default async function Nav() {
 
         <div className="flex items-center gap-3 md:gap-6 text-white/90">
           <SearchButton />
-          <NavRegionSelect regions={regions} />
+          <NavRegionSelect />
           <NavAccountDropdown customer={customer} />
           
           <Suspense

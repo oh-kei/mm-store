@@ -170,19 +170,24 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     init()
   }, [products, activeProduct, setRecipe])
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const stageRef = useRef<any>(null)
 
-    setIsUploading(true)
+  const capturePreview = async () => {
+    if (!stageRef.current) return null
     try {
-      const { publicUrl, key } = await uploadToS3(file)
-      addImageLayer(publicUrl, key)
+      const dataUrl = await stageRef.current.getScreenshot()
+      if (!dataUrl) return null
+      
+      // Convert data URL to File
+      const res = await fetch(dataUrl)
+      const blob = await res.blob()
+      const file = new File([blob], `preview-${Date.now()}.jpg`, { type: "image/jpeg" })
+      
+      const { publicUrl } = await uploadToS3(file)
+      return publicUrl
     } catch (err) {
-      console.error("Upload failed", err)
-      alert("Failed to upload image. Please check your S3 configuration.")
-    } finally {
-      setIsUploading(false)
+      console.error("Preview capture failed", err)
+      return null
     }
   }
 
@@ -198,12 +203,15 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingToCart(true)
     try {
+      const previewUrl = await capturePreview()
+      
       await addToCart({
         variantId: activeVariant.id,
         quantity: 1,
         countryCode,
         metadata: {
           recipe: recipe,
+          preview_url: previewUrl,
         },
       })
       router.push(`/${countryCode}/cart`)
@@ -221,6 +229,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingBulk(true)
     try {
+      const previewUrl = await capturePreview()
       const itemsToAdd: { variantId: string; quantity: number; metadata: any }[] = []
       
       const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
@@ -249,7 +258,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                   variantId: variant.id
                 }
               },
-              crew_member: member.name
+              crew_member: member.name,
+              preview_url: previewUrl,
             }
           })
         }
@@ -261,6 +271,22 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       console.error("Bulk add failed", err)
     } finally {
       setIsAddingBulk(false)
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const { publicUrl, key } = await uploadToS3(file)
+      addImageLayer(publicUrl, key)
+    } catch (err) {
+      console.error("Upload failed", err)
+      alert("Failed to upload image. Please check your S3 configuration.")
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -391,6 +417,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           <div className="bg-[#EDEEF3] rounded-[48px] overflow-hidden shadow-inner border border-slate-200 relative aspect-square flex items-center justify-center group">
             <div className="absolute inset-0 flex items-center justify-center p-12">
                <CustomizerStage 
+                ref={stageRef}
                 recipe={recipe} 
                 selectedId={selectedId} 
                 setSelectedId={setSelectedId}

@@ -29,7 +29,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
       } catch (e) {
         setCustomer(null)
       } finally {
-        setLoading(false)
+        // No loading state needed
       }
     }
     fetchCustomer()

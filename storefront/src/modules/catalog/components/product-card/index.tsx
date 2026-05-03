@@ -29,9 +29,19 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
   const displayColor = hoveredColor || selectedColor;
 
   const variant = useMemo(() => {
-    if (!displayColor) return product.variants?.[0];
-    return product.variants?.find(v => v.options?.some(o => o.value === displayColor)) || product.variants?.[0];
-  }, [product.variants, displayColor]);
+    if (displayColor) {
+      return product.variants?.find(v => v.options?.some(o => o.value === displayColor)) || product.variants?.[0];
+    }
+    
+    // Use the product ID to pick a consistent but "random" starting variant for variety
+    if (product.variants && product.variants.length > 0) {
+      const charSum = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const variantIndex = charSum % product.variants.length;
+      return product.variants[variantIndex];
+    }
+
+    return product.variants?.[0];
+  }, [product.variants, displayColor, product.id]);
 
   const productImage = useMemo(() => {
     return getVariantImage(variant, product) || product.thumbnail;

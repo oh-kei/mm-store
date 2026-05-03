@@ -110,7 +110,7 @@ const TextLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer
   )
 }
 
-export const CustomizerStage = ({ recipe, selectedId, setSelectedId, onUpdateLayer }: StageComponentProps) => {
+export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ recipe, selectedId, setSelectedId, onUpdateLayer }, ref) => {
   const stageRef = useRef<any>(null)
   const transformerRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -118,6 +118,24 @@ export const CustomizerStage = ({ recipe, selectedId, setSelectedId, onUpdateLay
 
   // Logical canvas size is 1000x1000
   const VIRTUAL_SIZE = 1000
+
+  React.useImperativeHandle(ref, () => ({
+    getScreenshot: async () => {
+      if (!stageRef.current) return null
+      
+      // Deselect everything for a clean screenshot
+      setSelectedId(null)
+      
+      // Wait for re-render
+      await new Promise(resolve => setTimeout(resolve, 50))
+      
+      return stageRef.current.toDataURL({
+        pixelRatio: 2, // High res
+        mimeType: "image/jpeg",
+        quality: 0.8
+      })
+    }
+  }))
 
   useEffect(() => {
     const checkSize = () => {
