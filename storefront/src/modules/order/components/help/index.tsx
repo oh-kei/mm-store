@@ -9,12 +9,12 @@ const Help = () => {
       <div className="text-base-regular my-2">
         <ul className="gap-y-2 flex flex-col">
           <li>
-            <LocalizedClientLink href="/contact">Contact</LocalizedClientLink>
+            <a href="mailto:support@marinersmarkets.com" className="hover:text-white transition-colors">Contact</a>
           </li>
-          <li>
-            <LocalizedClientLink href="/contact">
+          <li className="hover:text-white transition-colors">
+            <a href="mailto:support@marinersmarkets.com" className="hover:text-white transition-colors">
               Returns & Exchanges
-            </LocalizedClientLink>
+            </a>
           </li>
         </ul>
       </div>

@@ -188,22 +188,6 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
             </>
           )}
 
-          {!isText && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Opacity</Label>
-                <span className="text-[10px] font-black text-maritime-navy">{Math.round((layer.props.opacity ?? 1) * 100)}%</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="100" 
-                value={(layer.props.opacity ?? 1) * 100}
-                onChange={(e) => onUpdate(layer.id, { opacity: parseInt(e.target.value) / 100 })}
-                className="w-full accent-maritime-gold h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          )}
           
           {/* Rotation Section */}
           <div className="space-y-4 pt-6 border-t border-slate-50">

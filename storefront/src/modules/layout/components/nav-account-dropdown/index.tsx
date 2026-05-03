@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, Fragment } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Transition } from "@headlessui/react"
-import { Fragment } from "react"
 import { useParams } from "next/navigation"
 import { signout, getCustomer } from "@lib/data/customer"
 import { HttpTypes } from "@medusajs/types"
@@ -15,7 +14,6 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
   const isOpen = activeMenu === "account"
   const { countryCode } = useParams() as { countryCode: string }
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
-  const [loading, setLoading] = useState(!initialCustomer)
 
   useEffect(() => {
     // If we have an initial customer from the server, we don't need to fetch unless the menu opens
@@ -43,6 +41,40 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
     window.location.href = `/${countryCode}/account`
   }
 
+  const [isLocked, setIsLocked] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Sync locked state with global state
+  useEffect(() => {
+    if (!isOpen) setIsLocked(false)
+  }, [isOpen])
+
+  const handleMouseEnter = () => {
+    if (window.innerWidth >= 768) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      setActiveMenu("account")
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth >= 768 && !isLocked) {
+      timeoutRef.current = setTimeout(() => {
+        setActiveMenu(null)
+      }, 300)
+    }
+  }
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isLocked) {
+      setIsLocked(false)
+      setActiveMenu(null)
+    } else {
+      setIsLocked(true)
+      setActiveMenu("account")
+    }
+  }
+
   const LINKS = [
     { href: "/account", label: "Overview" },
     { href: "/account/profile", label: "Profile" },
@@ -52,11 +84,13 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
 
   return (
     <div 
-      className="relative"
+      className="relative group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <button 
-        className="hover:text-white transition-colors flex items-center justify-center py-2 relative outline-none"
-        onClick={() => setActiveMenu(isOpen ? null : "account")}
+        className={`hover:text-white transition-colors flex items-center justify-center py-2 relative outline-none ${isLocked ? 'text-white' : ''}`}
+        onClick={handleButtonClick}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         {customer && <div className="absolute top-1 right-[-4px] w-2 h-2 bg-emerald-500 rounded-full border border-black" />}
@@ -72,11 +106,15 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <div className="absolute right-0 top-full pt-1 w-48 z-[100]">
+        <div 
+          className="absolute right-0 top-full pt-1 w-48 z-[100]"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Bridge to prevent hover flickering */}
-          <div className="absolute -top-2 left-0 right-0 h-4 bg-transparent -z-10" />
+          <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent" />
           <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
-            <div className="py-2">
+          <div className="py-2">
               <div className="px-4 py-2 border-b border-white/5 mb-1">
               <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">
                 {customer ? `Hi, ${customer.first_name}` : "Account"}
@@ -113,8 +151,8 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
             )}
           </div>
         </div>
-        </div>
-      </Transition>
-    </div>
-  )
+      </div>
+    </Transition>
+  </div>
+)
 }

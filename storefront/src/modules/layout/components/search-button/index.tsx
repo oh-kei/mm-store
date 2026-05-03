@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useRef, useEffect, Fragment } from "react"
-import { MagnifyingGlassMini, XMarkMini } from "@medusajs/icons"
+import { MagnifyingGlassMini } from "@medusajs/icons"
 import { Transition } from "@headlessui/react"
-import { InstantSearch, useSearchBox } from "react-instantsearch-hooks-web"
+import { InstantSearch } from "react-instantsearch-hooks-web"
 import { SEARCH_INDEX_NAME, searchClient } from "@lib/search-client"
 import Hit from "@modules/search/components/hit"
 import Hits from "@modules/search/components/hits"
@@ -15,10 +15,15 @@ export default function SearchButton() {
   const isOpen = activeMenu === "search"
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [mode, setMode] = useState<'idle' | 'hover' | 'click'>('idle')
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isLocked, setIsLocked] = useState(false)
+
+  // Sync locked state with global state
+  useEffect(() => {
+    if (!isOpen) setIsLocked(false)
+  }, [isOpen])
 
   // Focus input when opened
   useEffect(() => {
@@ -28,29 +33,45 @@ export default function SearchButton() {
         if (input) input.focus()
       }, 100)
       return () => clearTimeout(timer)
-    } else {
-      setMode('idle')
     }
   }, [isOpen])
 
-  const handleButtonClick = () => {
-    if (mode === 'click') {
-      setMode('idle')
+  const handleMouseEnter = () => {
+    if (window.innerWidth >= 768) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      setActiveMenu("search")
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth >= 768 && !isLocked) {
+      timeoutRef.current = setTimeout(() => {
+        closeMenu()
+      }, 300)
+    }
+  }
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isLocked) {
+      setIsLocked(false)
       closeMenu()
     } else {
-      setMode('click')
+      setIsLocked(true)
       setActiveMenu("search")
     }
   }
 
   return (
     <div 
-      className="static sm:relative flex items-center"
+      className="static sm:relative flex items-center group"
       ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <button
         onClick={handleButtonClick}
-        className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90"
+        className={`flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 ${isLocked ? 'text-white' : ''}`}
         aria-label="Search"
       >
         <MagnifyingGlassMini className="text-white/70" />
@@ -71,8 +92,16 @@ export default function SearchButton() {
       >
         <div 
           className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[85vw] max-w-[400px] sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-4 sm:w-[500px] z-[100]"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          <div className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" style={{ transform: "translateZ(0)" }}>
+        {/* Bridge to prevent hover flickering */}
+        <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent hidden sm:block" />
+        <div 
+          className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" 
+          style={{ transform: "translateZ(0)" }}
+          onWheel={(e) => e.stopPropagation()}
+        >
             <InstantSearch
               indexName={SEARCH_INDEX_NAME}
               searchClient={searchClient}
@@ -84,11 +113,12 @@ export default function SearchButton() {
                 </div>
                 
                 <div className="relative group/scroll">
-                   <div 
-                    ref={scrollRef}
-                    className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar scroll-smooth"
-                    style={{ overscrollBehavior: 'contain' }}
-                  >
+                    <div 
+                     ref={scrollRef}
+                     className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar scroll-smooth"
+                     style={{ overscrollBehavior: 'contain' }}
+                     onWheel={(e) => e.stopPropagation()}
+                   >
                     <Hits 
                       hitComponent={Hit} 
                       className="!sm:w-full !max-h-none !opacity-100"

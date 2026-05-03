@@ -9,7 +9,6 @@ export interface LayerProps {
   rotation: number
   scaleX: number
   scaleY: number
-  opacity?: number
   // Text specific
   text?: string
   fontSize?: number

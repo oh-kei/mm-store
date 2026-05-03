@@ -68,9 +68,9 @@ export async function signup(_currentState: unknown, formData: FormData) {
     }
 
     await setAuthToken(loginToken)
-
     revalidateTag("customer")
   } catch (error: any) {
+    if (error.digest?.startsWith('NEXT_REDIRECT')) throw error
     let msg = error.toString()
     if (msg.includes("already exists")) {
       return "An account with this email already exists."
@@ -104,6 +104,7 @@ export async function login(_currentState: unknown, formData: FormData) {
       revalidateTag("customer")
     }
   } catch (error: any) {
+    if (error.digest?.startsWith('NEXT_REDIRECT')) throw error
     const msg = error.toString()
     if (msg.includes("401")) {
       return "The email or password you entered is incorrect. Please double-check and try again."
