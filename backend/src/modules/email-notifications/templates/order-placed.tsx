@@ -61,8 +61,8 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           
           <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
             <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
-            {order.items.map((item, i) => {
-              const isCustom = !!(item as any).metadata?.recipe
+            {order.items.map((item: any, i) => {
+              const isCustom = !!item.metadata?.recipe
               return (
                 <div key={i} style={{ marginBottom: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -116,9 +116,9 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           border: '1px solid #ddd',
           margin: '10px 0'
         }}>
-          {order.items.map((item) => {
-            const recipe = (item as any).metadata?.recipe
-            const crewMember = (item as any).metadata?.crew_member
+          {order.items.map((item: any) => {
+            const recipe = item.metadata?.recipe
+            const crewMember = item.metadata?.crew_member
 
             return (
               <div key={item.id} style={{
