@@ -55,7 +55,9 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
             </tr>
             <tr>
               <td style={{ padding: '12px 0 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', borderTop: '1px solid #e2e8f0' }}>Total</td>
-              <td style={{ padding: '12px 0 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', textAlign: 'right', borderTop: '1px solid #e2e8f0' }}>{order.summary.raw_current_order_total.value} {order.currency_code.toUpperCase()}</td>
+              <td style={{ padding: '12px 0 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', textAlign: 'right', borderTop: '1px solid #e2e8f0' }}>
+                {Number(order.summary?.raw_current_order_total?.value || 0)} {order.currency_code?.toUpperCase()}
+              </td>
             </tr>
           </table>
           
@@ -67,7 +69,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 <div key={i} style={{ marginBottom: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <Text style={{ margin: 0, fontSize: '13px', fontWeight: 'bold', color: '#0F172A' }}>
-                      {item.quantity}x {item.product_title || item.title}
+                      {Number(item.quantity)}x {String(item.product_title || item.title)}
                     </Text>
                     {isCustom && (
                       <span style={{ fontSize: '9px', backgroundColor: '#D4AF37', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}>Custom</span>
@@ -139,7 +141,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                       </Text>
                     )}
                     <Text style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>
-                      {item.quantity} x {item.unit_price} {order.currency_code.toUpperCase()}
+                      {Number(item.quantity)} x {Number(item.unit_price)} {order.currency_code?.toUpperCase()}
                     </Text>
                   </div>
                 </div>
@@ -168,7 +170,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                     border: '1px solid #eee'
                   }}>
                     <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', margin: '0 0 8px' }}>
-                      Production Details {crewMember ? `(For Member: ${crewMember})` : ''}
+                      Production Details {crewMember ? `(For Member: ${String(crewMember)})` : ''}
                     </Text>
                     {recipe.layers?.map((layer: any, idx: number) => (
                       <div key={idx} style={{ marginBottom: '8px' }}>

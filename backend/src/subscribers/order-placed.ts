@@ -41,20 +41,27 @@ export default async function orderPlacedHandler({
 
     // Calculate total if missing or 0
     const calculatedTotal = order.items?.reduce((acc: number, item: any) => {
-      return acc + (item.unit_price * item.quantity)
-    }, 0) || order.total || 0
+      return acc + (Number(item.unit_price) * Number(item.quantity))
+    }, 0) || Number(order.total) || 0
 
-    // Ensure summary exists for the template
+    // Ensure summary exists for the template and has numeric total
     if (!order.summary) {
       order.summary = {
         raw_current_order_total: {
-          value: calculatedTotal
+          value: Number(calculatedTotal)
         }
+      }
+    } else {
+      order.summary.raw_current_order_total = {
+        value: Number(calculatedTotal)
       }
     }
 
-    // Ensure items have correct thumbnail from variant if missing
+    // Ensure items have correct thumbnail and numeric prices/quantities
     order.items?.forEach((item: any) => {
+      item.unit_price = Number(item.unit_price)
+      item.quantity = Number(item.quantity)
+      
       if (!item.thumbnail && item.variant?.product?.thumbnail) {
         item.thumbnail = item.variant.product.thumbnail
       }
@@ -66,20 +73,26 @@ export default async function orderPlacedHandler({
 
     console.log(`[OrderPlacedSubscriber] Sending notification for order ${order.id} to ${order.email}`)
 
+    const notificationData = {
+      emailOptions: {
+        replyTo: 'christopherlam@marinersmarkets.com',
+        subject: `Order Confirmation for Mariner's Market`,
+        cc: 'kkeipohl@gmail.com'
+      },
+      order,
+      shippingAddress: order.shipping_address,
+      preview: 'New production order received!'
+    }
+
+    console.log(`[OrderPlacedSubscriber] Data for template:`, JSON.stringify(notificationData, (key, value) => 
+      key === 'images' || key === 'thumbnail' ? '[IMAGE]' : value
+    , 2))
+
     await notificationModuleService.createNotifications({
       to: order.email,
       channel: 'email',
       template: EmailTemplates.ORDER_PLACED,
-      data: {
-        emailOptions: {
-          replyTo: 'christopherlam@marinersmarkets.com',
-          subject: `Order Confirmation for Mariner's Market`,
-          cc: 'kkeipohl@gmail.com'
-        },
-        order,
-        shippingAddress: order.shipping_address,
-        preview: 'New production order received!'
-      }
+      data: notificationData
     })
     
     console.log(`[OrderPlacedSubscriber] Notification created successfully for order ${order.id}`)
