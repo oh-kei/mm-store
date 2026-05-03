@@ -19,7 +19,7 @@ export default function NavCatalogueDropdown() {
 
   return (
     <div 
-      className="relative flex items-center group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
+      className="relative flex items-center group cursor-pointer"
       onMouseEnter={() => openMenu("catalogue")}
       onMouseLeave={() => closeMenu(300)}
     >

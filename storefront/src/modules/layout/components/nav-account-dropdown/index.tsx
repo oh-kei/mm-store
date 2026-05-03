@@ -46,7 +46,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
 
   return (
     <div 
-      className="relative group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
+      className="relative group cursor-pointer"
       onMouseEnter={() => openMenu("account")}
       onMouseLeave={() => closeMenu(300)}
     >

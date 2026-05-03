@@ -29,7 +29,7 @@ export default function SearchButton() {
 
   return (
     <div 
-      className="static sm:relative flex items-center group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
+      className="static sm:relative flex items-center group cursor-pointer"
       ref={containerRef}
       onMouseEnter={() => openMenu("search")}
       onMouseLeave={() => closeMenu(300)}

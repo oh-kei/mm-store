@@ -31,7 +31,7 @@ export default function NavRegionSelect() {
 
   return (
     <div 
-      className="relative group border border-red-500/0 hover:border-red-500/30 cursor-pointer"
+      className="relative group cursor-pointer"
       onMouseEnter={() => openMenu("region")}
       onMouseLeave={() => closeMenu(300)}
     >
