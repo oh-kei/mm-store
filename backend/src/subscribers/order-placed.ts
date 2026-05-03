@@ -10,7 +10,7 @@ export default async function orderPlacedHandler({
   const notificationModuleService: INotificationModuleService = container.resolve(Modules.NOTIFICATION)
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   
-  const order = await orderModuleService.retrieveOrder(data.id, { relations: ['items', 'summary', 'shipping_address'] })
+  const order = await orderModuleService.retrieveOrder(data.id, { relations: ['items', 'items.variant', 'summary', 'shipping_address'] })
   const shippingAddress = await (orderModuleService as any).orderAddressService_.retrieve(order.shipping_address.id)
 
   try {
@@ -21,7 +21,7 @@ export default async function orderPlacedHandler({
       data: {
         emailOptions: {
           replyTo: 'christopherlam@marinersmarkets.com',
-          subject: `Order Confirmation for Mariner's Market | Order #${order.display_id}`,
+          subject: `Order Confirmation for Mariner's Market`,
           cc: 'kkeipohl@gmail.com' // Send production copy to staff
         },
         order,

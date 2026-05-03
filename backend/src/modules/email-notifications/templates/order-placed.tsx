@@ -44,28 +44,43 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           <Text style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 15px', color: '#0F172A' }}>
             Order Summary
           </Text>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Text style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Order ID</Text>
-              <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>#{order.display_id}</Text>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Text style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Date</Text>
-              <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>{new Date(order.created_at).toLocaleDateString()}</Text>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '8px', marginTop: '4px' }}>
-              <Text style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>Total</Text>
-              <Text style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>{order.summary.raw_current_order_total.value} {order.currency_code.toUpperCase()}</Text>
-            </div>
-          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+            <tr>
+              <td style={{ padding: '4px 0', fontSize: '12px', color: '#64748b' }}>Order ID</td>
+              <td style={{ padding: '4px 0', fontSize: '12px', fontWeight: 'bold', textAlign: 'right' }}>#{order.display_id}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '4px 0', fontSize: '12px', color: '#64748b' }}>Date</td>
+              <td style={{ padding: '4px 0', fontSize: '12px', fontWeight: 'bold', textAlign: 'right' }}>{new Date(order.created_at).toLocaleDateString()}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '12px 0 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', borderTop: '1px solid #e2e8f0' }}>Total</td>
+              <td style={{ padding: '12px 0 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', textAlign: 'right', borderTop: '1px solid #e2e8f0' }}>{order.summary.raw_current_order_total.value} {order.currency_code.toUpperCase()}</td>
+            </tr>
+          </table>
           
           <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
             <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
-            {order.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <Text style={{ margin: 0, fontSize: '12px', fontWeight: 'medium' }}>{item.quantity}x {item.title}</Text>
-              </div>
-            ))}
+            {order.items.map((item, i) => {
+              const isCustom = !!(item as any).metadata?.recipe
+              return (
+                <div key={i} style={{ marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <Text style={{ margin: 0, fontSize: '13px', fontWeight: 'bold', color: '#0F172A' }}>
+                      {item.quantity}x {item.product_title || item.title}
+                    </Text>
+                    {isCustom && (
+                      <span style={{ fontSize: '9px', backgroundColor: '#D4AF37', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}>Custom</span>
+                    )}
+                  </div>
+                  {item.variant?.title && (
+                    <Text style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748b' }}>
+                      {item.variant.title}
+                    </Text>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -101,17 +116,6 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           border: '1px solid #ddd',
           margin: '10px 0'
         }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            backgroundColor: '#f2f2f2',
-            padding: '8px',
-            borderBottom: '1px solid #ddd'
-          }}>
-            <Text style={{ fontWeight: 'bold' }}>Item</Text>
-            <Text style={{ fontWeight: 'bold' }}>Quantity</Text>
-            <Text style={{ fontWeight: 'bold' }}>Price</Text>
-          </div>
           {order.items.map((item) => {
             const recipe = (item as any).metadata?.recipe
             const crewMember = (item as any).metadata?.crew_member
@@ -122,12 +126,21 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 borderBottom: '1px solid #ddd'
               }}>
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
-                  {item.thumbnail && (
-                    <img src={item.thumbnail} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                  {(item.thumbnail || item.variant?.thumbnail) && (
+                    <img src={item.thumbnail || item.variant?.thumbnail} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
                   )}
                   <div style={{ flex: 1 }}>
-                    <Text style={{ fontWeight: 'bold', margin: '0 0 4px' }}>{item.title} - {item.product_title}</Text>
-                    <Text style={{ margin: 0, color: '#666' }}>{item.quantity} x {item.unit_price} {order.currency_code}</Text>
+                    <Text style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px', color: '#0F172A' }}>
+                      {item.product_title || item.title}
+                    </Text>
+                    {item.variant?.title && (
+                      <Text style={{ margin: '0 0 4px', fontSize: '12px', color: '#64748b', fontWeight: 'medium' }}>
+                        {item.variant.title}
+                      </Text>
+                    )}
+                    <Text style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>
+                      {item.quantity} x {item.unit_price} {order.currency_code.toUpperCase()}
+                    </Text>
                   </div>
                 </div>
                 
@@ -183,9 +196,6 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           })}
         </div>
         
-        <Text style={{ fontSize: '12px', color: '#666', marginTop: '40px', textAlign: 'center' }}>
-          Production team: Please use the links above to download original assets.
-        </Text>
       </Section>
     </Base>
   )
