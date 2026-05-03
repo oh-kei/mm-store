@@ -22,6 +22,9 @@ export const getProductsById = cache(async function ({
       { next: { tags: ["products"] } }
     )
     .then(({ products }) => products)
+    .catch((err) => {
+      return []
+    })
 })
 
 export const getProductByHandle = cache(async function (
@@ -38,6 +41,9 @@ export const getProductByHandle = cache(async function (
       { next: { tags: ["products"] } }
     )
     .then(({ products }) => products[0])
+    .catch((err) => {
+      return null
+    })
 })
 
 export const getProductsList = cache(async function ({
@@ -85,6 +91,12 @@ export const getProductsList = cache(async function ({
         },
         nextPage: nextPage,
         queryParams,
+      }
+    })
+    .catch((err) => {
+      return {
+        response: { products: [], count: 0 },
+        nextPage: null,
       }
     })
 })
