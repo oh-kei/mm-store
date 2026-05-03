@@ -13,13 +13,31 @@ export default async function orderPlacedHandler({
   console.log(`[OrderPlacedSubscriber] Processing order: ${data.id}`)
   
   try {
-    const order = await orderModuleService.retrieveOrder(data.id, { 
-      relations: ['items', 'items.variant', 'summary', 'shipping_address', 'billing_address'] 
-    })
+    const query = container.resolve("query")
+    const { data: [order] } = await query.graph({
+      entity: "order",
+      fields: [
+        "*",
+        "items.*",
+        "items.variant.*",
+        "shipping_address.*",
+        "billing_address.*"
+      ],
+      filters: { id: data.id }
+    }) as any
 
     if (!order) {
       console.error(`[OrderPlacedSubscriber] Order not found: ${data.id}`)
       return
+    }
+
+    // Ensure summary exists for the template
+    if (!order.summary) {
+      order.summary = {
+        raw_current_order_total: {
+          value: order.total || 0
+        }
+      }
     }
 
     console.log(`[OrderPlacedSubscriber] Sending notification for order ${order.id} to ${order.email}`)
