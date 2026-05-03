@@ -229,6 +229,6 @@ export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ rec
       </Stage>
     </div>
   )
-}
+})
 
 export default CustomizerStage
