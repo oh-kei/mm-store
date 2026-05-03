@@ -2,6 +2,8 @@ import { Metadata } from "next"
 import { getProductsList } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { getCustomer } from "@lib/data/customer"
+
+export const dynamic = "force-dynamic"
 import { CatalogTemplate } from "@modules/catalog/templates"
 
 export const metadata: Metadata = {
