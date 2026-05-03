@@ -203,7 +203,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingToCart(true)
     try {
-      const previewUrl = await capturePreview()
+      let previewUrl = null
+      try {
+        previewUrl = await capturePreview()
+      } catch (previewErr) {
+        console.error("Preview capture failed, proceeding without it", previewErr)
+      }
       
       await addToCart({
         variantId: activeVariant.id,

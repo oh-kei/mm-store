@@ -15,13 +15,11 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
   const { countryCode } = useParams() as { countryCode: string }
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
 
+  const hasFetchedRef = useRef(false)
   useEffect(() => {
-    // If we have an initial customer from the server, we don't need to fetch unless the menu opens
-    if (initialCustomer && !isOpen) {
-       setCustomer(initialCustomer)
-       return
-    }
-
+    // Only fetch once on mount to hydrate client state
+    if (hasFetchedRef.current) return
+    
     const fetchCustomer = async () => {
       try {
         const c = await getCustomer()
@@ -29,11 +27,16 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
       } catch (e) {
         setCustomer(null)
       } finally {
-        // No loading state needed
+        hasFetchedRef.current = true
       }
     }
-    fetchCustomer()
-  }, [isOpen, initialCustomer]) // Re-fetch when menu opens or initial customer changes
+    
+    if (!initialCustomer) {
+      fetchCustomer()
+    } else {
+      hasFetchedRef.current = true
+    }
+  }, [initialCustomer])
 
 
   const handleLogout = async () => {
@@ -51,16 +54,20 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
 
   const handleMouseEnter = () => {
     if (window.innerWidth >= 768) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
       setActiveMenu("account")
     }
   }
 
   const handleMouseLeave = () => {
     if (window.innerWidth >= 768 && !isLocked) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
         setActiveMenu(null)
-      }, 300)
+      }, 200) // Slightly faster response but still buffered
     }
   }
 
@@ -112,7 +119,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
           onMouseLeave={handleMouseLeave}
         >
           {/* Bridge to prevent hover flickering */}
-          <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent" />
+          <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent" />
           <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
           <div className="py-2">
               <div className="px-4 py-2 border-b border-white/5 mb-1">

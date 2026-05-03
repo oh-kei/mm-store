@@ -13,7 +13,8 @@ interface StageComponentProps {
 }
 
 const ProductBaseImage = ({ url, stageSize }: { url: string; stageSize: number }) => {
-  const [image] = useImage(url)
+  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`
+  const [image] = useImage(proxyUrl, "anonymous")
   if (!image) return null
   
   // Calculate scaling to fit the image in the stage while maintaining aspect ratio
@@ -34,7 +35,8 @@ const ProductBaseImage = ({ url, stageSize }: { url: string; stageSize: number }
 }
 
 const ImageLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer; isSelected: boolean; onSelect: () => void; onChange: (props: any) => void }) => {
-  const [image] = useImage(data.props.url || "")
+  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(data.props.url || "")}`
+  const [image] = useImage(proxyUrl, "anonymous")
   const shapeRef = useRef<any>(null)
 
   return (

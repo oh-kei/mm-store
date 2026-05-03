@@ -38,16 +38,20 @@ export default function SearchButton() {
 
   const handleMouseEnter = () => {
     if (window.innerWidth >= 768) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
       setActiveMenu("search")
     }
   }
 
   const handleMouseLeave = () => {
     if (window.innerWidth >= 768 && !isLocked) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
         closeMenu()
-      }, 300)
+      }, 200)
     }
   }
 
@@ -96,7 +100,7 @@ export default function SearchButton() {
           onMouseLeave={handleMouseLeave}
         >
         {/* Bridge to prevent hover flickering */}
-        <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent hidden sm:block" />
+        <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent hidden sm:block" />
         <div 
           className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" 
           style={{ transform: "translateZ(0)" }}

@@ -26,16 +26,20 @@ export default function NavCatalogueDropdown() {
 
   const handleMouseEnter = () => {
     if (window.innerWidth >= 768) {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = null
+      }
       setActiveMenu("catalogue")
     }
   }
 
   const handleMouseLeave = () => {
     if (window.innerWidth >= 768 && !isLocked) {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
       closeTimerRef.current = setTimeout(() => {
         setActiveMenu(null)
-      }, 300)
+      }, 200)
     }
   }
 
@@ -73,7 +77,7 @@ export default function NavCatalogueDropdown() {
         onMouseLeave={handleMouseLeave}
       >
         {/* Bridge to prevent hover flickering */}
-        <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent" />
+        <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent" />
         <div className="bg-[#1c1c1c] border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (
             <LocalizedClientLink 
