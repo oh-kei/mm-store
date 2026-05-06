@@ -21,7 +21,7 @@ export function ManualAddMember({ onAdd }: ManualAddMemberProps) {
     }
   }
 
-  const sizes = ["XS", "S", "M", "L", "XL"]
+  const sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"]
 
   return (
     <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl space-y-6 shadow-sm">

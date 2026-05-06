@@ -25,11 +25,7 @@ export default function NavCatalogueDropdown() {
     >
       <LocalizedClientLink 
         href="/catalog"
-        onClick={(e) => {
-          // Keep toggle for mobile/lock, but allow navigation
-          toggleMenu("catalogue")
-        }}
-        className={`hover:text-white transition-colors py-2 text-white/90 outline-none cursor-pointer ${isDropdownOpen && isLocked ? 'text-white' : ''}`}
+        className={`hover:text-white transition-colors py-2 text-white/90 outline-none cursor-pointer relative z-[110] ${isDropdownOpen && isLocked ? 'text-white' : ''}`}
       >
         Catalogue
       </LocalizedClientLink>
@@ -44,8 +40,8 @@ export default function NavCatalogueDropdown() {
         onMouseLeave={() => closeMenu(300)}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Bridge to prevent hover flickering - centered and narrow */}
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-10 h-12 bg-transparent" />
+        {/* Bridge to prevent hover flickering - centered and narrow, adjusted to not overlap link */}
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-4 bg-transparent" />
         <div className="bg-[#1c1c1c] border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (
             <LocalizedClientLink 

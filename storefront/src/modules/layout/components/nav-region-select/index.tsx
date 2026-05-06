@@ -40,7 +40,7 @@ export default function NavRegionSelect() {
         onClick={() => toggleMenu("region")}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span className="uppercase text-[10px] tracking-widest font-bold hidden md:inline text-white/90">
+        <span className="uppercase text-[10px] tracking-widest font-bold hidden md:inline text-white/90 relative z-[110]">
           {activeCountry ? activeCountry.code : "Region"}
         </span>
       </button>
@@ -62,8 +62,8 @@ export default function NavRegionSelect() {
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Bridge to prevent hover flickering - centered and narrow */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-transparent" />
+          {/* Bridge to prevent hover flickering - adjusted height */}
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
           <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
             <div className="py-2">
               <div className="px-4 py-2 border-b border-white/5 mb-2">

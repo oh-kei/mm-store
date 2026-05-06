@@ -7,22 +7,28 @@ export const dynamic = "force-dynamic"
 import { CatalogTemplate } from "@modules/catalog/templates"
 
 export const metadata: Metadata = {
-  title: "Catalogue | Mariners Market's",
+  title: "Catalogue",
   description: "Explore our collection of premium maritime gear.",
 }
 
-export default async function CatalogPage({
-  params,
-}: {
+export default async function CatalogPage(props: {
   params: Promise<{ countryCode: string }>
+  searchParams: Promise<{ category?: string }>
 }) {
-  const { countryCode } = await params
+  const params = await props.params
+  const searchParams = await props.searchParams
+  const { countryCode } = params
+  const { category } = searchParams
   
+  // Only fetch a large amount of products if we're actually viewing a category
+  // Otherwise, the landing page just shows category cards and doesn't need them.
+  const limit = category ? 100 : 0
+
   // Parallelize fetches for better performance
   const [productsData, region, customer] = await Promise.all([
     getProductsList({
       countryCode,
-      queryParams: { limit: 100 },
+      queryParams: { limit },
     }),
     getRegion(countryCode),
     getCustomer(),

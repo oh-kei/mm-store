@@ -65,6 +65,9 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
       red: "#EF4444",
       green: "#10B981",
       yellow: "#F59E0B",
+      cyan: "#06B6D4",
+      "light green": "#86EFAC",
+      lightgreen: "#86EFAC",
       "light blue": "#ADD8E6",
       lightblue: "#ADD8E6",
     }

@@ -53,7 +53,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
       <LocalizedClientLink 
         href="/account"
         onClick={() => toggleMenu("account")}
-        className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer relative"
+        className="flex items-center gap-2 hover:text-white transition-colors outline-none py-2 text-white/90 cursor-pointer relative z-[110]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         {customer && <div className="absolute top-1 right-[-4px] w-2 h-2 bg-emerald-500 rounded-full border border-black" />}
@@ -76,8 +76,8 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Bridge to prevent hover flickering - centered and narrow */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-transparent" />
+          {/* Bridge to prevent hover flickering - adjusted height */}
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
           <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
             <div className="py-2">
               <div className="px-4 py-2 border-b border-white/5 mb-1">

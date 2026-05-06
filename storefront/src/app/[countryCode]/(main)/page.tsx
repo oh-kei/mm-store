@@ -7,9 +7,9 @@ import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Mariners Market's",
+  title: "Home",
   description:
-    "Elevate Your Voyage with premium maritime gear.",
+    "Elevate your voyage with Mariners Market's. Discover our curated collection of premium maritime gear, professional apparel, and nautical lifestyle essentials.",
 }
 
 export default async function Home({

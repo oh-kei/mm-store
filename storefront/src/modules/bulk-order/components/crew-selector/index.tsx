@@ -19,7 +19,7 @@ interface CrewSelectorProps {
   product: HttpTypes.StoreProduct
   roster: CrewMember[]
   customer: HttpTypes.StoreCustomer | null
-  onUpdate: (selection: { members: SelectionMember[], colour: string | null }) => void
+  onUpdate: (selection: { members: SelectionMember[], colour: string | null, hasError: boolean }) => void
   forceShowMessage?: boolean
   initialColour?: string | null
 }
@@ -59,9 +59,10 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
 
   // Sync up to parent
   useEffect(() => {
-    onUpdate({ members: selectedMembers, colour: selectedColour })
+    const hasError = selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size))
+    onUpdate({ members: selectedMembers, colour: selectedColour, hasError })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMembers, selectedColour])
+  }, [selectedMembers, selectedColour, availableSizes])
 
   const handleToggleMember = (idx: number) => {
     setSelectedMemberIndices(prev => 
@@ -146,6 +147,17 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
             </div>
           </button>
 
+          {/* Global Error Message for Unavailable Sizes */}
+          {selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size)) && (
+            <div className="mt-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+              <AlertTriangle className="text-red-500 flex-shrink-0" size={16} />
+              <p className="text-[10px] font-bold text-red-600 leading-relaxed uppercase tracking-wider">
+                Some selected members have <span className="font-black underline">unavailable sizes</span> for this product. 
+                Please adjust their sizes or remove them to proceed.
+              </p>
+            </div>
+          )}
+
           {/* Expandable Dropdown Content */}
           <div className={clx(
             "mt-2 overflow-hidden transition-all duration-300 ease-in-out",
@@ -208,20 +220,53 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       </div>
                       
                       {isSelected && (
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setEditingMemberIdx(isEditing ? null : idx)
-                          }}
-                          className={clx(
-                            "p-2 rounded-lg transition-colors bg-slate-50 hover:bg-maritime-gold/10",
-                            isEditing ? "text-maritime-gold" : "text-slate-300"
+                        <div className="flex items-center gap-2">
+                          {availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && (
+                            <div className="flex items-center gap-2 px-2 py-1 bg-red-50 rounded-lg border border-red-100">
+                              <AlertTriangle size={10} className="text-red-500" />
+                              <span className="text-[8px] font-black text-red-500 uppercase tracking-tighter">Size Unavailable</span>
+                            </div>
                           )}
-                        >
-                          <Edit2 size={12} />
-                        </button>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingMemberIdx(isEditing ? null : idx)
+                            }}
+                            className={clx(
+                              "p-2 rounded-lg transition-colors bg-slate-50 hover:bg-maritime-gold/10",
+                              isEditing ? "text-maritime-gold" : "text-slate-300"
+                            )}
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                        </div>
                       )}
                     </button>
+
+                    {/* Size Unavailable Action Hint */}
+                    {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && !isEditing && (
+                      <div className="px-3 pb-2 flex gap-2">
+                         <button 
+                           onClick={() => setEditingMemberIdx(idx)}
+                           className="text-[9px] font-black uppercase tracking-widest text-maritime-gold hover:underline"
+                         >
+                           Change Size
+                         </button>
+                         <button 
+                           onClick={() => {
+                             if (selectionMode === "all") {
+                               setSelectionMode("select")
+                               setSelectedMemberIndices(roster.map((_, i) => i).filter(i => i !== idx))
+                             } else {
+                               handleToggleMember(idx)
+                             }
+                           }}
+                           className="text-[9px] font-black uppercase tracking-widest text-red-400 hover:underline"
+                         >
+                           Remove from Selection
+                         </button>
+                      </div>
+                    )}
 
                     {/* Inline Override Controls */}
                     {isEditing && isSelected && (
