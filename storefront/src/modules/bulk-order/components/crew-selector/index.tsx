@@ -32,12 +32,55 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
   const [editingMemberIdx, setEditingMemberIdx] = useState<number | null>(null)
   const [hasInteracted, setHasInteracted] = useState(false)
 
-  // Extract available colors from product options and sort alphabetically
+  const getColorHex = (colorName: string) => {
+    const map: Record<string, string> = {
+      black: "#000000",
+      white: "#FFFFFF",
+      navy: "#1E3A8A",
+      grey: "#4B5563",
+      gray: "#4B5563",
+      blue: "#3B82F6",
+      red: "#EF4444",
+      green: "#10B981",
+      yellow: "#FFD700",
+      cyan: "#06B6D4",
+      "light green": "#86EFAC",
+      lightgreen: "#86EFAC",
+      "light blue": "#ADD8E6",
+      lightblue: "#ADD8E6",
+      "dark blue": "#1E3A8A",
+      orange: "#F97316",
+      "cool blue": "#60A5FA",
+      "khaki": "#C3B091",
+      "dark green": "#064E3B",
+      "red black": "linear-gradient(135deg, #EF4444 49%, #EF4444 51%, #000000 51%)",
+      "blue black": "linear-gradient(135deg, #3B82F6 49%, #3B82F6 51%, #000000 51%)",
+      "red/black": "linear-gradient(135deg, #EF4444 49%, #EF4444 51%, #000000 51%)",
+      "blue/black": "linear-gradient(135deg, #3B82F6 49%, #3B82F6 51%, #000000 51%)",
+    }
+    return map[colorName.toLowerCase()] || "#E5E7EB"
+  }
+
+  const getLuminance = (color: string) => {
+    if (color.includes('gradient')) return 0.5;
+    const hex = color.replace('#', '');
+    if (hex.length !== 6) return 0.5;
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  }
+
+  // Extract available colors from product options and sort by luminance (lightest to darkest)
   const colorOption = product.options?.find(o => {
     const t = o.title?.toLowerCase() || ""
     return t.includes("color") || t.includes("colour") || t.includes("design") || t.includes("style")
   })
-  const colors = (colorOption?.values?.map(v => v.value).filter(Boolean) as string[] || []).sort((a, b) => a.localeCompare(b))
+  const colors = (colorOption?.values?.map(v => v.value).filter(Boolean) as string[] || []).sort((a, b) => {
+    const lumA = getLuminance(getColorHex(a));
+    const lumB = getLuminance(getColorHex(b));
+    return lumB - lumA;
+  })
 
   // Extract available sizes
   const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))
@@ -65,12 +108,14 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
   }, [selectedMembers, selectedColour, availableSizes])
 
   const handleToggleMember = (idx: number) => {
+    setHasInteracted(true)
     setSelectedMemberIndices(prev => 
       prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
     )
   }
 
   const handleUpdateOverride = (idx: number, type: 'size' | 'colour', value: string) => {
+    setHasInteracted(true)
     setOverrides(prev => ({
       ...prev,
       [idx]: {
@@ -147,8 +192,8 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
             </div>
           </button>
 
-          {/* Global Error Message for Unavailable Sizes */}
-          {selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size)) && (
+          {/* Global Error Message for Unavailable Sizes - Only show after interaction */}
+          {(hasInteracted || forceShowMessage) && selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size)) && (
             <div className="mt-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <AlertTriangle className="text-red-500 flex-shrink-0" size={16} />
               <p className="text-[10px] font-bold text-red-600 leading-relaxed uppercase tracking-wider">
@@ -160,10 +205,13 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
 
           {/* Expandable Dropdown Content */}
           <div className={clx(
-            "mt-2 overflow-hidden transition-all duration-300 ease-in-out",
-            selectionMode === "select" ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+            "mt-2 overflow-hidden transition-all duration-500 ease-in-out",
+            selectionMode === "select" ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
           )}>
-            <div className="bg-slate-50/50 rounded-[24px] border border-slate-100 p-2 space-y-1 overflow-y-auto max-h-[600px] custom-scrollbar">
+            <div 
+              data-lenis-prevent
+              className="bg-slate-50/50 rounded-[24px] border border-slate-100 p-2 space-y-1 overflow-y-auto max-h-[320px] custom-scrollbar shadow-inner"
+            >
                {/* "Select All" Toggles for quick management */}
                <div className="flex gap-1 mb-2 px-1">
                  <button 

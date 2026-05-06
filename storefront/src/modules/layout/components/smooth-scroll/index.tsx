@@ -32,7 +32,19 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
     requestAnimationFrame(raf);
 
+    // Sync Lenis with body overflow (useful for modals)
+    const observer = new MutationObserver(() => {
+      if (document.body.style.overflow === "hidden") {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ["style"] });
+
     return () => {
+      observer.disconnect();
       lenis.destroy();
       lenisRef.current = null;
     };

@@ -47,13 +47,6 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
     return getVariantImage(variant, product) || product.thumbnail;
   }, [variant, product]);
 
-  // Get all unique sizes and colors
-  const { sizes, colors } = useMemo(() => {
-    const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
-    const c = (product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"))?.values?.map(v => v.value).filter(Boolean) as string[] || []).sort((a, b) => a.localeCompare(b));
-    return { sizes: s, colors: c };
-  }, [product.options]);
-  
   const getColorHex = (colorName: string) => {
     const map: Record<string, string> = {
       black: "#000000",
@@ -64,15 +57,48 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
       blue: "#3B82F6",
       red: "#EF4444",
       green: "#10B981",
-      yellow: "#F59E0B",
+      yellow: "#FFD700",
       cyan: "#06B6D4",
       "light green": "#86EFAC",
       lightgreen: "#86EFAC",
       "light blue": "#ADD8E6",
       lightblue: "#ADD8E6",
+      "dark blue": "#1E3A8A",
+      orange: "#F97316",
+      "cool blue": "#60A5FA",
+      "khaki": "#C3B091",
+      "dark green": "#064E3B",
+      "red black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+      "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+      "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+      "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }
+
+  const getLuminance = (color: string) => {
+    if (color.includes('gradient')) return 0.5;
+    const hex = color.replace('#', '');
+    if (hex.length !== 6) return 0.5;
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  }
+
+  // Get all unique sizes and colors
+  const { sizes, colors } = useMemo(() => {
+    const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
+    const c = (product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"))?.values?.map(v => v.value).filter(Boolean) as string[] || []);
+    
+    const sortedColors = [...c].sort((a, b) => {
+      const lumA = getLuminance(getColorHex(a));
+      const lumB = getLuminance(getColorHex(b));
+      return lumB - lumA; // Pure Luminance: Lightest to Darkest
+    });
+
+    return { sizes: s, colors: sortedColors };
+  }, [product.options]);
 
   const price = variant?.calculated_price;
   const formattedPrice = price && price.calculated_amount !== null && price.calculated_amount !== undefined && price.currency_code
@@ -231,11 +257,14 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
                     e.stopPropagation(); 
                     setSelectedColor(color); 
                   }}
-                  className={clx("w-3 h-3 rounded-full border shadow-sm transition-all duration-300", {
-                    "border-black/40 scale-125 ring-1 ring-black/10": selectedColor === color,
-                    "border-black/5": selectedColor !== color
+                  className={clx("w-3 h-3 rounded-full border border-black/10 shadow-sm transition-all duration-300 overflow-hidden p-0 block", {
+                    "border-black/60 scale-125 ring-2 ring-black/5": selectedColor === color,
                   })}
-                  style={{ backgroundColor: getColorHex(color) }}
+                  style={{ 
+                    background: getColorHex(color),
+                    backgroundSize: '150% 150%',
+                    backgroundPosition: 'center',
+                  }}
                   title={color}
                 />
               ))}

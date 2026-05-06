@@ -124,7 +124,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const { state: isCrewModalOpen, open: openCrewModal, close: closeCrewModal } = useToggleState(false)
-  const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null }>({ members: [], colour: null })
+  const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null, hasError?: boolean }>({ members: [], colour: null, hasError: false })
   const [roster, setRoster] = useState<any[]>([])
 
   useEffect(() => {
@@ -169,6 +169,18 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
     init()
   }, [products, activeProduct, setRecipe])
+
+  // Lock body scroll when crew modal is open
+  useEffect(() => {
+    if (isCrewModalOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isCrewModalOpen])
 
   const stageRef = useRef<any>(null)
 
@@ -529,7 +541,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           </div>
         </Modal.Title>
         <Modal.Body>
-          <div className="py-4">
+          <div data-lenis-prevent className="py-4 w-full">
              {activeProduct && (
                <CrewSelector 
                  product={activeProduct}
@@ -554,8 +566,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </Button>
               <Button 
                 onClick={handleApplyToCrew} 
-                disabled={isAddingBulk || crewSelection.members.length === 0}
-                className="h-12 px-8 bg-maritime-navy text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-maritime-navy/20"
+                disabled={isAddingBulk || crewSelection.members.length === 0 || crewSelection.hasError}
+                className={clx("h-12 px-8 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all", {
+                  "bg-maritime-navy shadow-maritime-navy/20": !crewSelection.hasError,
+                  "bg-slate-300 cursor-not-allowed opacity-50": crewSelection.hasError
+                })}
               >
                 {isAddingBulk ? "Adding..." : "Add to Cart"}
               </Button>
