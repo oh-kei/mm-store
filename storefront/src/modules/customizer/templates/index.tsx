@@ -289,7 +289,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       addImageLayer(publicUrl, key)
     } catch (err) {
       console.error("Upload failed", err)
-      alert("Failed to upload image. Please check your S3 configuration.")
+      alert("Failed to upload image. Please try again or use a different file.")
     } finally {
       setIsUploading(false)
     }
@@ -364,7 +364,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </Button>
               
               <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
-                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" disabled={isUploading} />
                 {isUploading ? (
                   <div className="w-5 h-5 border-2 border-maritime-gold border-t-transparent rounded-full animate-spin" />
                 ) : (

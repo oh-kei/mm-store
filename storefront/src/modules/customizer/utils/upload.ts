@@ -1,6 +1,11 @@
 export async function uploadToS3(file: File): Promise<{ publicUrl: string; key: string }> {
+  // Read file into memory to prevent ERR_UPLOAD_FILE_CHANGED
+  // This happens in some browsers if the file on disk is modified or moved during upload
+  const arrayBuffer = await file.arrayBuffer()
+  const blob = new Blob([arrayBuffer], { type: file.type })
+
   const formData = new FormData()
-  formData.append("file", file)
+  formData.append("file", blob, file.name)
 
   const response = await fetch("/api/customize/upload", {
     method: "POST",
