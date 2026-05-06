@@ -86,9 +86,18 @@ function LoginInner({ setCurrentView }: Props) {
           onClick={async () => {
             setGoogleError(null)
             try {
-              const result = await sdk.auth.login("customer", "google")
+              const result = await sdk.auth.login("customer", "google", {
+                prompt: "select_account",
+              })
               if (typeof result === "object" && result.location) {
-                window.location.href = result.location
+                try {
+                  const url = new URL(result.location)
+                  url.searchParams.set("prompt", "select_account")
+                  window.location.href = url.toString()
+                } catch (e) {
+                  const separator = result.location.includes("?") ? "&" : "?"
+                  window.location.href = `${result.location}${separator}prompt=select_account`
+                }
               }
             } catch (error: any) {
               console.error("Google login error:", error)

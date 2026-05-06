@@ -51,7 +51,11 @@ function GoogleCallbackInner() {
             } catch (createErr: any) {
               // This email already has an emailpass account — tell the user clearly
               const msg = createErr?.toString() ?? ""
-              if (msg.includes("already exists") || msg.includes("409")) {
+              if (
+                msg.includes("already exists") || 
+                msg.includes("409") || 
+                msg.includes("already has an account")
+              ) {
                 window.location.href = "/account?error=account_exists"
                 return
               }
