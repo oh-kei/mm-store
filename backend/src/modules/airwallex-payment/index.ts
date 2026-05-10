@@ -1,10 +1,6 @@
-import { ModuleProviderExports } from '@medusajs/framework/types'
-import AirwallexPaymentProviderService from './service'
+import AirwallexPaymentProviderService from "./service"
+import { ModuleProvider, Modules } from "@medusajs/framework/utils"
 
-const services = [AirwallexPaymentProviderService]
-
-const providerExport: ModuleProviderExports = {
-  services,
-}
-
-export default providerExport
+export default ModuleProvider(Modules.PAYMENT, {
+  services: [AirwallexPaymentProviderService],
+})
