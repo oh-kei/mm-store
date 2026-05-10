@@ -17,7 +17,6 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
    */
   async initiatePayment(input: any): Promise<any> {
     const { amount, currency_code, context } = input
-    // Medusa usually provides a way to get the resource ID or we generate a placeholder
     const resource_id = context?.id || `order_${crypto.randomUUID().slice(0, 8)}`
 
     console.log(`[Airwallex] Initiating payment for order ${resource_id} with amount ${amount} ${currency_code}`)
@@ -72,26 +71,18 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
 
       const data = await response.json()
 
-      // Guide says to return { id, data }
       return {
         id: data.id,
         data: {
           ...data,
           status: "pending",
-          hosted_url: data.url, // The API response provides a url
+          hosted_url: data.url,
         }
       }
     } catch (error) {
       console.error("[Airwallex] Error creating checkout:", error)
-      const mockHostedUrl = `https://mock.airwallex.com/checkout/${resource_id}?amount=${amount}&currency=${currency_code}`
-      return {
-        id: `mock_${resource_id}`,
-        data: {
-          status: "pending",
-          hosted_url: mockHostedUrl,
-          error: error.message
-        }
-      }
+      // Throw the error so it fails hard and appears in Railway logs!
+      throw error
     }
   }
 
