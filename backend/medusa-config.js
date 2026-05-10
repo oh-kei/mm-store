@@ -115,12 +115,12 @@ const medusaConfig = {
         ]
       }
     }] : []),
-    ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
+    {
       key: Modules.PAYMENT,
       resolve: '@medusajs/payment',
       options: {
         providers: [
-          {
+          ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
             resolve: '@medusajs/payment-stripe',
             id: 'stripe',
             options: {
@@ -129,10 +129,18 @@ const medusaConfig = {
               capture: STRIPE_CAPTURE,
               automatic_payment_methods: STRIPE_AUTOMATIC_PAYMENT_METHODS,
             },
+          }] : []),
+          {
+            resolve: './src/modules/airwallex-payment',
+            id: 'airwallex',
+            options: {
+              clientId: process.env.AIRWALLEX_CLIENT_ID,
+              apiKey: process.env.AIRWALLEX_API_KEY,
+            },
           },
         ],
       },
-    }] : []),
+    },
     {
       key: Modules.AUTH,
       resolve: "@medusajs/auth",
