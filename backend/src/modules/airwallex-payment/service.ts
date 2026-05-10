@@ -139,9 +139,19 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     return { action: "captured", data: {} }
   }
 
+  // Use the customer email as the external_id
   async createAccountHolder(input: any): Promise<any> {
-    console.log(`[Airwallex] Creating account holder (stub)`)
-    return { data: input }
+    console.log(`[Airwallex] Creating account holder (stub) for ${input.email}`)
+    
+    // If for some reason email is missing, fall back to a guest identifier
+    const external_id = input.email || "guest_customer"
+    
+    return {
+      external_id: external_id,
+      data: {
+        ...input,
+      }
+    }
   }
 }
 
