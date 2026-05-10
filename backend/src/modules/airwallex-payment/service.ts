@@ -130,6 +130,13 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     return input.data
   }
 
+  async deletePayment(input: any): Promise<any> {
+    console.log(`[Airwallex] Deleting payment for ${input.data?.id}`)
+    return {
+      data: input.data,
+    }
+  }
+
   async getPaymentStatus(input: any): Promise<any> {
     return { status: "authorized" }
   }
@@ -139,7 +146,6 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
   }
 
   async getWebhookActionAndData(payload: any): Promise<any> {
-    const { data } = payload
     return { action: "captured", data: {} }
   }
 }
