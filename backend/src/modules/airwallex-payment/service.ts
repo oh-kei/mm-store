@@ -55,7 +55,10 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
         }
       }
 
-      const response = await fetch('https://api-demo.airwallex.com/api/v1/billing/checkouts', {
+      console.log(`[Airwallex] Calling create checkout with token length: ${accessToken?.length || 0}`)
+
+      // Correct URL as per user clarification: /api/v1/billing_checkouts/create
+      const response = await fetch('https://api-demo.airwallex.com/api/v1/billing_checkouts/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +84,6 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
       }
     } catch (error) {
       console.error("[Airwallex] Error creating checkout:", error)
-      // Throw the error so it fails hard and appears in Railway logs!
       throw error
     }
   }
