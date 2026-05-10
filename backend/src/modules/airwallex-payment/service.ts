@@ -39,37 +39,34 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
       const authData = await authResponse.json()
       const accessToken = authData.token
 
-      // 2. Create Billing Checkout
+      // 2. Create Payment Intent
       const requestId = crypto.randomUUID()
       
-      const checkoutPayload = {
+      // Medusa provides amount in cents (minor units). Airwallex expects major units (e.g. 140.00).
+      const majorAmount = amount / 100
+
+      const paymentIntentPayload = {
+        amount: majorAmount,
+        currency: currency_code.toUpperCase(),
+        merchant_order_id: resource_id,
         request_id: requestId,
-        mode: "PAYMENT",
-        success_url: `${process.env.STORE_URL || 'http://localhost:8000'}/order-confirmed`,
-        cancel_url: `${process.env.STORE_URL || 'http://localhost:8000'}/checkout`,
-        payment_settings: {
-          payment_method_types: ["card", "googlepay", "applepay"]
-        },
-        metadata: {
-          internal_order_id: resource_id
-        }
+        descriptor: "Mariners Market Order"
       }
 
-      console.log(`[Airwallex] Calling create checkout with token length: ${accessToken?.length || 0}`)
+      console.log(`[Airwallex] Creating PaymentIntent for amount ${majorAmount}`)
 
-      // Correct URL as per user clarification: /api/v1/billing_checkouts/create
-      const response = await fetch('https://api-demo.airwallex.com/api/v1/billing_checkouts/create', {
+      const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/payment_intents/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(checkoutPayload)
+        body: JSON.stringify(paymentIntentPayload)
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(`Airwallex checkout creation failed: ${JSON.stringify(errorData)}`)
+        throw new Error(`Airwallex PaymentIntent creation failed: ${JSON.stringify(errorData)}`)
       }
 
       const data = await response.json()
@@ -79,11 +76,11 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
         data: {
           ...data,
           status: "pending",
-          hosted_url: data.url,
+          client_secret: data.client_secret, // Store client_secret for frontend
         }
       }
     } catch (error) {
-      console.error("[Airwallex] Error creating checkout:", error)
+      console.error("[Airwallex] Error creating PaymentIntent:", error)
       throw error
     }
   }
@@ -140,6 +137,11 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
 
   async getWebhookActionAndData(payload: any): Promise<any> {
     return { action: "captured", data: {} }
+  }
+
+  async createAccountHolder(input: any): Promise<any> {
+    console.log(`[Airwallex] Creating account holder (stub)`)
+    return { data: input }
   }
 }
 
