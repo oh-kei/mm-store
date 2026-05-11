@@ -5,6 +5,7 @@ import { OnApproveActions, OnApproveData } from "@paypal/paypal-js"
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
 import { placeOrder } from "@lib/data/cart"
@@ -52,7 +53,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     case paymentSession?.provider_id === "pp_airwallex_airwallex":
       return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+        <AirwallexPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     case isPaypal(paymentSession?.provider_id):
       return (
@@ -297,6 +298,46 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"
+      />
+    </>
+  )
+}
+
+const AirwallexPaymentButton = ({ notReady, "data-testid": dataTestId }: { notReady: boolean, "data-testid"?: string }) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const isReview = searchParams.get("step") === "review"
+
+  const onPaymentCompleted = async () => {
+    await placeOrder()
+      .catch((err) => {
+        setErrorMessage(err.message)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
+  }
+
+  const handlePayment = () => {
+    setSubmitting(true)
+    onPaymentCompleted()
+  }
+
+  return (
+    <>
+      <Button
+        disabled={notReady || !isReview}
+        isLoading={submitting}
+        onClick={handlePayment}
+        size="large"
+        data-testid={dataTestId}
+      >
+        {isReview ? "Place order" : "Complete payment above"}
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="airwallex-payment-error-message"
       />
     </>
   )
