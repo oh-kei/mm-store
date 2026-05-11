@@ -2,6 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import Script from "next/script"
 import { RadioGroup } from "@headlessui/react"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
@@ -30,6 +31,7 @@ const Payment = ({
   const [error, setError] = useState<string | null>(null)
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
+  const [airwallexReady, setAirwallexReady] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
   )
@@ -114,8 +116,38 @@ const Payment = ({
     setError(null)
   }, [isOpen])
 
+  useEffect(() => {
+    if (airwallexReady && selectedPaymentMethod === "pp_airwallex_airwallex" && activeSession) {
+      const Airwallex = (window as any).Airwallex
+      if (Airwallex) {
+        Airwallex.init({
+          env: 'demo',
+        })
+
+        const element = Airwallex.createElement('dropIn', {
+          intent_id: activeSession.data.id,
+          client_secret: activeSession.data.client_secret,
+          methods: ['card'],
+        })
+
+        element.mount('#airwallex-drop-in')
+
+        return () => {
+          element.unmount()
+        }
+      }
+    }
+  }, [airwallexReady, selectedPaymentMethod, activeSession])
+
   return (
     <div className="bg-white">
+      <Script
+        src="https://checkout.airwallex.com/assets/bundle.js"
+        onLoad={() => {
+          console.log("[Airwallex] Script loaded")
+          setAirwallexReady(true)
+        }}
+      />
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -183,6 +215,9 @@ const Payment = ({
                     }}
                   />
                 </div>
+              )}
+              {selectedPaymentMethod === "pp_airwallex_airwallex" && (
+                <div id="airwallex-drop-in" className="mt-5 transition-all duration-150 ease-in-out" />
               )}
             </>
           )}
