@@ -32,6 +32,7 @@ const Payment = ({
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
   const [airwallexReady, setAirwallexReady] = useState(false)
+  const [paymentComplete, setPaymentComplete] = useState(false)
   const airwallexRef = useRef<HTMLDivElement>(null)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
@@ -165,6 +166,7 @@ const Payment = ({
 
           element.on('success', (e: any) => {
             console.log('[Airwallex] Payment success', e.detail)
+            setPaymentComplete(true)
             router.push(pathname + '?' + createQueryString('step', 'review'))
           })
 
@@ -294,6 +296,7 @@ const Payment = ({
             isLoading={isLoading}
             disabled={
               (isStripe && !cardComplete) ||
+              (selectedPaymentMethod === "pp_airwallex_airwallex" && !paymentComplete) ||
               (!selectedPaymentMethod && !paidByGiftcard)
             }
             data-testid="submit-payment-button"

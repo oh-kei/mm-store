@@ -168,16 +168,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 </Text>
               </div>
             )}
-            {cart && (cart.shipping_methods?.length ?? 0) > 0 && !cart.payment_collection?.payment_sessions?.length && (
-              <Button
-                size="large"
-                className="mt-4"
-                onClick={handleSubmit}
-                data-testid="submit-delivery-option-button"
-              >
-                Continue to payment
-              </Button>
-            )}
+
           </div>
         </div>
       )}
