@@ -141,82 +141,60 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
 
   // Detailed logging to find the email and see what's happening
   async createAccountHolder(input: any): Promise<any> {
-    console.log(`[Airwallex] Creating account holder. Input:`, JSON.stringify(input))
-    
-    const email = input.email || input.data?.context?.customer?.email
-    
+    const { context } = input
+    const customer = context?.customer
+
+    const email = customer?.email
+
+    console.log(`[Airwallex] Customer email: ${email}`)
+
     if (!email) {
-      console.log(`[Airwallex] No email found in input, falling back to guest_customer.`)
-      return {
-        external_id: "guest_customer",
-        data: { ...input }
-      }
+      throw new Error("Missing customer email.")
     }
 
-    try {
-      // 1. Get Access Token
-      const authResponse = await fetch('https://api-demo.airwallex.com/api/v1/authentication/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-client-id': this.options_.clientId,
-          'x-api-key': this.options_.apiKey
-        }
-      })
-
-      if (!authResponse.ok) {
-        throw new Error(`Airwallex authentication failed: ${authResponse.statusText}`)
+    // 1. Get Access Token
+    const authResponse = await fetch('https://api-demo.airwallex.com/api/v1/authentication/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': this.options_.clientId,
+        'x-api-key': this.options_.apiKey
       }
+    })
 
-      const authData = await authResponse.json()
-      const accessToken = authData.token
+    if (!authResponse.ok) {
+      throw new Error(`Airwallex authentication failed: ${authResponse.statusText}`)
+    }
 
-      // 2. Create Customer in Airwallex
-      const requestId = crypto.randomUUID()
-      const customerPayload = {
-        request_id: requestId,
-        merchant_customer_id: email,
+    const authData = await authResponse.json()
+    const accessToken = authData.token
+
+    // 2. Create customer in Airwallex
+    const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/customers/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        request_id: crypto.randomUUID(),
+        merchant_customer_id: customer.id,
         email: email
-      }
-
-      console.log(`[Airwallex] Creating customer in Airwallex for ${email}`)
-
-      const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/customers/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(customerPayload)
       })
+    })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error(`[Airwallex] Customer creation failed:`, errorData)
-        // If it fails, fallback to email as external_id
-        throw new Error(`Airwallex Customer creation failed: ${JSON.stringify(errorData)}`)
-      }
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error(`[Airwallex] Customer creation failed:`, errorData)
+      throw new Error(`Airwallex Customer creation failed: ${JSON.stringify(errorData)}`)
+    }
 
-      const data = await response.json()
-      console.log(`[Airwallex] Customer created in Airwallex. ID: ${data.id}`)
+    const providerCustomer = await response.json()
+    console.log(`[Airwallex] Airwallex customer created:`, providerCustomer)
 
-      return {
-        external_id: data.id,
-        data: {
-          ...data,
-          ...input
-        }
-      }
-    } catch (error) {
-      console.error("[Airwallex] Error in createAccountHolder:", error)
-      // Fallback to email as external_id to avoid breaking the flow
-      return {
-        external_id: email,
-        data: {
-          ...input,
-          error: error.message
-        }
-      }
+    return {
+      id: providerCustomer.id,
+      data: providerCustomer as unknown as Record<string, unknown>
     }
   }
 }
