@@ -139,17 +139,83 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     return { action: "captured", data: {} }
   }
 
-  // Use the customer email as the external_id
+  // Detailed logging to find the email and see what's happening
   async createAccountHolder(input: any): Promise<any> {
-    console.log(`[Airwallex] Creating account holder (stub) for ${input.email}`)
+    console.log(`[Airwallex] Creating account holder. Input:`, JSON.stringify(input))
     
-    // If for some reason email is missing, fall back to a guest identifier
-    const external_id = input.email || "guest_customer"
+    const email = input.email || input.data?.context?.customer?.email
     
-    return {
-      external_id: external_id,
-      data: {
-        ...input,
+    if (!email) {
+      console.log(`[Airwallex] No email found in input, falling back to guest_customer.`)
+      return {
+        external_id: "guest_customer",
+        data: { ...input }
+      }
+    }
+
+    try {
+      // 1. Get Access Token
+      const authResponse = await fetch('https://api-demo.airwallex.com/api/v1/authentication/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-client-id': this.options_.clientId,
+          'x-api-key': this.options_.apiKey
+        }
+      })
+
+      if (!authResponse.ok) {
+        throw new Error(`Airwallex authentication failed: ${authResponse.statusText}`)
+      }
+
+      const authData = await authResponse.json()
+      const accessToken = authData.token
+
+      // 2. Create Customer in Airwallex
+      const requestId = crypto.randomUUID()
+      const customerPayload = {
+        request_id: requestId,
+        merchant_customer_id: email,
+        email: email
+      }
+
+      console.log(`[Airwallex] Creating customer in Airwallex for ${email}`)
+
+      const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/customers/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(customerPayload)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error(`[Airwallex] Customer creation failed:`, errorData)
+        // If it fails, fallback to email as external_id
+        throw new Error(`Airwallex Customer creation failed: ${JSON.stringify(errorData)}`)
+      }
+
+      const data = await response.json()
+      console.log(`[Airwallex] Customer created in Airwallex. ID: ${data.id}`)
+
+      return {
+        external_id: data.id,
+        data: {
+          ...data,
+          ...input
+        }
+      }
+    } catch (error) {
+      console.error("[Airwallex] Error in createAccountHolder:", error)
+      // Fallback to email as external_id to avoid breaking the flow
+      return {
+        external_id: email,
+        data: {
+          ...input,
+          error: error.message
+        }
       }
     }
   }
