@@ -42,8 +42,8 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
       // 2. Create Payment Intent
       const requestId = crypto.randomUUID()
       
-      // Medusa provides amount in cents (minor units). Airwallex expects major units (e.g. 140.00).
-      const majorAmount = amount / 100
+      // User requested to keep amounts in HKD (not cents) in Medusa.
+      const majorAmount = amount
 
       const paymentIntentPayload = {
         amount: majorAmount,
