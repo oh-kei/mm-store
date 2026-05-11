@@ -1,4 +1,4 @@
-import Product from "../product-preview"
+import { ProductCard } from "@modules/catalog/components/product-card"
 import { getRegion } from "@lib/data/regions"
 import { getProductsList } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
@@ -69,7 +69,7 @@ export default async function RelatedProducts({
       <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
         {products.map((product) => (
           <li key={product.id}>
-            {region && <Product region={region} product={product} />}
+            {region && <ProductCard region={region} product={product} mode="related" />}
           </li>
         ))}
       </ul>

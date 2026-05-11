@@ -363,6 +363,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             <div>
               <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">Custom Studio</Heading>
               <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Design Lab</p>
+              <p className="text-slate-500 text-[11px] mt-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                Please upload high-quality images (SVG or high-res PNG/JPG) to ensure the best print quality for your product!
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -376,7 +379,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </Button>
               
               <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
-                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" disabled={isUploading} />
+                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*,.svg" disabled={isUploading} />
                 {isUploading ? (
                   <div className="w-5 h-5 border-2 border-maritime-gold border-t-transparent rounded-full animate-spin" />
                 ) : (

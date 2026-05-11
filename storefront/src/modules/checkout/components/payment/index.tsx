@@ -243,7 +243,7 @@ const Payment = ({
                   </RadioGroup>
                   
                   {selectedPaymentMethod === "pp_airwallex_airwallex" && (
-                    <div id="airwallex-drop-in" className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
+                    <div id="airwallex-drop-in" className="mt-5 min-h-[300px] md:min-h-[400px] transition-all duration-150 ease-in-out" />
                   )}
 
                   {isStripe && stripeReady && (

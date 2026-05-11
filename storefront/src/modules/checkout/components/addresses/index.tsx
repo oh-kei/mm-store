@@ -9,7 +9,7 @@ import Spinner from "@modules/common/icons/spinner"
 
 import { setAddresses } from "@lib/data/cart"
 import compareAddresses from "@lib/util/compare-addresses"
-import React, { useActionState } from "react"
+import React, { useActionState, useEffect } from "react"
 import BillingAddress from "../billing_address"
 import ErrorMessage from "../error-message"
 import ShippingAddress from "../shipping-address"
@@ -33,6 +33,12 @@ const Addresses = ({
       ? compareAddresses(cart?.shipping_address, cart?.billing_address)
       : true
   )
+
+  useEffect(() => {
+    if (!searchParams.get("step")) {
+      router.push(pathname + "?step=address", { scroll: false })
+    }
+  }, [searchParams, pathname, router])
 
   const handleEdit = () => {
     router.push(pathname + "?step=address")

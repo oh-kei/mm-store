@@ -31,7 +31,7 @@ export const paymentInfoMap: Record<
     icon: <CreditCard />,
   },
   pp_airwallex_airwallex: {
-    title: "AirWallex - pp_airwallex_airwallex",
+    title: "AirWallexx",
     icon: <CreditCard />,
   },
   // Add more payment providers here

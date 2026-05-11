@@ -312,7 +312,9 @@ const AirwallexPaymentButton = ({ notReady, "data-testid": dataTestId }: { notRe
   const onPaymentCompleted = async () => {
     await placeOrder()
       .catch((err) => {
-        setErrorMessage(err.message)
+        if (err.message !== "NEXT_REDIRECT") {
+          setErrorMessage(err.message)
+        }
       })
       .finally(() => {
         setSubmitting(false)

@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Button, clx } from '@medusajs/ui';
@@ -11,7 +13,7 @@ interface ProductCardProps {
   product: HttpTypes.StoreProduct;
   region: HttpTypes.StoreRegion;
   customer?: HttpTypes.StoreCustomer | null;
-  mode?: "default" | "customizer"
+  mode?: "default" | "customizer" | "related"
 }
 
 export function ProductCard({ product, region, customer, mode = "default" }: ProductCardProps) {
@@ -246,7 +248,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
 
         <div className="px-5 pb-5 pt-3">
           {/* DYNAMIC COLOR SWATCHES - Outside the Link to fix nesting and navigation */}
-          {colors.length > 0 && (
+          {mode !== "related" && colors.length > 0 && (
             <div className="flex flex-wrap gap-1" onMouseLeave={() => setHoveredColor(null)}>
               {colors.map((color) => (
                 <button 
@@ -274,36 +276,38 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
       </div>
 
       {/* Permanent Action Buttons */}
-      <div className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}>
-        {mode === "customizer" ? (
-           <button 
-            className="w-full h-9 text-[10px] uppercase tracking-widest font-bold bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
-          >
-            Customise
-          </button>
-        ) : (
-          <>
-            <Link href={`/products/${product.handle}`} className="w-full">
-              <button 
-                className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
-              >
-                Details
-              </button>
-            </Link>
-            <button 
-              disabled={isAdding}
-              className={clx("w-full h-9 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
-                "bg-green-600 border border-green-600": isAdded,
-                "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
-                "opacity-50 cursor-not-allowed": isAdding
-              })}
-              onClick={handleQuickAddClick}
+      {mode !== "related" && (
+        <div className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}>
+          {mode === "customizer" ? (
+             <button 
+              className="w-full h-9 text-[10px] uppercase tracking-widest font-bold bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
             >
-              {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
+              Customise
             </button>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <Link href={`/products/${product.handle}`} className="w-full">
+                <button 
+                  className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+                >
+                  Details
+                </button>
+              </Link>
+              <button 
+                disabled={isAdding}
+                className={clx("w-full h-9 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
+                  "bg-green-600 border border-green-600": isAdded,
+                  "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
+                  "opacity-50 cursor-not-allowed": isAdding
+                })}
+                onClick={handleQuickAddClick}
+              >
+                {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

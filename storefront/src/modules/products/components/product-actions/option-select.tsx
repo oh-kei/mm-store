@@ -40,9 +40,21 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       blue: "#3B82F6",
       red: "#EF4444",
       green: "#10B981",
-      yellow: "#F59E0B",
+      yellow: "#FFD700",
+      cyan: "#06B6D4",
+      "light green": "#86EFAC",
+      lightgreen: "#86EFAC",
       "light blue": "#ADD8E6",
       lightblue: "#ADD8E6",
+      "dark blue": "#1E3A8A",
+      orange: "#F97316",
+      "cool blue": "#60A5FA",
+      "khaki": "#C3B091",
+      "dark green": "#064E3B",
+      "red black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+      "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+      "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+      "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }
