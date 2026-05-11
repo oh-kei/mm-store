@@ -201,44 +201,47 @@ const Payment = ({
         <div className={isOpen ? "block" : "hidden"}>
           {!paidByGiftcard && availablePaymentMethods?.length && (
             <>
-              <RadioGroup
-                value={selectedPaymentMethod}
-                onChange={(value: string) => setSelectedPaymentMethod(value)}
-              >
-                {availablePaymentMethods
-                  .filter((m) => m.id === "pp_airwallex_airwallex")
-                  .map((paymentMethod) => {
-                    return (
-                      <PaymentContainer
-                        paymentInfoMap={paymentInfoMap}
-                        paymentProviderId={paymentMethod.id}
-                        key={paymentMethod.id}
-                        selectedPaymentOptionId={selectedPaymentMethod}
-                      />
-                    )
-                  })}
-              </RadioGroup>
-              {isStripe && stripeReady && (
-                <div className="mt-5 transition-all duration-150 ease-in-out">
-                  <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                    Enter your card details:
-                  </Text>
-
-                  <CardElement
-                    options={useOptions as StripeCardElementOptions}
-                    onChange={(e) => {
-                      setCardBrand(
-                        e.brand &&
-                          e.brand.charAt(0).toUpperCase() + e.brand.slice(1)
-                      )
-                      setError(e.error?.message || null)
-                      setCardComplete(e.complete)
-                    }}
-                  />
-                </div>
-              )}
-              {selectedPaymentMethod === "pp_airwallex_airwallex" && (
+              {selectedPaymentMethod === "pp_airwallex_airwallex" ? (
                 <div id="airwallex-drop-in" className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
+              ) : (
+                <>
+                  <RadioGroup
+                    value={selectedPaymentMethod}
+                    onChange={(value: string) => setSelectedPaymentMethod(value)}
+                  >
+                    {availablePaymentMethods
+                      .filter((m) => m.id === "pp_airwallex_airwallex")
+                      .map((paymentMethod) => {
+                        return (
+                          <PaymentContainer
+                            paymentInfoMap={paymentInfoMap}
+                            paymentProviderId={paymentMethod.id}
+                            key={paymentMethod.id}
+                            selectedPaymentOptionId={selectedPaymentMethod}
+                          />
+                        )
+                      })}
+                  </RadioGroup>
+                  {isStripe && stripeReady && (
+                    <div className="mt-5 transition-all duration-150 ease-in-out">
+                      <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                        Enter your card details:
+                      </Text>
+
+                      <CardElement
+                        options={useOptions as StripeCardElementOptions}
+                        onChange={(e) => {
+                          setCardBrand(
+                            e.brand &&
+                              e.brand.charAt(0).toUpperCase() + e.brand.slice(1)
+                          )
+                          setError(e.error?.message || null)
+                          setCardComplete(e.complete)
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
