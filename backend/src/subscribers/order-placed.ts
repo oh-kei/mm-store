@@ -27,7 +27,9 @@ export default async function orderPlacedHandler({
         "items.*",
         "items.variant.*",
         "items.variant.images.*",
+        "items.variant.options.*",
         "items.variant.product.*",
+        "items.variant.product.images.*",
         "shipping_address.*",
         "billing_address.*"
       ],
@@ -62,12 +64,48 @@ export default async function orderPlacedHandler({
       item.unit_price = Number(item.unit_price)
       item.quantity = Number(item.quantity)
       
-      if (!item.thumbnail && item.variant?.product?.thumbnail) {
-        item.thumbnail = item.variant.product.thumbnail
-      }
-      if (item.variant?.images?.length > 0) {
-        // Use variant specific image if available
-        item.thumbnail = item.variant.images[0].url
+      const variant = item.variant
+      const product = variant?.product
+      
+      if (variant && product) {
+        // Try to find color from options or title (using same logic as storefront)
+        const colorOption = variant.options?.find((o: any) => 
+          ["color", "colour"].some(t => o.option?.title?.toLowerCase().includes(t))
+        )
+        const colorValue = colorOption?.value || variant.title?.split(" / ").pop()
+        
+        let imageUrl: string | null = null
+        
+        if (colorValue) {
+          const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
+          const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+          
+          const colorMatch = product.images?.find((img: any) => pattern.test(img.url || ""));
+          if (colorMatch?.url) imageUrl = colorMatch.url;
+        }
+        
+        // Hardcoded fallbacks for specific products
+        if (!imageUrl) {
+          if (product.handle === "technical-long-sleeve-rashguard") {
+            const isNavy = colorValue?.toLowerCase().includes("navy")
+            imageUrl = isNavy 
+              ? "https://bucket-production-bd41.up.railway.app/medusa-media/mm-rashguard-navy-01KPA0EFE7M2E7K6C5Z0S8V4C4.webp"
+              : "https://bucket-production-bd41.up.railway.app/medusa-media/mm-rashguard-black-01KPA0EEFK50TC99MNDS685YFC.webp"
+          } else if (product.handle === "short-sleeve-t-shirt") {
+            const isBlue = colorValue?.toLowerCase().includes("blue")
+            if (isBlue) imageUrl = "https://bucket-production-bd41.up.railway.app/medusa-media/mm-tshirt-blue-01KPA0GV69A2MGV0K4CC4Z67VQ.webp"
+          }
+        }
+        
+        if (imageUrl) {
+          item.thumbnail = imageUrl
+        } else if (variant.images?.length > 0) {
+          item.thumbnail = variant.images[0].url
+        } else if (product.thumbnail) {
+          item.thumbnail = product.thumbnail
+        }
       }
     })
 

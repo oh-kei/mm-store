@@ -54,9 +54,18 @@ export class ResendNotificationService extends AbstractNotificationProviderServi
 
     // Generate the email content using the template
     let emailContent: ReactNode
+    let adminEmailContent: ReactNode
+    const isOrderPlaced = notification.template === 'order-placed'
 
     try {
-      emailContent = generateEmailTemplate(notification.template, notification.data)
+      if (isOrderPlaced) {
+        // Customer email hides production details
+        emailContent = generateEmailTemplate(notification.template, { ...notification.data, showProductionDetails: false })
+        // Admin email shows production details
+        adminEmailContent = generateEmailTemplate(notification.template, { ...notification.data, showProductionDetails: true })
+      } else {
+        emailContent = generateEmailTemplate(notification.template, notification.data)
+      }
     } catch (error) {
       if (error instanceof MedusaError) {
         throw error // Re-throw MedusaError for invalid template data
@@ -107,6 +116,24 @@ export class ResendNotificationService extends AbstractNotificationProviderServi
       this.logger_.log(
         `Successfully sent "${notification.template}" email to ${notification.to} via Resend (ID: ${data?.id})`
       )
+
+      // Send separate email to admin for order placement
+      if (isOrderPlaced && adminEmailContent) {
+        const adminMessage = {
+          ...message,
+          to: 'kkeipohl@gmail.com',
+          react: adminEmailContent,
+          subject: `[Admin Copy] ${message.subject || 'New Order'}`
+        }
+        
+        const { error: adminError } = await this.resend.emails.send(adminMessage)
+        if (adminError) {
+          this.logger_.error(`Failed to send admin copy of order email to kkeipohl@gmail.com: ${adminError.message}`)
+        } else {
+          this.logger_.log(`Successfully sent admin copy of order email to kkeipohl@gmail.com`)
+        }
+      }
+
       return { id: data?.id }
     } catch (error) {
       this.logger_.error(

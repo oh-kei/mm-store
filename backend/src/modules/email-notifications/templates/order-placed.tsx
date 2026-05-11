@@ -14,6 +14,14 @@ export interface OrderPlacedTemplateProps {
   order: OrderDTO & { display_id: string; summary: { raw_current_order_total: { value: number } } }
   shippingAddress: OrderAddressDTO
   preview?: string
+  showProductionDetails?: boolean
+}
+
+const getAbsoluteUrl = (url?: string) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  const baseUrl = process.env.STORE_CORS?.split(',')[0] || "http://localhost:8000"
+  return `${baseUrl}${url}`
 }
 
 export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplateProps =>
@@ -21,7 +29,7 @@ export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplat
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps
-} = ({ order, shippingAddress, preview = 'Your order has been placed!' }) => {
+} = ({ order, shippingAddress, preview = 'Your order has been placed!', showProductionDetails = true }) => {
   return (
     <Base preview={preview}>
       <Section>
@@ -129,7 +137,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
               }}>
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
                   {(item.thumbnail || item.variant?.thumbnail) && (
-                    <img src={item.thumbnail || item.variant?.thumbnail} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                    <img src={getAbsoluteUrl(item.thumbnail || item.variant?.thumbnail)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
                   )}
                   <div style={{ flex: 1 }}>
                     <Text style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px', color: '#0F172A' }}>
@@ -153,7 +161,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                       Final Design Preview (Composite)
                     </Text>
                     <img 
-                      src={(item as any).metadata.preview_url} 
+                      src={getAbsoluteUrl((item as any).metadata.preview_url)} 
                       alt="Design Preview" 
                       style={{ width: '100%', maxWidth: '400px', borderRadius: '12px', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} 
                     />
@@ -161,7 +169,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 )}
                 
                 {/* Custom Design Details for Staff */}
-                {recipe && (
+                {showProductionDetails && recipe && (
                   <div style={{ 
                     backgroundColor: '#f9f9f9', 
                     padding: '12px', 
