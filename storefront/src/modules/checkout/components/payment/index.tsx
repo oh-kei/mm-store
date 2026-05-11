@@ -206,9 +206,7 @@ const Payment = ({
                 onChange={(value: string) => setSelectedPaymentMethod(value)}
               >
                 {availablePaymentMethods
-                  .sort((a, b) => {
-                    return a.provider_id > b.provider_id ? 1 : -1
-                  })
+                  .filter((m) => m.id === "pp_airwallex_airwallex")
                   .map((paymentMethod) => {
                     return (
                       <PaymentContainer
