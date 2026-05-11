@@ -50,6 +50,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       return (
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
+    case paymentSession?.provider_id === "pp_airwallex_airwallex":
+      return (
+        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+      )
     case isPaypal(paymentSession?.provider_id):
       return (
         <PayPalPaymentButton

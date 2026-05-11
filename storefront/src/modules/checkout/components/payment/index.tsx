@@ -218,7 +218,7 @@ const Payment = ({
                 </div>
               )}
               {selectedPaymentMethod === "pp_airwallex_airwallex" && (
-                <div ref={airwallexRef} className="mt-5 transition-all duration-150 ease-in-out" />
+                <div ref={airwallexRef} className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
               )}
             </>
           )}
