@@ -2,7 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import Script from "next/script"
+import { init, createElement } from '@airwallex/components-sdk'
 import { RadioGroup } from "@headlessui/react"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
@@ -118,37 +118,59 @@ const Payment = ({
   }, [isOpen])
 
   useEffect(() => {
-    if (airwallexReady && selectedPaymentMethod === "pp_airwallex_airwallex" && activeSession && airwallexRef.current) {
-      const Airwallex = (window as any).Airwallex
-      if (Airwallex) {
-        Airwallex.init({
-          env: 'demo',
-        })
+    if (
+      selectedPaymentMethod === "pp_airwallex_airwallex" &&
+      activeSession?.data?.id &&
+      activeSession?.data?.client_secret
+    ) {
+      let element: any = null
 
-        const element = Airwallex.createElement('dropIn', {
-          intent_id: activeSession.data.id,
-          client_secret: activeSession.data.client_secret,
-          methods: ['card'],
-        })
+      const loadDropIn = async () => {
+        try {
+          await init({
+            env: 'demo',
+            enabledElements: ['payments'],
+          })
 
-        element.mount(airwallexRef.current)
+          element = await createElement('dropIn', {
+            intent_id: activeSession.data.id,
+            client_secret: activeSession.data.client_secret,
+            currency: cart.currency_code.toUpperCase(), // required
+          })
 
-        return () => {
-          element.unmount()
+          element.mount('airwallex-drop-in')
+
+          // Attach listeners AFTER mount()
+          element.on('ready', () => {
+            console.log('[Airwallex] Drop-in ready')
+            setAirwallexReady(true)
+          })
+
+          element.on('success', (e: any) => {
+            console.log('[Airwallex] Payment success', e.detail)
+            router.push(pathname + '?' + createQueryString('step', 'review'))
+          })
+
+          element.on('error', (e: any) => {
+            console.error('[Airwallex] Payment error', e.detail)
+            setError(e.detail?.error?.message || 'Payment failed')
+          })
+        } catch (err: any) {
+          console.error('[Airwallex] Drop-in load error', err)
+          setError(err.message)
         }
       }
+
+      loadDropIn()
+
+      return () => {
+        element?.unmount()
+      }
     }
-  }, [airwallexReady, selectedPaymentMethod, activeSession])
+  }, [selectedPaymentMethod, activeSession])
 
   return (
     <div className="bg-white">
-      <Script
-        src="https://checkout.airwallex.com/assets/bundle.js"
-        onLoad={() => {
-          console.log("[Airwallex] Script loaded")
-          setAirwallexReady(true)
-        }}
-      />
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -218,7 +240,7 @@ const Payment = ({
                 </div>
               )}
               {selectedPaymentMethod === "pp_airwallex_airwallex" && (
-                <div ref={airwallexRef} className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
+                <div id="airwallex-drop-in" className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
               )}
             </>
           )}
