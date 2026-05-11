@@ -59,6 +59,13 @@ const Shipping: React.FC<ShippingProps> = ({
     setError(null)
   }, [isOpen])
 
+  // Auto-select first shipping method if none selected
+  useEffect(() => {
+    if (availableShippingMethods?.length && (!cart.shipping_methods || cart.shipping_methods.length === 0)) {
+      set(availableShippingMethods[0].id)
+    }
+  }, [availableShippingMethods, cart.shipping_methods])
+
   return (
     <div className="bg-white">
       <div className="flex flex-row items-center justify-between mb-6">
@@ -160,6 +167,16 @@ const Shipping: React.FC<ShippingProps> = ({
                   })}
                 </Text>
               </div>
+            )}
+            {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
+              <Button
+                size="large"
+                className="mt-4"
+                onClick={handleSubmit}
+                data-testid="submit-delivery-option-button"
+              >
+                Continue to payment
+              </Button>
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Script from "next/script"
 import { RadioGroup } from "@headlessui/react"
@@ -32,6 +32,7 @@ const Payment = ({
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
   const [airwallexReady, setAirwallexReady] = useState(false)
+  const airwallexRef = useRef<HTMLDivElement>(null)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
   )
@@ -117,7 +118,7 @@ const Payment = ({
   }, [isOpen])
 
   useEffect(() => {
-    if (airwallexReady && selectedPaymentMethod === "pp_airwallex_airwallex" && activeSession) {
+    if (airwallexReady && selectedPaymentMethod === "pp_airwallex_airwallex" && activeSession && airwallexRef.current) {
       const Airwallex = (window as any).Airwallex
       if (Airwallex) {
         Airwallex.init({
@@ -130,7 +131,7 @@ const Payment = ({
           methods: ['card'],
         })
 
-        element.mount('#airwallex-drop-in')
+        element.mount(airwallexRef.current)
 
         return () => {
           element.unmount()
@@ -217,7 +218,7 @@ const Payment = ({
                 </div>
               )}
               {selectedPaymentMethod === "pp_airwallex_airwallex" && (
-                <div id="airwallex-drop-in" className="mt-5 transition-all duration-150 ease-in-out" />
+                <div ref={airwallexRef} className="mt-5 transition-all duration-150 ease-in-out" />
               )}
             </>
           )}
@@ -289,6 +290,8 @@ const Payment = ({
                   <Text>
                     {isStripeFunc(selectedPaymentMethod) && cardBrand
                       ? cardBrand
+                      : selectedPaymentMethod === "pp_airwallex_airwallex"
+                      ? "AirWallex Payment"
                       : "Another step will appear"}
                   </Text>
                 </div>
