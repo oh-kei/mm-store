@@ -116,7 +116,7 @@ const CartDropdown = ({
             
             {cartState && cartState.items?.length ? (
               <>
-                <div className="overflow-y-scroll max-h-[440px] px-6 py-4 grid grid-cols-1 gap-y-6 scroll-on-hover">
+                <div className="overflow-y-scroll max-h-[440px] px-6 py-4 grid grid-cols-1 gap-y-6 scroll-on-hover" data-lenis-prevent>
                   {cartState.items
                     .sort((a, b) => (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1)
                     .map((item) => (

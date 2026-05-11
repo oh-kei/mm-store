@@ -83,8 +83,10 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
   })
 
   // Extract available sizes
-  const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))
-  const availableSizes = sizeOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+  const availableSizes = useMemo(() => {
+    const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))
+    return sizeOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+  }, [product.options])
   
   const isOneSize = availableSizes.length === 1
   const oneSize = isOneSize ? availableSizes[0] : null

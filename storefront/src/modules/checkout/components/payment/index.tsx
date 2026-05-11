@@ -289,22 +289,23 @@ const Payment = ({
             data-testid="payment-method-error-message"
           />
 
-          <Button
-            size="large"
-            className="mt-6"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={
-              (isStripe && !cardComplete) ||
-              (selectedPaymentMethod === "pp_airwallex_airwallex" && !paymentComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard)
-            }
-            data-testid="submit-payment-button"
-          >
-            {!activeSession && isStripeFunc(selectedPaymentMethod)
-              ? " Enter card details"
-              : "Continue to review"}
-          </Button>
+          {selectedPaymentMethod !== "pp_airwallex_airwallex" && (
+            <Button
+              size="large"
+              className="mt-6"
+              onClick={handleSubmit}
+              isLoading={isLoading}
+              disabled={
+                (isStripe && !cardComplete) ||
+                (!selectedPaymentMethod && !paidByGiftcard)
+              }
+              data-testid="submit-payment-button"
+            >
+              {!activeSession && isStripeFunc(selectedPaymentMethod)
+                ? " Enter card details"
+                : "Continue to review"}
+            </Button>
+          )}
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>

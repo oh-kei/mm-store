@@ -18,7 +18,7 @@ export default async function Nav() {
 
   return (
     <NavMenuProvider>
-      <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 pointer-events-none">
+      <div className="fixed top-6 left-0 w-full z-[100] flex justify-center px-4 pointer-events-none">
       
       <nav 
         id="main-nav"
@@ -30,7 +30,7 @@ export default async function Nav() {
         }}
       >
         <div className="flex items-center gap-3 md:gap-8">
-          <LocalizedClientLink href="/" className="flex items-center gap-3">
+          <LocalizedClientLink href="/" className="flex items-center gap-3 relative z-[110]">
             <img 
               src="/light-logo.webp" 
               alt="Mariners Market's" 
@@ -53,19 +53,19 @@ export default async function Nav() {
               <NavCatalogueDropdown />
             </div>
             <div className="order-3 md:order-2">
-              <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2">
+              <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2 relative z-[110]">
                 Custom Studio
               </LocalizedClientLink>
             </div>
             <div className="order-2 md:order-3 ml-2 md:ml-0">
-              <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2">
+              <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2 relative z-[110]">
                 Bulk Order
               </LocalizedClientLink>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 md:gap-6 text-white/90">
+        <div className="flex items-center gap-3 md:gap-6 text-white/90 relative z-[110]">
           <SearchButton />
           <NavRegionSelect />
           <NavAccountDropdown customer={customer} />
