@@ -118,6 +118,23 @@ const Payment = ({
   }, [isOpen])
 
   useEffect(() => {
+    const isAirwallexOnly = availablePaymentMethods?.length === 1 && availablePaymentMethods[0].id === "pp_airwallex_airwallex"
+    
+    if (isAirwallexOnly && selectedPaymentMethod !== "pp_airwallex_airwallex") {
+      setSelectedPaymentMethod("pp_airwallex_airwallex")
+    }
+
+    if (isOpen && isAirwallexOnly && activeSession?.provider_id !== "pp_airwallex_airwallex") {
+      setIsLoading(true)
+      initiatePaymentSession(cart, {
+        provider_id: "pp_airwallex_airwallex",
+      }).finally(() => {
+        setIsLoading(false)
+      })
+    }
+  }, [isOpen, availablePaymentMethods, selectedPaymentMethod, activeSession])
+
+  useEffect(() => {
     if (
       selectedPaymentMethod === "pp_airwallex_airwallex" &&
       activeSession?.data?.id &&
@@ -201,7 +218,7 @@ const Payment = ({
         <div className={isOpen ? "block" : "hidden"}>
           {!paidByGiftcard && availablePaymentMethods?.length && (
             <>
-              {selectedPaymentMethod === "pp_airwallex_airwallex" ? (
+              {availablePaymentMethods.length === 1 && availablePaymentMethods[0].id === "pp_airwallex_airwallex" ? (
                 <div id="airwallex-drop-in" className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
               ) : (
                 <>
@@ -222,6 +239,11 @@ const Payment = ({
                         )
                       })}
                   </RadioGroup>
+                  
+                  {selectedPaymentMethod === "pp_airwallex_airwallex" && (
+                    <div id="airwallex-drop-in" className="mt-5 min-h-[100px] transition-all duration-150 ease-in-out" />
+                  )}
+
                   {isStripe && stripeReady && (
                     <div className="mt-5 transition-all duration-150 ease-in-out">
                       <Text className="txt-medium-plus text-ui-fg-base mb-1">
