@@ -19,7 +19,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
       <div className="flex flex-col min-h-screen bg-white">
         <Nav />
         <UndoNotification />
-        <main className="relative">
+        <main className="relative flex-grow">
           {props.children}
         </main>
         <Footer />

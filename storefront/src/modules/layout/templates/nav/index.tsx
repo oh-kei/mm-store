@@ -11,6 +11,7 @@ import SearchButton from "@modules/layout/components/search-button"
 import { getCustomer } from "@lib/data/customer"
 
 import { NavMenuProvider } from "@modules/layout/components/nav-menu-context"
+import InteractiveNavWrapper from "@modules/layout/components/interactive-nav-wrapper"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -18,54 +19,52 @@ export default async function Nav() {
 
   return (
     <NavMenuProvider>
-      <div className="fixed top-6 left-0 w-full z-[100] flex justify-center px-4 pointer-events-none">
+      <InteractiveNavWrapper>
       
       <nav 
         id="main-nav"
-        className="flex items-center justify-between w-full max-w-5xl relative pointer-events-auto bg-[#1c1c1c]/75 backdrop-blur-xl border border-white/10 rounded-full"
-        style={{
-          padding: "clamp(0.5rem, 1.5vh, 0.75rem) clamp(1rem, 3vw, 2rem)",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden"
-        }}
+        className="flex items-center justify-between w-full relative pointer-events-auto px-8 md:px-16"
       >
-        <div className="flex items-center gap-3 md:gap-8">
-          <LocalizedClientLink href="/" className="flex items-center gap-3 relative z-[110]">
-            <img 
-              src="/light-logo.webp" 
-              alt="Mariners Market's" 
-              className="object-contain rounded-md" 
-              style={{ width: "clamp(2.75rem, 6vw, 3.25rem)", height: "clamp(2.75rem, 6vw, 3.25rem)" }}
-            />
-            <span 
-              className="hidden md:inline font-bold text-white tracking-wider"
-              style={{ fontSize: "clamp(1rem, 1.5vw, 1.125rem)" }}
-            >
-              Mariners Market's
-            </span>
-          </LocalizedClientLink>
-
-          <div 
-            className="flex items-center gap-4 md:gap-8 font-medium text-white/90"
-            style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
-          >
-            <div className="md:order-1">
-              <NavCatalogueDropdown />
-            </div>
-            <div className="order-3 md:order-2">
-              <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2 relative z-[110]">
-                Custom Studio
-              </LocalizedClientLink>
-            </div>
-            <div className="order-2 md:order-3 ml-2 md:ml-0">
-              <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2 relative z-[110]">
-                Bulk Order
-              </LocalizedClientLink>
-            </div>
+        {/* Left Side: Links */}
+        <div 
+          className="flex-1 flex items-center gap-6 md:gap-12 font-medium text-white/90"
+          style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
+        >
+          <div className="md:order-1">
+            <NavCatalogueDropdown />
+          </div>
+          <div className="order-3 md:order-2">
+            <LocalizedClientLink href="/custom-studio" className="hover:text-white transition-colors py-2 relative z-[110]">
+              Custom Studio
+            </LocalizedClientLink>
+          </div>
+          <div className="order-2 md:order-3 ml-2 md:ml-0">
+            <LocalizedClientLink href="/bulk-order" className="hover:text-white transition-colors py-2 relative z-[110]">
+              Bulk Order
+            </LocalizedClientLink>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 md:gap-6 text-white/90 relative z-[110]">
+        {/* Center: Logo */}
+        <div className="flex-1 flex justify-center items-center">
+          <LocalizedClientLink href="/" className="relative z-[110]">
+            <img 
+              src="/dark-logo.webp" 
+              alt="Mariners Market's" 
+              className="object-contain logo-dark" 
+              style={{ width: "auto", height: "clamp(3rem, 6vw, 4rem)" }}
+            />
+            <img 
+              src="/light-logo.webp" 
+              alt="Mariners Market's" 
+              className="object-contain logo-light" 
+              style={{ width: "auto", height: "clamp(3rem, 6vw, 4rem)" }}
+            />
+          </LocalizedClientLink>
+        </div>
+
+        {/* Right Side: Icons & Region */}
+        <div className="flex-1 flex items-center justify-end gap-6 md:gap-12 text-white/90 relative z-[110]">
           <SearchButton />
           <NavRegionSelect />
           <NavAccountDropdown customer={customer} />
@@ -85,7 +84,7 @@ export default async function Nav() {
           </Suspense>
         </div>
       </nav>
-    </div>
+      </InteractiveNavWrapper>
     </NavMenuProvider>
   )
 }

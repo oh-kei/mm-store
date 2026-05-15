@@ -24,10 +24,48 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   disabled,
 }) => {
   const isColor = title.toLowerCase().includes("color") || title.toLowerCase().includes("colour")
+  const isSize = title.toLowerCase().includes("size")
 
   const filteredOptions = option.values?.map((v) => v.value)
   if (isColor) {
     filteredOptions?.sort((a, b) => (a || "").localeCompare(b || ""))
+  } else if (isSize) {
+    const sizeOrder: Record<string, number> = {
+      "xxs": 1,
+      "xs": 2,
+      "s": 3,
+      "small": 3,
+      "m": 4,
+      "medium": 4,
+      "l": 5,
+      "large": 5,
+      "xl": 6,
+      "xxl": 7,
+      "2xl": 7,
+      "xxxl": 8,
+      "3xl": 8,
+      "xxxxl": 9,
+      "4xl": 9,
+    };
+    
+    filteredOptions?.sort((a, b) => {
+      const aLower = (a || "").toLowerCase();
+      const bLower = (b || "").toLowerCase();
+      
+      const aVal = sizeOrder[aLower];
+      const bVal = sizeOrder[bLower];
+      
+      if (aVal !== undefined && bVal !== undefined) return aVal - bVal;
+      if (aVal !== undefined) return -1;
+      if (bVal !== undefined) return 1;
+
+      // Handle numbers (like shoe sizes "9", "9.5", "10")
+      const aNum = parseFloat(aLower);
+      const bNum = parseFloat(bLower);
+      if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+      
+      return aLower.localeCompare(bLower);
+    });
   }
 
   const getColorHex = (colorName: string) => {

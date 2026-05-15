@@ -106,6 +106,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           if (matchingImage) {
             imageUrl = matchingImage.url || imageUrl
           }
+       } else if (activeProduct.images) {
+          // Default to the -blank image if no color is specifically selected
+          const blankImage = activeProduct.images.find(img => img.url?.includes("-blank"));
+          if (blankImage) {
+            imageUrl = blankImage.url;
+          }
        }
 
        setBase({
@@ -126,6 +132,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const { state: isCrewModalOpen, open: openCrewModal, close: closeCrewModal } = useToggleState(false)
   const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null, hasError?: boolean }>({ members: [], colour: null, hasError: false })
   const [roster, setRoster] = useState<any[]>([])
+  const [comment, setComment] = useState("")
 
   useEffect(() => {
     const init = async () => {
@@ -229,6 +236,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         metadata: {
           recipe: recipe,
           preview_url: previewUrl,
+          comment: comment,
         },
       })
       router.push(`/${countryCode}/cart`)
@@ -277,6 +285,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               },
               crew_member: member.name,
               preview_url: previewUrl,
+              comment: comment,
             }
           })
         }
@@ -500,6 +509,16 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             </div>
 
             <div className="pt-6 border-t border-slate-50">
+               <div className="mb-4">
+                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block">Design Notes / Comments</label>
+                 <textarea 
+                   value={comment}
+                   onChange={(e) => setComment(e.target.value)}
+                   placeholder="Any special instructions for this design?"
+                   className="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 resize-none h-20 outline-none focus:border-maritime-gold focus:ring-1 focus:ring-maritime-gold transition-all text-slate-700 placeholder:text-slate-400"
+                 />
+               </div>
+
                <Button 
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || isAddingBulk}

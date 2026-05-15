@@ -1,0 +1,55 @@
+.nav-solid {
+  background-color: white !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.nav-transparent {
+  padding-top: 1.5rem; /* top-6 equivalent */
+  border-bottom: 1px solid transparent;
+}
+
+/* Logo toggling */
+.nav-solid .logo-dark { display: none !important; }
+.nav-solid .logo-light { display: block !important; }
+
+.nav-transparent .logo-dark { display: block !important; }
+.nav-transparent .logo-light { display: none !important; }
+
+/* Text overrides */
+.nav-solid .text-white\/90, 
+.nav-solid .text-white\/70, 
+.nav-solid .text-white {
+  color: black !important;
+}
+
+.nav-solid .hover\:text-white:hover {
+  color: rgba(0,0,0,0.7) !important;
+}
+
+/* Icon overrides */
+.nav-solid svg[stroke="currentColor"] {
+  stroke: black !important;
+}
+.nav-solid svg[stroke="currentColor"] path, 
+.nav-solid svg[stroke="currentColor"] circle,
+.nav-solid svg[stroke="currentColor"] line {
+  stroke: black !important;
+}
+
+/* Revert text and icon colors inside dark dropdown menus */
+.nav-solid .bg-\[\#1c1c1c\] .text-white,
+.nav-solid .bg-\[\#1c1c1c\] .text-white\/90,
+.nav-solid .bg-\[\#1c1c1c\] .text-white\/70,
+.nav-solid .bg-\[\#1c1c1c\] .hover\:text-white:hover {
+  color: white !important;
+}
+.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] {
+  stroke: white !important;
+}
+.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] path,
+.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] circle,
+.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] line {
+  stroke: white !important;
+}

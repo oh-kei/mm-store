@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react';
+import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 
 const Hero = () => {
@@ -12,27 +13,18 @@ const Hero = () => {
   return (
     <section className="relative w-full h-[100vh] overflow-hidden">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
-        style={{ backgroundImage: "url('/mm-home-img-desktop.webp')" }}
-      />
+      <div className="absolute inset-0 scale-105">
+        <Image 
+          src="/banner.webp" 
+          alt="Banner" 
+          fill 
+          className="object-cover object-center"
+          priority 
+        />
+      </div>
       
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
-
-      {/* Hero Text */}
-      <div className="relative h-full flex items-start justify-center text-center px-4 pt-[20vh] md:pt-[18vh]">
-        <h1 
-          className="text-white drop-shadow-2xl leading-none tracking-tighter"
-          style={{ 
-            fontFamily: "'Manrope', sans-serif",
-            fontSize: "clamp(3.5rem, 8vw, 12rem)",
-            fontWeight: 500
-          }}
-        >
-          Elevate Your Voyage
-        </h1>
-      </div>
 
       {/* Scroll Indicator (Semi-circle with Arrow) */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20">

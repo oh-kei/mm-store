@@ -34,20 +34,17 @@ const peelAwayAnimation: Variants = {
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const isHome = pathname === '/' || /^\/[a-z]{2}$/i.test(pathname)
+  
   const [animState, setAnimState] = useState<"initial" | "enter" | "exit">("enter")
-  const [isFirstLoad, setIsFirstLoad] = useState(true)
 
   useEffect(() => {
-    if (isFirstLoad) {
-      const initialExit = setTimeout(() => {
-        setIsFirstLoad(false)
-        setAnimState("exit")
-        setTimeout(() => setAnimState("initial"), 1200)
-      }, 150)
-      return () => clearTimeout(initialExit)
+    if (!isHome) {
+      setAnimState("initial")
+      return
     }
 
-    // On every pathname change
+    // Play the blue wipe on the home page
     setAnimState("enter")
     const enterTimeout = setTimeout(() => {
       setAnimState("exit")
@@ -55,21 +52,20 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         setAnimState("initial")
       }, 1200)
       return () => clearTimeout(exitTimeout)
-    }, 350)
+    }, 150)
 
     return () => clearTimeout(enterTimeout)
-  }, [pathname])
+  }, [pathname, isHome])
 
   return (
     <>
-      {(animState === "enter" || animState === "exit") && (
+      {isHome && (animState === "enter" || animState === "exit") && (
         <div className="nautical-transition-wrapper">
           <svg
             className="nautical-transition-svg"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
-            {/* Layer 1 (Bottom): Light Blue - Shrinks away last (0.3s delay) */}
             <motion.path
               fill="#04103C"
               variants={peelAwayAnimation}
@@ -77,7 +73,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
               animate={animState}
               custom={0.3}
             />
-            {/* Layer 2 (Middle): Cerulean - Shrinks away second (0.15s delay) */}
             <motion.path
               fill="#0C1F6E"
               variants={peelAwayAnimation}
@@ -85,7 +80,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
               animate={animState}
               custom={0.15}
             />
-            {/* Layer 3 (Top): Dark Sapphire - Shrinks away immediately (0s delay) */}
             <motion.path
               fill="#6396ee9e"
               variants={peelAwayAnimation}
@@ -96,7 +90,18 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
           </svg>
         </div>
       )}
-      <div className="w-full h-full">{children}</div>
+      
+      {/* For subpages, just use a smooth fade. For home page, let the wipe reveal it. */}
+      <motion.div 
+        key={pathname}
+        initial={{ opacity: isHome ? 1 : 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        className="w-full h-full"
+      >
+        {children}
+      </motion.div>
     </>
   )
 }
+

@@ -34,7 +34,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
     <Base preview={preview}>
       <Section>
         <Text style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 10px', color: '#0F172A' }}>
-          Order Confirmation
+          Production Order Confirmation
         </Text>
         <Text style={{ fontSize: '14px', textAlign: 'center', margin: '0 0 30px', color: '#D4AF37', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>
           Mariner's Market
@@ -45,7 +45,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
         </Text>
 
         <Text style={{ margin: '0 0 30px', color: '#64748b', fontSize: '14px' }}>
-          Thank you for your recent order! We're excited to start preparing your items. You can find your order details and summary below.
+          We have received your production order request. Our team will review your submitted designs and requirements shortly. Please find the detailed summary of your requested production run below.
         </Text>
 
         <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
@@ -70,7 +70,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           </table>
           
           <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
-            <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
+            <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Requested</Text>
             {order.items.map((item: any, i) => {
               const isCustom = !!item.metadata?.recipe
               return (
@@ -95,7 +95,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
         </div>
 
         <Text style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', margin: '30px 0' }}>
-          Questions? Contact us at <a href="mailto:christopherlam@marinersmarkets.com" style={{ color: '#D4AF37', fontWeight: 'bold', textDecoration: 'none' }}>christopherlam@marinersmarkets.com</a>
+          For any changes or questions regarding this production run, please contact your account manager at <a href="mailto:christopherlam@marinersmarkets.com" style={{ color: '#D4AF37', fontWeight: 'bold', textDecoration: 'none' }}>christopherlam@marinersmarkets.com</a>
         </Text>
 
         <Hr style={{ margin: '30px 0', borderColor: '#f1f5f9' }} />
@@ -169,7 +169,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 )}
                 
                 {/* Custom Design Details for Staff */}
-                {showProductionDetails && recipe && (
+                {showProductionDetails && (recipe || item.metadata?.comment) && (
                   <div style={{ 
                     backgroundColor: '#f9f9f9', 
                     padding: '12px', 
@@ -180,7 +180,15 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                     <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', margin: '0 0 8px' }}>
                       Production Details {crewMember ? `(For Member: ${String(crewMember)})` : ''}
                     </Text>
-                    {recipe.layers?.map((layer: any, idx: number) => (
+                    
+                    {item.metadata?.comment && (
+                      <div style={{ marginBottom: '12px', padding: '10px', backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', borderLeft: '3px solid #D4AF37' }}>
+                        <Text style={{ fontSize: '10px', fontWeight: 'bold', margin: '0 0 4px', color: '#0F172A' }}>CUSTOMER COMMENT:</Text>
+                        <Text style={{ fontSize: '12px', margin: 0, fontStyle: 'italic', color: '#334155' }}>"{item.metadata.comment}"</Text>
+                      </div>
+                    )}
+
+                    {recipe?.layers?.map((layer: any, idx: number) => (
                       <div key={idx} style={{ marginBottom: '8px' }}>
                         <Text style={{ fontSize: '11px', fontWeight: 'bold', margin: '0 0 2px' }}>
                           {layer.type === 'text' ? 'TEXT LAYER' : 'LOGO LAYER'}
