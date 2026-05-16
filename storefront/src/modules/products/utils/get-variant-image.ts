@@ -24,8 +24,11 @@ export function getVariantImage(variant: HttpTypes.StoreProductVariant | undefin
     const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+    const simplePattern = new RegExp(`${escapedNormalized}`, "i")
 
-    const colorMatch = parentProduct.images?.find(img => pattern.test(img.url || ""));
+    const colorMatch = parentProduct.images?.find(img => pattern.test(img.url || "")) || 
+                      parentProduct.images?.find(img => simplePattern.test(img.url || ""));
+                      
     if (colorMatch?.url) return colorMatch.url;
   }
 

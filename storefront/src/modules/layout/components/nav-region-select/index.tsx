@@ -17,10 +17,12 @@ const REGIONS_DATA = [
 ]
 
 export default function NavRegionSelect() {
-  const { countryCode } = useParams()
-  const currentPath = usePathname().split(`/${countryCode}`)[1] || ""
+  const pathname = usePathname()
+  const { countryCode } = useParams() as { countryCode: string }
+  const currentPath = pathname.split(`/${countryCode}`)[1] || ""
   const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "region"
+  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
 
   const activeCountry = REGIONS_DATA.flatMap(r => r.countries).find(c => c.code === countryCode)
 
@@ -64,22 +66,28 @@ export default function NavRegionSelect() {
         >
           {/* Bridge to prevent hover flickering - adjusted height */}
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
-          <div className="bg-[#f3f4f6] border border-black/5 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
+          <div className={`border border-black/5 rounded-xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-z-0 ${
+            isHomePage 
+              ? "bg-white/20 border-white/10" 
+              : "bg-[#f3f4f6]"
+          }`}>
             <div className="py-2">
-              <div className="px-4 py-2 border-b border-black/5 mb-2">
-                <span className="text-xs font-medium text-black">Select Region</span>
+              <div className={`px-4 py-2 border-b border-black/5 mb-2 ${isHomePage ? "text-white" : "text-black"}`}>
+                <span className="text-xs font-medium">Select Region</span>
               </div>
               {REGIONS_DATA.map((region) => (
                 <div key={region.name} className="px-2 mb-2">
-                  <div className="px-2 py-1 text-[10px] font-medium text-black tracking-widest">{region.name}</div>
+                  <div className={`px-2 py-1 text-[10px] font-medium tracking-widest ${isHomePage ? "text-white/80" : "text-black"}`}>
+                    {region.name}
+                  </div>
                   {region.countries.map((country) => (
                     <button
                       key={country.code}
                       onClick={() => handleCountryChange(country.code)}
                       className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-all cursor-pointer ${
                         countryCode === country.code 
-                          ? "bg-black/5 text-black" 
-                          : "text-black/60 hover:bg-black/5 hover:text-black"
+                          ? isHomePage ? "bg-white/20 text-white" : "bg-black/5 text-black"
+                          : isHomePage ? "text-white/60 hover:bg-white/10 hover:text-white" : "text-black/60 hover:bg-black/5 hover:text-black"
                       }`}
                     >
                       <ReactCountryFlag
@@ -88,8 +96,8 @@ export default function NavRegionSelect() {
                         style={{ width: '16px', height: '12px' }}
                       />
                       <div className="flex-1 flex items-center justify-between gap-4">
-                        <span className="text-xs font-medium text-black">{country.name}</span>
-                        <span className="text-[10px] font-medium text-black/40">{country.currency}</span>
+                        <span className={`text-xs font-medium ${isHomePage ? "text-white" : "text-black"}`}>{country.name}</span>
+                        <span className={`text-[10px] font-medium ${isHomePage ? "text-white/40" : "text-black/40"}`}>{country.currency}</span>
                       </div>
                     </button>
                   ))}

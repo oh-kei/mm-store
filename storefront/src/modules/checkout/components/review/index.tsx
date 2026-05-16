@@ -39,7 +39,7 @@ const Review = ({ cart }: { cart: any }) => {
             <div className="w-full">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
                 By clicking the Place Order button, you confirm that you have
-                read, understand and acknowledge Mariners Market&apos;s Privacy Policy.
+                read, understand and acknowledge <a href="/privacy-policy" target="_blank" rel="noreferrer" className="underline hover:text-maritime-gold transition-colors">Mariners Market&apos;s Privacy Policy</a>.
               </Text>
             </div>
           </div>

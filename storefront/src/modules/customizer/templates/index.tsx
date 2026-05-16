@@ -19,6 +19,7 @@ import { CrewSelector } from "@modules/bulk-order/components/crew-selector"
 import { getCustomer } from "@lib/data/customer"
 import { ProductCard } from "@modules/catalog/components/product-card"
 import Breadcrumbs from "@modules/common/components/breadcrumbs"
+import Divider from "@modules/common/components/divider"
 
 // Dynamically import Stage to avoid SSR issues with Konva
 const CustomizerStage = dynamic(() => import("../components/stage"), {
@@ -38,6 +39,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   
   const [activeProduct, setActiveProduct] = useState<HttpTypes.StoreProduct | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [quantity, setQuantity] = useState(1)
 
   const {
     recipe,
@@ -143,16 +145,13 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           }
           
           const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
-          const fallbackPattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+          const simplePattern = new RegExp(`${escapedNormalized}`, "i")
           
-          const matchingImage = activeProduct.images?.find((img) => pattern.test(img.url || ""))
-          if (matchingImage) {
-            imageUrl = matchingImage.url || imageUrl
-          } else {
-             const fallbackImage = activeProduct.images?.find((img) => fallbackPattern.test(img.url || ""))
-             if (fallbackImage) {
-                imageUrl = fallbackImage.url || imageUrl
-             }
+          const colorMatch = activeProduct.images?.find(img => pattern.test(img.url || "")) || 
+                            activeProduct.images?.find(img => simplePattern.test(img.url || ""));
+
+          if (colorMatch?.url) {
+            imageUrl = colorMatch.url;
           }
        } else if (activeProduct.images) {
           let suffix = ""
@@ -189,7 +188,6 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null, hasError?: boolean }>({ members: [], colour: null, hasError: false })
   const [roster, setRoster] = useState<any[]>([])
   const [comment, setComment] = useState("")
-  const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
     const init = async () => {
@@ -291,7 +289,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     return previews
   }
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (qty: number = 1) => {
     if (!customer) {
       localStorage.setItem("mm-customizer-recipe", JSON.stringify(recipe))
       localStorage.setItem("mm-customizer-options", JSON.stringify(selectedOptions))
@@ -312,7 +310,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       
       await addToCart({
         variantId: activeVariant.id,
-        quantity: quantity,
+        quantity: qty,
         countryCode,
         metadata: {
           recipe: recipe,
@@ -643,8 +641,29 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 </div>
               ))}
             </div>
+            
+            <Divider />
 
-            <div className="pt-6 border-t border-slate-50">
+            <div className="flex items-center justify-between px-2">
+               <p className="text-[10px] font-medium text-slate-400">Order Quantity</p>
+               <div className="flex items-center border border-slate-100 rounded-xl overflow-hidden bg-slate-50 h-10">
+                  <button 
+                    onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}
+                    className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center text-xs font-bold text-slate-900">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(q => q < 99 ? q + 1 : q)}
+                    className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
+                  >
+                    +
+                  </button>
+               </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-50">
                <div className="mb-4">
                  <label className="text-[10px] font-medium text-slate-400 mb-2 block">Design Notes / Comments</label>
                  <textarea 
@@ -656,7 +675,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                </div>
 
                <Button 
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart(quantity)}
                 disabled={isAddingToCart || isAddingBulk}
                 className="w-full h-16 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white rounded-2xl font-medium text-xs flex items-center justify-center gap-3 transition-all group"
               >

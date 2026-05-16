@@ -103,7 +103,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
         {!isAdmin && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <Text style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
-              Have questions? Contact our team at <a href="mailto:support@marinersmarkets.com" style={{ color: '#D4AF37', textDecoration: 'none' }}>support@marinersmarkets.com</a>
+              Have questions? Contact our team at <a href="mailto:christopherlam@marinersmarkets.com" style={{ color: '#D4AF37', textDecoration: 'none' }}>support@marinersmarkets.com</a>
             </Text>
           </div>
         )}
@@ -145,10 +145,32 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 padding: '12px 8px',
                 borderBottom: '1px solid #ddd'
               }}>
-                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
-                  {(item.thumbnail || item.variant?.thumbnail || item.variant?.images?.[0]?.url) && (
-                    <img src={getAbsoluteUrl(item.thumbnail || item.variant?.thumbnail || item.variant?.images?.[0]?.url)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
-                  )}
+                <div style={{ display: 'flex', gap: '24px', marginBottom: '15px', alignItems: 'flex-start' }}>
+                  {(() => {
+                    const variant = item.variant
+                    const images = variant?.product?.images || variant?.images || []
+                    const colorOption = variant?.options?.find((o: any) => 
+                      ["color", "colour"].some(t => o.option?.title?.toLowerCase().includes(t) || o.title?.toLowerCase().includes(t))
+                    )
+                    const colorValue = colorOption?.value || variant?.title?.split(" / ").pop()
+                    
+                    let imageUrl = item.thumbnail || variant?.thumbnail || images[0]?.url
+                    
+                    if (colorValue && images.length > 0) {
+                      const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
+                      const pattern = new RegExp(`[-_](${colorValue.toLowerCase()}|${normalizedColor})([-_.]|$)`, "i")
+                      const simplePattern = new RegExp(`${normalizedColor}`, "i")
+                      
+                      const match = images.find((img: any) => pattern.test(img.url || "")) || 
+                                    images.find((img: any) => simplePattern.test(img.url || ""))
+                      
+                      if (match?.url) imageUrl = match.url
+                    }
+                    
+                    return imageUrl ? (
+                      <img src={getAbsoluteUrl(imageUrl)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                    ) : null
+                  })()}
                   <div style={{ flex: 1 }}>
                     <Text style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px', color: '#0F172A' }}>
                       {item.product_title || item.title}

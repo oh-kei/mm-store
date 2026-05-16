@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, Fragment } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Transition } from "@headlessui/react"
-import { useParams } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import { signout, getCustomer } from "@lib/data/customer"
 import { HttpTypes } from "@medusajs/types"
 
@@ -13,6 +13,8 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
   const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "account"
   const { countryCode } = useParams() as { countryCode: string }
+  const pathname = usePathname()
+  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
 
   const hasFetchedRef = useRef(false)
@@ -78,14 +80,20 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
         >
           {/* Bridge to prevent hover flickering - adjusted height */}
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
-          <div className="bg-[#f3f4f6] border border-black/5 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
+          <div className={`border border-black/5 rounded-xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-z-0 ${
+            isHomePage 
+              ? "bg-white/20 border-white/10" 
+              : "bg-[#f3f4f6]"
+          }`}>
             <div className="py-2">
               <LocalizedClientLink 
                 href="/account"
-                className="px-4 py-2 border-b border-black/5 mb-1 block hover:bg-black/5 transition-all"
+                className={`px-4 py-2 border-b border-black/5 mb-1 block hover:bg-black/5 transition-all ${
+                  isHomePage ? "text-white" : "text-black"
+                }`}
                 onClick={() => toggleMenu("account")}
               >
-                <span className="text-xs font-medium text-black">
+                <span className={`text-xs font-medium ${isHomePage ? "text-white" : "text-black"}`}>
                   {customer ? `Hi, ${customer.first_name}` : "Account"}
                 </span>
               </LocalizedClientLink>
@@ -96,7 +104,9 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                     <LocalizedClientLink
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2 text-xs font-medium text-black/60 hover:text-black hover:bg-black/5 transition-all"
+                      className={`block px-4 py-2 text-xs font-medium hover:bg-black/5 transition-all ${
+                        isHomePage ? "text-white/70 hover:text-white" : "text-black/60 hover:text-black"
+                      }`}
                       onClick={() => toggleMenu("account")} // Close and unlock on click
                     >
                       {link.label}
@@ -104,7 +114,9 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                   ))}
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-black/5 transition-all border-t border-black/5 mt-1"
+                    className={`w-full text-left px-4 py-2 text-xs font-medium hover:bg-black/5 transition-all border-t border-black/5 mt-1 ${
+                      isHomePage ? "text-red-400 hover:text-red-300" : "text-red-500 hover:text-red-600"
+                    }`}
                   >
                     Log out
                   </button>
@@ -113,14 +125,18 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                 <>
                   <LocalizedClientLink
                     href="/account"
-                    className="block px-4 py-2 text-xs font-medium text-black/80 hover:text-black hover:bg-black/5 transition-all"
+                    className={`block px-4 py-2 text-xs font-medium hover:bg-black/5 transition-all ${
+                      isHomePage ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"
+                    }`}
                     onClick={() => toggleMenu("account")}
                   >
                     Sign In
                   </LocalizedClientLink>
                   <LocalizedClientLink
                     href="/account"
-                    className="block px-4 py-2 text-xs font-medium text-black/60 hover:text-black hover:bg-black/5 transition-all border-t border-black/5 mt-1"
+                    className={`block px-4 py-2 text-xs font-medium hover:bg-black/5 transition-all border-t border-black/5 mt-1 ${
+                      isHomePage ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"
+                    }`}
                     onClick={() => toggleMenu("account")}
                   >
                     Create Account

@@ -115,7 +115,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
             className="relative z-50"
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
-            <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none border border-slate-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy bg-slate-100/80 backdrop-blur-sm h-9 px-4 text-[0.7rem] md:text-sm">
+            <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none border border-gray-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy bg-white shadow-sm h-9 px-4 text-[0.7rem] md:text-sm">
               Customise
             </button>
           </LocalizedClientLink>
@@ -124,7 +124,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
             className="relative z-50"
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
-            <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none border border-slate-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy bg-slate-100/80 backdrop-blur-sm h-9 px-4 text-[0.7rem] md:text-sm">
+            <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none border border-gray-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy bg-white shadow-sm h-9 px-4 text-[0.7rem] md:text-sm">
               View More
             </button>
           </LocalizedClientLink>

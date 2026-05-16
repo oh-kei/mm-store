@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useRef, useEffect, Fragment } from "react"
+import { Heading, Text, clx } from "@medusajs/ui"
 import { MagnifyingGlassMini } from "@medusajs/icons"
 import { Transition } from "@headlessui/react"
+import { useParams, usePathname } from "next/navigation"
 import { InstantSearch } from "react-instantsearch-hooks-web"
 import { SEARCH_INDEX_NAME, searchClient } from "@lib/search-client"
 import Hit from "@modules/search/components/hit"
@@ -14,6 +16,9 @@ import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 export default function SearchButton() {
   const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "search"
+  const pathname = usePathname()
+  const { countryCode } = useParams() as { countryCode: string }
+  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -67,7 +72,11 @@ export default function SearchButton() {
           {/* Bridge to prevent hover flickering - full width and taller */}
           <div className="absolute top-0 left-0 w-full h-4 bg-transparent" />
           <div 
-            className="bg-[#f3f4f6] border border-black/5 rounded-2xl shadow-2xl overflow-hidden p-4" 
+            className={`border border-black/5 rounded-2xl shadow-2xl overflow-hidden p-4 ${
+              isHomePage 
+                ? "bg-white/20 border-white/10" 
+                : "bg-[#f3f4f6]"
+            }`}
             style={{ transform: "translateZ(0)" }}
             onWheel={(e) => e.stopPropagation()}
           >
@@ -75,9 +84,13 @@ export default function SearchButton() {
               indexName={SEARCH_INDEX_NAME}
               searchClient={searchClient}
             >
-              <div className="flex flex-col gap-y-4">
-                <div className="flex items-center gap-x-2 p-3 bg-black/5 rounded-xl border border-black/5 focus-within:border-black/10 transition-colors">
-                  <MagnifyingGlassMini className="text-black/40" />
+              <div className={clx("flex flex-col gap-y-4", isHomePage && "[&_input]:text-white [&_input::placeholder]:text-white/40 [&_.text-black]:text-white [&_.text-black\\/60]:text-white/60 [&_.text-black\\/40]:text-white/40")}>
+                <div className={`flex items-center gap-x-2 p-3 rounded-xl border transition-colors ${
+                  isHomePage 
+                    ? "bg-white/10 border-white/10 focus-within:border-white/20" 
+                    : "bg-black/5 border-black/5 focus-within:border-black/10"
+                }`}>
+                  <MagnifyingGlassMini className={isHomePage ? "text-white/40" : "text-black/40"} />
                   <SearchBox />
                 </div>
                 
