@@ -108,6 +108,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           let suffix = ""
           if (activeView === "back") suffix = "-back"
           else if (activeView === "left" || activeView === "right") suffix = "-side"
+          else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
+            suffix = "-blank"
+          }
           
           const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
           const fallbackPattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
@@ -125,7 +128,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           let suffix = ""
           if (activeView === "back") suffix = "-back"
           else if (activeView === "left" || activeView === "right") suffix = "-side"
-          else suffix = "-blank"
+          else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
+            suffix = "-blank"
+          }
           
           const matchingImage = activeProduct.images.find(img => img.url?.includes(suffix));
           if (matchingImage) {
@@ -260,7 +265,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           comment: comment,
         },
       })
-      router.push(`/${countryCode}/cart`)
+      // router.push(`/${countryCode}/cart`)
     } catch (err) {
       console.error("Add to cart failed", err)
     } finally {
@@ -313,7 +318,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       }
 
       closeCrewModal()
-      router.push(`/${countryCode}/cart`)
+      // router.push(`/${countryCode}/cart`)
     } catch (err) {
       console.error("Bulk add failed", err)
     } finally {
@@ -372,11 +377,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 px-4 md:px-8 relative">
+    <div className="min-h-screen bg-[#F8FAFC] pt-48 pb-20 px-4 md:px-8 relative">
       {/* Absolute Back Button */}
       <Button 
         variant="secondary" 
-        className="absolute top-8 left-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10"
+        className="absolute top-32 left-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10"
         onClick={() => {
           // Hard redirect to clear all states and URL parameters reliably
           window.location.href = `/${countryCode}/custom-studio`
@@ -475,6 +480,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 selectedId={selectedId} 
                 setSelectedId={setSelectedId}
                 onUpdateLayer={updateLayer}
+                activeView={activeView}
               />
             </div>
             

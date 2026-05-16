@@ -81,7 +81,8 @@ export default async function orderPlacedHandler({
       order,
       shippingAddress: order.shipping_address,
       preview: 'Your production order has been received!',
-      isAdmin: false
+      isAdmin: false,
+      showProductionDetails: false
     }
 
     console.log(`[OrderPlacedSubscriber] Sending customer notification to ${order.email}`)
@@ -101,7 +102,8 @@ export default async function orderPlacedHandler({
       order,
       shippingAddress: order.shipping_address,
       preview: 'New production order received!',
-      isAdmin: true
+      isAdmin: true,
+      showProductionDetails: true
     }
 
     console.log(`[OrderPlacedSubscriber] Sending admin notification to kkeipohl@gmail.com`)

@@ -49,6 +49,10 @@ const MobileActions: React.FC<MobileActionsProps> = ({
     return variantPrice || cheapestPrice || null
   }, [price])
 
+  const requiresCustomization = useMemo(() => {
+    return ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+  }, [product.title])
+
   return (
     <>
       <div
@@ -113,13 +117,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({
               </Button>
               <Button
                 onClick={handleAddToCart}
-                disabled={!inStock || !variant}
+                disabled={!inStock || !variant || requiresCustomization}
                 className="w-full"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {!variant
                   ? "Select variant"
+                  : requiresCustomization
+                  ? "Customize"
                   : !inStock
                   ? "Out of stock"
                   : "Add to cart"}

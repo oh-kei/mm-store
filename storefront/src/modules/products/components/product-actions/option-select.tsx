@@ -93,6 +93,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
       "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
       "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+      purple: "#581C87",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }

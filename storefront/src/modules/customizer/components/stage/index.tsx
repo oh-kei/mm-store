@@ -10,30 +10,10 @@ interface StageComponentProps {
   selectedId: string | null
   setSelectedId: (id: string | null) => void
   onUpdateLayer: (id: string, props: Partial<LayerProps>) => void
+  activeView?: string
 }
 
-const ProductBaseImage = ({ url, stageSize }: { url: string; stageSize: number }) => {
-  if (!url) return null
-  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`
-  const [image] = useImage(proxyUrl, "anonymous")
-  if (!image) return null
-  
-  // Calculate scaling to fit the image in the stage while maintaining aspect ratio
-  const scale = Math.min(stageSize / image.width, stageSize / image.height)
-  const x = (stageSize - image.width * scale) / 2
-  const y = (stageSize - image.height * scale) / 2
-
-  return (
-    <Image 
-      image={image} 
-      width={image.width * scale} 
-      height={image.height * scale} 
-      x={x}
-      y={y}
-      listening={false} 
-    />
-  )
-}
+// Moved logic into main component to avoid React 19 internal errors with nested Konva components
 
 const ImageLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer; isSelected: boolean; onSelect: () => void; onChange: (props: any) => void }) => {
   const url = data.props.url
@@ -114,14 +94,27 @@ const TextLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer
   )
 }
 
-export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ recipe, selectedId, setSelectedId, onUpdateLayer }, ref) => {
+export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ recipe, selectedId, setSelectedId, onUpdateLayer, activeView }, ref) => {
   const stageRef = useRef<any>(null)
   const transformerRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 800, scale: 1 })
-
+  
   // Logical canvas size is 1000x1000
   const VIRTUAL_SIZE = 1000
+
+  // Load base image here instead of in a separate component to avoid React 19 internal errors
+  const baseUrl = recipe.base.imageUrl
+  const proxyBaseUrl = baseUrl ? `/api/proxy-image?url=${encodeURIComponent(baseUrl)}` : ""
+  const [baseImage] = useImage(proxyBaseUrl, "anonymous")
+  
+  const baseImageData = React.useMemo(() => {
+    if (!baseImage) return null
+    const scale = Math.min(VIRTUAL_SIZE / baseImage.width, VIRTUAL_SIZE / baseImage.height)
+    const x = (VIRTUAL_SIZE - baseImage.width * scale) / 2
+    const y = (VIRTUAL_SIZE - baseImage.height * scale) / 2
+    return { width: baseImage.width * scale, height: baseImage.height * scale, x, y }
+  }, [baseImage])
 
   React.useImperativeHandle(ref, () => ({
     getScreenshot: async () => {
@@ -192,7 +185,17 @@ export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ rec
       >
         <Layer>
           {/* Base Product */}
-          <ProductBaseImage url={recipe.base.imageUrl} stageSize={VIRTUAL_SIZE} />
+          {baseImage && baseImageData && (
+            <Image 
+              image={baseImage} 
+              width={baseImageData.width} 
+              height={baseImageData.height} 
+              x={activeView === "right" ? baseImageData.x + baseImageData.width : baseImageData.x}
+              y={baseImageData.y}
+              scaleX={activeView === "right" ? -1 : 1}
+              listening={false} 
+            />
+          )}
           
           {/* Design Layers */}
           {recipe.layers.map((layer: CustomLayer) => {

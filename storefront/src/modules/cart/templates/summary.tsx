@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Button, Heading } from "@medusajs/ui"
 
 import CartTotals from "@modules/common/components/cart-totals"
@@ -26,6 +27,7 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
 
 const Summary = ({ cart }: SummaryProps) => {
   const step = getCheckoutStep(cart)
+  const [confirmed, setConfirmed] = useState(false)
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -35,11 +37,26 @@ const Summary = ({ cart }: SummaryProps) => {
       <DiscountCode cart={cart} />
       <Divider />
       <CartTotals totals={cart} />
+      
+      <div className="flex items-start gap-x-2 py-4">
+        <input 
+          type="checkbox" 
+          id="size-confirmation" 
+          checked={confirmed}
+          onChange={() => setConfirmed(!confirmed)}
+          className="mt-1 h-4 w-4 rounded border-gray-300 text-maritime-navy focus:ring-maritime-navy cursor-pointer"
+        />
+        <label htmlFor="size-confirmation" className="text-xs text-ui-fg-subtle cursor-pointer select-none">
+          I confirm I have checked that the size of all my products is correct with the sizing guide.
+        </label>
+      </div>
+
       <LocalizedClientLink
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
+        className={!confirmed ? "pointer-events-none opacity-50" : ""}
       >
-        <Button className="w-full h-10">Go to checkout</Button>
+        <Button className="w-full h-10" disabled={!confirmed}>Go to checkout</Button>
       </LocalizedClientLink>
     </div>
   )

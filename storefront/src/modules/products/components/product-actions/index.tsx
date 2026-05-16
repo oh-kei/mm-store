@@ -150,6 +150,10 @@ export default function ProductActions({
 
   const inView = useIntersection(actionsRef, "0px")
 
+  const requiresCustomization = useMemo(() => {
+    return ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+  }, [product.title])
+
   // add the selected variant to the cart
   const handleAddToCart = async () => {
     if (!customer) return null
@@ -268,7 +272,7 @@ export default function ProductActions({
         ) : (
           <Button
             onClick={handleAddToCart}
-            disabled={!inStock || !selectedVariant || !!disabled || isAdding}
+            disabled={!inStock || !selectedVariant || !!disabled || isAdding || requiresCustomization}
             variant="primary"
             className="w-full h-10 uppercase font-black tracking-widest text-[10px]"
             isLoading={isAdding}
@@ -276,6 +280,8 @@ export default function ProductActions({
           >
             {!selectedVariant
               ? "Select variant"
+              : requiresCustomization
+              ? "Customize to Purchase"
               : !inStock
               ? "Out of stock"
               : "Add to cart"}

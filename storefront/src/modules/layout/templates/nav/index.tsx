@@ -23,11 +23,11 @@ export default async function Nav() {
       
       <nav 
         id="main-nav"
-        className="flex items-center justify-between w-full relative pointer-events-auto px-8 md:px-16"
+        className="flex items-center justify-between w-full relative pointer-events-auto px-4 md:px-16"
       >
         {/* Left Side: Links */}
         <div 
-          className="flex-1 flex items-center gap-6 md:gap-12 font-medium text-white/90"
+          className="flex-1 flex items-center gap-4 md:gap-12 font-medium text-white/90"
           style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
         >
           <div className="md:order-1">
@@ -64,7 +64,7 @@ export default async function Nav() {
         </div>
 
         {/* Right Side: Icons & Region */}
-        <div className="flex-1 flex items-center justify-end gap-6 md:gap-12 text-white/90 relative z-[110]">
+        <div className="flex-1 flex items-center justify-end gap-4 md:gap-12 text-white/90 relative z-[110]">
           <SearchButton />
           <NavRegionSelect />
           <NavAccountDropdown customer={customer} />

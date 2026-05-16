@@ -3,7 +3,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container } from "@medusajs/ui"
 import Image from "next/image"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useProductGallery } from "./gallery-context"
 import { clx } from "@medusajs/ui"
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
@@ -13,6 +13,10 @@ type ImageGalleryProps = {
 }
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
+  const filteredImages = useMemo(() => {
+    return images.filter(img => !img.url?.includes("-side") && !img.url?.includes("-back"))
+  }, [images])
+
   const { activeIndex, setActiveIndex } = useProductGallery()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollUp, setCanScrollUp] = useState(false)
@@ -39,7 +43,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
     checkScroll()
     window.addEventListener("resize", checkScroll)
     return () => window.removeEventListener("resize", checkScroll)
-  }, [images])
+  }, [filteredImages])
 
   const scroll = (direction: "up" | "down" | "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -88,13 +92,13 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             maxHeight: '533px' 
           }}
         >
-          {images.map((image, index) => (
+          {filteredImages.map((image, index) => (
             <button
               key={image.id}
               onClick={() => setActiveIndex(index)}
               onMouseEnter={() => setActiveIndex(index)}
               className={clx(
-                "relative flex-shrink-0 aspect-[29/34] w-20 transition-all duration-300 rounded-lg overflow-hidden group",
+                "relative flex-shrink-0 aspect-[29/34] w-20 transition-all duration-300 rounded-lg overflow-hidden group bg-white",
                 {
                   "opacity-100 ring-2 ring-maritime-navy shadow-sm": index === activeIndex,
                   "opacity-50 hover:opacity-100": index !== activeIndex,
@@ -105,7 +109,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 src={image.url || ""}
                 alt={`Thumbnail ${index + 1}`}
                 fill
-                className="object-cover"
+                className="object-contain p-2"
                 sizes="100px"
               />
             </button>
@@ -132,19 +136,18 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         )}
       </div>
 
-      {/* Main Image Container */}
       <div className="flex-1 order-1 small:order-2 max-w-[500px]">
-        <Container className="relative aspect-[29/34] w-full overflow-hidden bg-ui-bg-subtle rounded-2xl shadow-2xl border border-gray-100">
-          {images[activeIndex] && (
+        <Container className="relative aspect-[29/34] w-full overflow-hidden bg-white rounded-2xl shadow-2xl border border-gray-100">
+          {filteredImages[activeIndex] && (
             <Image
-              src={images[activeIndex].url || ""}
+              src={filteredImages[activeIndex].url || ""}
               priority
-              className="absolute inset-0 transition-opacity duration-700 ease-in-out"
+              className="absolute inset-0 p-4 transition-opacity duration-700 ease-in-out"
               alt="Main product image"
               fill
               sizes="(max-width: 576px) 100vw, (max-width: 768px) 100vw, (max-width: 992px) 60vw, 800px"
               style={{
-                objectFit: "cover",
+                objectFit: "contain",
               }}
             />
           )}

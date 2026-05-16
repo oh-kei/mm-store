@@ -99,7 +99,14 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           </div>
         </div>
 
-        {/* Support contact footer removed per user request */}
+        {/* Support contact footer */}
+        {!isAdmin && (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <Text style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+              Have questions? Contact our team at <a href="mailto:support@marinersmarkets.com" style={{ color: '#D4AF37', textDecoration: 'none' }}>support@marinersmarkets.com</a>
+            </Text>
+          </div>
+        )}
 
         <Hr style={{ margin: '30px 0', borderColor: '#f1f5f9' }} />
 

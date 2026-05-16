@@ -18,7 +18,7 @@ const Hero = () => {
           src="/banner.webp" 
           alt="Banner" 
           fill 
-          className="object-cover object-center"
+          className="object-cover object-[48.5%_center] md:object-center"
           priority 
         />
       </div>

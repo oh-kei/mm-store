@@ -135,9 +135,18 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
     }
   };
 
+  const requiresCustomization = useMemo(() => {
+    return ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+  }, [product.title])
+
   const handleQuickAddClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (requiresCustomization) {
+      router.push(`/${countryCode}/custom-studio?id=${product.id}`);
+      return;
+    }
     
     if (!customer) {
       router.push(`/${countryCode}/account`);
@@ -302,7 +311,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
                 })}
                 onClick={handleQuickAddClick}
               >
-                {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
+                {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : requiresCustomization ? 'Customise' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
               </button>
             </>
           )}
