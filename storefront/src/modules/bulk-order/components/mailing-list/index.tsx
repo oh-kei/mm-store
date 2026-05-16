@@ -12,6 +12,14 @@ export default function MailingList() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
+    
+    // Basic email regex validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setStatus('error')
+      setMessage('Please enter a valid email address.')
+      return
+    }
 
     setStatus('loading')
     

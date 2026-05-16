@@ -36,7 +36,8 @@ export function ManualAddMember({ onAdd }: ManualAddMemberProps) {
              <input 
                type="text" 
                value={name}
-               onChange={(e) => setName(e.target.value)}
+               onChange={(e) => setName(e.target.value.slice(0, 100))}
+               maxLength={100}
                placeholder="e.g. John Doe"
                className="w-full bg-white border border-slate-200 rounded-xl h-12 px-5 text-sm font-bold focus:border-maritime-gold outline-none transition-all text-slate-900 placeholder:text-slate-300 shadow-sm"
                required

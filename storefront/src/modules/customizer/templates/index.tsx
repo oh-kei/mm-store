@@ -159,6 +159,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null, hasError?: boolean }>({ members: [], colour: null, hasError: false })
   const [roster, setRoster] = useState<any[]>([])
   const [comment, setComment] = useState("")
+  const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
     const init = async () => {
@@ -236,6 +237,25 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
   }
 
+  const captureAllPreviews = async () => {
+    const views = ["front", "back", "left", "right"]
+    const previews: Record<string, string> = {}
+    
+    // Save current view to restore it later
+    const originalView = activeView
+    
+    for (const view of views) {
+      setActiveView(view as any)
+      // Wait for re-render and image load
+      await new Promise(resolve => setTimeout(resolve, 600)) 
+      const url = await capturePreview()
+      if (url) previews[view] = url
+    }
+    
+    setActiveView(originalView)
+    return previews
+  }
+
   const handleAddToCart = async () => {
     if (!customer) {
       localStorage.setItem("mm-customizer-recipe", JSON.stringify(recipe))
@@ -248,20 +268,21 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingToCart(true)
     try {
-      let previewUrl = null
+      let previews = {}
       try {
-        previewUrl = await capturePreview()
+        previews = await captureAllPreviews()
       } catch (previewErr) {
         console.error("Preview capture failed, proceeding without it", previewErr)
       }
       
       await addToCart({
         variantId: activeVariant.id,
-        quantity: 1,
+        quantity: quantity,
         countryCode,
         metadata: {
           recipe: recipe,
-          preview_url: previewUrl,
+          previews: previews,
+          preview_url: (previews as any).front || (previews as any)[activeView] || null,
           comment: comment,
         },
       })
@@ -280,7 +301,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingBulk(true)
     try {
-      const previewUrl = await capturePreview()
+      const previews = await captureAllPreviews()
       const itemsToAdd: { variantId: string; quantity: number; metadata: any }[] = []
       
       const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
@@ -310,7 +331,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 }
               },
               crew_member: member.name,
-              preview_url: previewUrl,
+              previews: previews,
+              preview_url: (previews as any).front || (previews as any)[activeView] || null,
               comment: comment,
             }
           })

@@ -21,9 +21,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    // 1. Validation: File Size (10MB limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File too large. Max 10MB allowed." }, { status: 400 })
+    }
+
+    // 2. Validation: Content Type
+    const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"]
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: "Invalid file type. Only PNG, JPG, WEBP and SVG are allowed." }, { status: 400 })
+    }
+
     const filename = file.name
     const contentType = file.type
-    const key = `custom-studio/uploads/${Date.now()}-${filename}`
+    const key = `custom-studio/uploads/${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')}` // Sanitize filename
     const bucket = process.env.S3_BUCKET || process.env.MINIO_BUCKET || "medusa-media"
     
     // Convert file to buffer for upload

@@ -28,7 +28,20 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
   const filteredOptions = option.values?.map((v) => v.value)
   if (isColor) {
-    filteredOptions?.sort((a, b) => (a || "").localeCompare(b || ""))
+    const colorOrder = ["navy", "gray", "grey"];
+    filteredOptions?.sort((a, b) => {
+      const aLower = (a || "").toLowerCase();
+      const bLower = (b || "").toLowerCase();
+      
+      const aIdx = colorOrder.indexOf(aLower);
+      const bIdx = colorOrder.indexOf(bLower);
+      
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      
+      return aLower.localeCompare(bLower);
+    });
   } else if (isSize) {
     const sizeOrder: Record<string, number> = {
       "xxs": 1,

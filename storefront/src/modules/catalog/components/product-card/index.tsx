@@ -94,6 +94,17 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
     const c = (product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"))?.values?.map(v => v.value).filter(Boolean) as string[] || []);
     
     const sortedColors = [...c].sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      const colorOrder = ["navy", "gray", "grey"];
+      
+      const aIdx = colorOrder.indexOf(aLower);
+      const bIdx = colorOrder.indexOf(bLower);
+      
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+
       const lumA = getLuminance(getColorHex(a));
       const lumB = getLuminance(getColorHex(b));
       return lumB - lumA; // Pure Luminance: Lightest to Darkest

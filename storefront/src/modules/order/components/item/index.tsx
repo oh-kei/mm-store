@@ -51,15 +51,32 @@ const Item = ({ item }: ItemProps) => {
             </div>
             
             <div className="space-y-3">
-               {/* Design Snapshot if available */}
-               {item.metadata?.preview_url && (
-                 <div className="mb-4">
-                   <p className="text-[9px] font-black uppercase tracking-widest text-maritime-gold mb-2">Design Preview</p>
-                   <img 
-                    src={item.metadata.preview_url as string} 
-                    alt="Design Preview" 
-                    className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
-                   />
+               {/* Design Snapshots / Product Views */}
+               {(item.metadata?.previews || item.metadata?.preview_url) && (
+                 <div className="mb-6">
+                   <p className="text-[9px] font-black uppercase tracking-widest text-maritime-gold mb-3">Design Previews</p>
+                   <div className="grid grid-cols-2 gap-4">
+                     {item.metadata?.previews ? (
+                       Object.entries(item.metadata.previews as Record<string, string>).map(([view, url]) => (
+                         <div key={view} className="space-y-1">
+                           <img 
+                            src={url} 
+                            alt={`${view} view`} 
+                            className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
+                           />
+                           <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 text-center">{view}</p>
+                         </div>
+                       ))
+                     ) : (
+                       <div className="col-span-2">
+                         <img 
+                          src={item.metadata?.preview_url as string} 
+                          alt="Design Preview" 
+                          className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
+                         />
+                       </div>
+                     )}
+                   </div>
                  </div>
                )}
 
@@ -84,6 +101,30 @@ const Item = ({ item }: ItemProps) => {
                    </div>
                  </div>
                ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fallback for customized products - show all views if they exist */}
+        {recipe && item.variant?.product?.images && (
+          <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 max-w-md">
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Product Views</p>
+            <div className="grid grid-cols-2 gap-4">
+              {item.variant.product.images
+                .filter(img => {
+                  const url = img.url?.toLowerCase() || ""
+                  return url.includes("-back") || url.includes("-side") || (!url.includes("-back") && !url.includes("-side") && !url.includes("-blank"))
+                })
+                .slice(0, 4)
+                .map((img, idx) => (
+                <div key={idx} className="space-y-1">
+                    <img 
+                    src={img.url || ""} 
+                    alt={`View ${idx + 1}`} 
+                    className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
+                    />
+                </div>
+              ))}
             </div>
           </div>
         )}

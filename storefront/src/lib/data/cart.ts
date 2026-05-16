@@ -126,7 +126,7 @@ export async function addBulkToCart({
   items,
   countryCode,
 }: {
-  items: { variantId: string; quantity: number }[]
+  items: { variantId: string; quantity: number; metadata?: Record<string, any> }[]
   countryCode: string
 }) {
   const cart = await getOrSetCart(countryCode)
@@ -143,6 +143,7 @@ export async function addBulkToCart({
           {
             variant_id: item.variantId,
             quantity: item.quantity,
+            metadata: item.metadata,
           },
           {},
           await getAuthHeaders()
@@ -340,10 +341,13 @@ export async function submitPromotionForm(
   formData: FormData
 ) {
   const code = formData.get("code") as string
+  if (!code) return null
+  
   try {
     await applyPromotions([code])
+    return null
   } catch (e: any) {
-    return e.message
+    return "Invalid promo code."
   }
 }
 

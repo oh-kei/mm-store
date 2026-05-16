@@ -146,8 +146,8 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 borderBottom: '1px solid #ddd'
               }}>
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
-                  {(item.thumbnail || item.variant?.thumbnail) && (
-                    <img src={getAbsoluteUrl(item.thumbnail || item.variant?.thumbnail)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                  {(item.thumbnail || item.variant?.thumbnail || item.variant?.images?.[0]?.url) && (
+                    <img src={getAbsoluteUrl(item.variant?.images?.[0]?.url || item.thumbnail || item.variant?.thumbnail)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
                   )}
                   <div style={{ flex: 1 }}>
                     <Text style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px', color: '#0F172A' }}>
@@ -158,23 +158,76 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                         {item.variant.title}
                       </Text>
                     )}
+                    {crewMember && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: '4px 0' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase' }}>For: {String(crewMember)}</span>
+                      </div>
+                    )}
                     <Text style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>
                       {Number(item.quantity)} x {Number(item.unit_price)} {order.currency_code?.toUpperCase()}
                     </Text>
                   </div>
                 </div>
                 
-                {/* Composite Design Preview */}
-                {(item as any).metadata?.preview_url && (
+                {/* Design Previews */}
+                {(item as any).metadata?.previews ? (
                   <div style={{ margin: '15px 0' }}>
                     <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase', margin: '0 0 10px' }}>
-                      Final Design Preview (Composite)
+                      Design Previews (All Views)
+                    </Text>
+                    <table style={{ width: '100%' }}>
+                      <tr>
+                        {Object.entries((item as any).metadata.previews as Record<string, string>).map(([view, url], idx) => (
+                          <td key={view} style={{ width: '50%', padding: '5px' }}>
+                            <img 
+                              src={getAbsoluteUrl(url)} 
+                              alt={`${view} view`} 
+                              style={{ width: '100%', borderRadius: '8px', border: '1px solid #ddd' }} 
+                            />
+                            <div style={{ fontSize: '8px', textAlign: 'center', color: '#999', marginTop: '4px', textTransform: 'uppercase' }}>{view}</div>
+                          </td>
+                        ))}
+                      </tr>
+                    </table>
+                  </div>
+                ) : (item as any).metadata?.preview_url ? (
+                  <div style={{ margin: '15px 0' }}>
+                    <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase', margin: '0 0 10px' }}>
+                      Design Preview
                     </Text>
                     <img 
                       src={getAbsoluteUrl((item as any).metadata.preview_url)} 
                       alt="Design Preview" 
-                      style={{ width: '100%', maxWidth: '400px', borderRadius: '12px', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} 
+                      style={{ width: '100%', maxWidth: '300px', borderRadius: '12px', border: '1px solid #ddd' }} 
                     />
+                  </div>
+                ) : null}
+
+                {/* Product Views for customized items (fallback if previews missing) */}
+                {recipe && item.variant?.product?.images && (
+                   <div style={{ margin: '15px 0' }}>
+                    <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', margin: '0 0 10px' }}>
+                      Product Views
+                    </Text>
+                    <table style={{ width: '100%' }}>
+                      <tr>
+                        {item.variant.product.images
+                          .filter((img: any) => {
+                            const url = img.url?.toLowerCase() || ""
+                            return url.includes("-back") || url.includes("-side") || (!url.includes("-back") && !url.includes("-side") && !url.includes("-blank"))
+                          })
+                          .slice(0, 4)
+                          .map((img: any, idx: number) => (
+                          <td key={idx} style={{ width: '50%', padding: '5px' }}>
+                            <img 
+                              src={getAbsoluteUrl(img.url)} 
+                              alt={`View ${idx + 1}`} 
+                              style={{ width: '100%', borderRadius: '8px', border: '1px solid #eee' }} 
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    </table>
                   </div>
                 )}
                 
@@ -188,7 +241,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                     border: '1px solid #eee'
                   }}>
                     <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', margin: '0 0 8px' }}>
-                      Production Details {crewMember ? `(For Member: ${String(crewMember)})` : ''}
+                      Production Details
                     </Text>
                     
                     {item.metadata?.comment && (

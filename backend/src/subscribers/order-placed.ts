@@ -65,8 +65,36 @@ export default async function orderPlacedHandler({
       item.quantity = Number(item.quantity)
       
       if (item.variant) {
-        // Use the storefront's native logic: variant image first, then line item thumbnail, then product thumbnail
-        item.thumbnail = item.variant.images?.[0]?.url || item.thumbnail || item.variant.product?.thumbnail
+        // Try to find a color-matched image
+        const colorOption = item.variant.options?.find((o: any) => 
+          o.option?.title?.toLowerCase().includes("color") || 
+          o.option?.title?.toLowerCase().includes("colour") ||
+          o.title?.toLowerCase().includes("color") || 
+          o.title?.toLowerCase().includes("colour")
+        )
+        const colorValue = (colorOption?.value || "").toLowerCase()
+        
+        let bestImage = item.variant.images?.[0]?.url
+        
+        if (colorValue) {
+          // Check variant images first
+          const matchedVariantImg = item.variant.images?.find((img: any) => 
+            img.url?.toLowerCase().includes(`-${colorValue}`) || 
+            img.url?.toLowerCase().includes(`_${colorValue}`)
+          )
+          if (matchedVariantImg) {
+            bestImage = matchedVariantImg.url
+          } else {
+            // Check product images if variant images didn't match
+            const matchedProductImg = item.variant.product?.images?.find((img: any) => 
+              img.url?.toLowerCase().includes(`-${colorValue}`) || 
+              img.url?.toLowerCase().includes(`_${colorValue}`)
+            )
+            if (matchedProductImg) bestImage = matchedProductImg.url
+          }
+        }
+
+        item.thumbnail = bestImage || item.thumbnail || item.variant.product?.thumbnail
       }
     })
 

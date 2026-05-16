@@ -72,7 +72,8 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
             <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Text Content</Label>
             <Input 
               value={layer.props.text || ""} 
-              onChange={(e) => onUpdate(layer.id, { text: e.target.value })}
+              onChange={(e) => onUpdate(layer.id, { text: e.target.value.slice(0, 500) })}
+              maxLength={500}
               className="rounded-xl border-slate-100 bg-slate-50 focus:bg-white transition-all h-12 text-sm font-bold"
             />
           </div>
@@ -103,7 +104,8 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
                   {isFontListExpanded && (
                     <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white rounded-xl border border-slate-100 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
                       <div 
-                        className="max-h-[200px] overflow-y-auto custom-scrollbar p-1 overscroll-contain"
+                        data-lenis-prevent 
+                        className="max-h-[500px] overflow-y-auto custom-scrollbar p-1 overscroll-contain"
                         onWheel={(e) => e.stopPropagation()}
                       >
                         {FONT_FAMILIES.map((font) => (

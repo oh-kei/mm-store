@@ -32,7 +32,7 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
 
     const formatted = data
       .map(row => ({
-        name: row[nameKey]?.toString() || "",
+        name: row[nameKey]?.toString().slice(0, 100) || "",
         size: row[sizeKey]?.toString().toUpperCase() || ""
       }))
       .filter(item => item.name && item.size)

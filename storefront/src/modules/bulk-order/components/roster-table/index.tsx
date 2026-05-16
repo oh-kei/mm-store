@@ -17,6 +17,19 @@ interface RosterTableProps {
 }
 
 export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: RosterTableProps) {
+  const handleExportCSV = () => {
+    const headers = "Name,Size\n"
+    const rows = members.map(m => `"${m.name}","${m.size}"`).join("\n")
+    const csvContent = "data:text/csv;charset=utf-8," + headers + rows
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", "crew_roster.csv")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const [editingIndex, setEditingIndex] = React.useState<number | null>(null)
   const [editName, setEditName] = React.useState("")
   const [editSize, setEditSize] = React.useState("")
@@ -54,7 +67,7 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
           <span className="text-center">Size</span>
           <span className="text-right">Action</span>
         </div>
-        <div className="max-h-[500px] overflow-y-auto">
+        <div data-lenis-prevent className="max-h-[500px] overflow-y-auto overscroll-contain">
           {members.map((member, idx) => {
             const isEditing = editingIndex === idx
             return (
@@ -72,7 +85,8 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
                       type="text"
                       id={`edit-name-${idx}`}
                       value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      onChange={(e) => setEditName(e.target.value.slice(0, 100))}
+                      maxLength={100}
                       className="font-black text-slate-900 tracking-tight bg-white border border-slate-200 rounded-lg px-2 py-1 flex-1 outline-none focus:border-maritime-gold"
                     />
                   ) : (
@@ -159,7 +173,7 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
           <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black">Total Crew: {members.length}</p>
           <button 
             id="export-csv"
-            onClick={() => {}} 
+            onClick={handleExportCSV} 
             className="text-[10px] uppercase tracking-widest text-maritime-gold font-black hover:underline underline-offset-8"
           >
             Export CSV

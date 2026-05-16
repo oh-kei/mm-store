@@ -30,7 +30,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
   const [roster, setRoster] = useState<CrewMember[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState<React.ReactNode | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   // Load roster and customer on mount
@@ -167,7 +167,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
      const product = products.find(p => p.id === productId)
      if (!product) return
 
-     const itemsToAdd: { variantId: string, quantity: number }[] = []
+     const itemsToAdd: { variantId: string, quantity: number, metadata?: any }[] = []
 
      selection.members.forEach(member => {
        // Priority: Member Override > Global Selection > Roster Default
@@ -187,13 +187,14 @@ export function PortalContainer({ products }: PortalContainerProps) {
        })
 
        if (variant?.id) {
-         // Check if we already have this variant in itemsToAdd, if so increment quantity
-         const existing = itemsToAdd.find(i => i.variantId === variant.id)
-         if (existing) {
-           existing.quantity += 1
-         } else {
-           itemsToAdd.push({ variantId: variant.id, quantity: 1 })
-         }
+         // Add each member as a separate line item with metadata to prevent merging
+         itemsToAdd.push({ 
+           variantId: variant.id, 
+           quantity: 1,
+           metadata: {
+             crew_member: member.name
+           }
+         })
        } else {
          console.warn(`No variant found for ${product.title} in colour ${targetColour} and size ${targetSize}`)
        }
