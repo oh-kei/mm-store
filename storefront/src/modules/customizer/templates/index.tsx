@@ -13,6 +13,8 @@ import { HttpTypes } from "@medusajs/types"
 import { Users } from "lucide-react"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import Modal from "@modules/common/components/modal"
+import { ViewType } from "../hooks/use-customizer"
+import { ViewType } from "../hooks/use-customizer"
 import { CrewSelector } from "@modules/bulk-order/components/crew-selector"
 import { getCustomer } from "@lib/data/customer"
 import { ProductCard } from "@modules/catalog/components/product-card"
@@ -46,6 +48,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     setBase,
     selectedId,
     setSelectedId,
+    activeView,
+    setActiveView,
   } = useCustomizer({
     id: activeProduct?.id || "",
     variantId: activeProduct?.variants?.[0]?.id || "",
@@ -92,7 +96,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       })
     })
 
-    if (variant && (recipe.base.variantId !== variant.id || recipe.base.productId !== activeProduct.id)) {
+    if (variant) {
        const colorValue = selectedOptions["Color"] || selectedOptions["Colour"]
        let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
 
@@ -100,27 +104,44 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
           const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+          
+          let suffix = ""
+          if (activeView === "back") suffix = "-back"
+          else if (activeView === "left" || activeView === "right") suffix = "-side"
+          
+          const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
+          const fallbackPattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
           
           const matchingImage = activeProduct.images?.find((img) => pattern.test(img.url || ""))
           if (matchingImage) {
             imageUrl = matchingImage.url || imageUrl
+          } else {
+             const fallbackImage = activeProduct.images?.find((img) => fallbackPattern.test(img.url || ""))
+             if (fallbackImage) {
+                imageUrl = fallbackImage.url || imageUrl
+             }
           }
        } else if (activeProduct.images) {
-          // Default to the -blank image if no color is specifically selected
-          const blankImage = activeProduct.images.find(img => img.url?.includes("-blank"));
-          if (blankImage) {
-            imageUrl = blankImage.url;
+          let suffix = ""
+          if (activeView === "back") suffix = "-back"
+          else if (activeView === "left" || activeView === "right") suffix = "-side"
+          else suffix = "-blank"
+          
+          const matchingImage = activeProduct.images.find(img => img.url?.includes(suffix));
+          if (matchingImage) {
+            imageUrl = matchingImage.url;
           }
        }
 
-       setBase({
-         productId: activeProduct.id,
-         variantId: variant.id,
-         imageUrl: imageUrl,
-       })
+       if (recipe.base.variantId !== variant.id || recipe.base.productId !== activeProduct.id || recipe.base.imageUrl !== imageUrl) {
+         setBase({
+           productId: activeProduct.id,
+           variantId: variant.id,
+           imageUrl: imageUrl,
+         })
+       }
     }
-  }, [selectedOptions, activeProduct, setBase, recipe.base.productId, recipe.base.variantId])
+  }, [selectedOptions, activeProduct, setBase, recipe.base.productId, recipe.base.variantId, activeView, recipe.base.imageUrl])
 
   const activeVariant = useMemo(() => {
     return activeProduct?.variants?.find(v => v.id === recipe.base.variantId) || activeProduct?.variants?.[0]
@@ -407,10 +428,10 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </div>
               
               <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                {recipe.layers.length === 0 && (
+                {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).length === 0 && (
                   <p className="text-[10px] font-bold text-slate-300 italic uppercase">No layers added yet</p>
                 )}
-                {recipe.layers.map((layer) => (
+                {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).map((layer) => (
                   <div 
                     key={layer.id}
                     onClick={() => setSelectedId(layer.id)}
@@ -443,11 +464,14 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
         {/* Center: Stage */}
         <div className="lg:col-span-6 order-1 lg:order-2">
-          <div className="bg-[#EDEEF3] rounded-[48px] overflow-hidden shadow-inner border border-slate-200 relative aspect-square flex items-center justify-center group">
+          <div className="bg-[#EDEEF3] rounded-[48px] overflow-hidden shadow-inner border border-slate-200 relative aspect-square flex items-center justify-center group mb-6">
             <div className="absolute inset-0 flex items-center justify-center p-12">
                <CustomizerStage 
                 ref={stageRef}
-                recipe={recipe} 
+                recipe={{
+                  ...recipe,
+                  layers: recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front'))
+                }} 
                 selectedId={selectedId} 
                 setSelectedId={setSelectedId}
                 onUpdateLayer={updateLayer}
@@ -466,6 +490,30 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 <span className="text-[9px] font-black uppercase tracking-widest text-maritime-navy">Scale Handles</span>
               </div>
             </div>
+          </div>
+
+          {/* View Selector UI */}
+          <div className="flex justify-center items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-sm border border-slate-100 w-max mx-auto">
+             {(['front', 'back', 'left', 'right'] as ViewType[]).map((view) => {
+               // Only show back/side views if they exist for the current product
+               if (view === 'back' && !activeProduct.images?.some(img => img.url?.includes('-back'))) return null;
+               if ((view === 'left' || view === 'right') && !activeProduct.images?.some(img => img.url?.includes('-side'))) return null;
+
+               return (
+                 <button
+                   key={view}
+                   onClick={() => setActiveView(view)}
+                   className={clx(
+                     "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                     activeView === view 
+                       ? "bg-maritime-navy text-white shadow-md" 
+                       : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                   )}
+                 >
+                   {view}
+                 </button>
+               )
+             })}
           </div>
         </div>
 

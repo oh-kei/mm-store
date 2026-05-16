@@ -15,6 +15,7 @@ export interface OrderPlacedTemplateProps {
   shippingAddress: OrderAddressDTO
   preview?: string
   showProductionDetails?: boolean
+  isAdmin?: boolean
 }
 
 const getAbsoluteUrl = (url?: string) => {
@@ -29,23 +30,27 @@ export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplat
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps
-} = ({ order, shippingAddress, preview = 'Your order has been placed!', showProductionDetails = true }) => {
+} = ({ order, shippingAddress, preview = 'Your order has been placed!', showProductionDetails = true, isAdmin = false }) => {
   return (
     <Base preview={preview}>
       <Section>
         <Text style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 10px', color: '#0F172A' }}>
-          Production Order Confirmation
+          {isAdmin ? 'New Order Received' : 'Order Confirmation'}
         </Text>
         <Text style={{ fontSize: '14px', textAlign: 'center', margin: '0 0 30px', color: '#D4AF37', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>
           Mariner's Market
         </Text>
 
-        <Text style={{ margin: '0 0 15px', color: '#334155' }}>
-          Dear {shippingAddress.first_name} {shippingAddress.last_name},
-        </Text>
+        {!isAdmin && (
+          <Text style={{ margin: '0 0 15px', color: '#334155' }}>
+            Dear {shippingAddress.first_name} {shippingAddress.last_name},
+          </Text>
+        )}
 
         <Text style={{ margin: '0 0 30px', color: '#64748b', fontSize: '14px' }}>
-          We have received your production order request. Our team will review your submitted designs and requirements shortly. Please find the detailed summary of your requested production run below.
+          {isAdmin 
+            ? 'A new order has been placed, find the summary of the items purchased below.'
+            : 'We have received your order. Our team will review your submitted designs and requirements shortly. Please find the summary of your purchases below:'}
         </Text>
 
         <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
@@ -70,7 +75,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           </table>
           
           <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
-            <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Requested</Text>
+            <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
             {order.items.map((item: any, i) => {
               const isCustom = !!item.metadata?.recipe
               return (
@@ -94,9 +99,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           </div>
         </div>
 
-        <Text style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', margin: '30px 0' }}>
-          For any changes or questions regarding this production run, please contact your account manager at <a href="mailto:christopherlam@marinersmarkets.com" style={{ color: '#D4AF37', fontWeight: 'bold', textDecoration: 'none' }}>christopherlam@marinersmarkets.com</a>
-        </Text>
+        {/* Support contact footer removed per user request */}
 
         <Hr style={{ margin: '30px 0', borderColor: '#f1f5f9' }} />
 
@@ -191,7 +194,8 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                     {recipe?.layers?.map((layer: any, idx: number) => (
                       <div key={idx} style={{ marginBottom: '8px' }}>
                         <Text style={{ fontSize: '11px', fontWeight: 'bold', margin: '0 0 2px' }}>
-                          {layer.type === 'text' ? 'TEXT LAYER' : 'LOGO LAYER'}
+                          {layer.type === 'text' ? 'TEXT LAYER' : 'LOGO LAYER'} 
+                          <span style={{ color: '#D4AF37', marginLeft: '4px' }}>({(layer.view || 'front').toUpperCase()})</span>
                         </Text>
                         <Text style={{ fontSize: '11px', margin: 0 }}>
                           {layer.type === 'text' 

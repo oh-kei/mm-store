@@ -72,26 +72,45 @@ export default async function orderPlacedHandler({
 
     console.log(`[OrderPlacedSubscriber] Sending notification for order ${order.id} to ${order.email}`)
 
-    const notificationData = {
+    // 1. Send Customer Email
+    const customerNotificationData = {
       emailOptions: {
         replyTo: 'christopherlam@marinersmarkets.com',
         subject: `Order Confirmation for Mariner's Market`,
-        cc: 'kkeipohl@gmail.com'
       },
       order,
       shippingAddress: order.shipping_address,
-      preview: 'New production order received!'
+      preview: 'Your production order has been received!',
+      isAdmin: false
     }
 
-    console.log(`[OrderPlacedSubscriber] Data for template:`, JSON.stringify(notificationData, (key, value) => 
-      key === 'images' || key === 'thumbnail' ? '[IMAGE]' : value
-    , 2))
-
+    console.log(`[OrderPlacedSubscriber] Sending customer notification to ${order.email}`)
+    
     await notificationModuleService.createNotifications({
       to: order.email,
       channel: 'email',
       template: EmailTemplates.ORDER_PLACED,
-      data: notificationData
+      data: customerNotificationData
+    })
+
+    // 2. Send Admin/Fulfillment Email
+    const adminNotificationData = {
+      emailOptions: {
+        subject: `New Order Received - #${order.display_id}`,
+      },
+      order,
+      shippingAddress: order.shipping_address,
+      preview: 'New production order received!',
+      isAdmin: true
+    }
+
+    console.log(`[OrderPlacedSubscriber] Sending admin notification to kkeipohl@gmail.com`)
+
+    await notificationModuleService.createNotifications({
+      to: 'kkeipohl@gmail.com',
+      channel: 'email',
+      template: EmailTemplates.ORDER_PLACED,
+      data: adminNotificationData
     })
     
     console.log(`[OrderPlacedSubscriber] Notification created successfully for order ${order.id}`)

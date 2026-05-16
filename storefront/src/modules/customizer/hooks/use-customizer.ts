@@ -2,6 +2,7 @@ import { useState, useCallback } from "react"
 import { v4 as uuidv4 } from "uuid"
 
 export type LayerType = "text" | "image"
+export type ViewType = "front" | "back" | "left" | "right"
 
 export interface LayerProps {
   x: number
@@ -23,6 +24,7 @@ export interface LayerProps {
 export interface CustomLayer {
   id: string
   type: LayerType
+  view?: ViewType
   props: LayerProps
 }
 
@@ -38,6 +40,8 @@ export interface Recipe {
 }
 
 export const useCustomizer = (initialProduct: { id: string; variantId: string; imageUrl: string }) => {
+  const [activeView, setActiveView] = useState<ViewType>("front")
+  
   const [recipe, setRecipe] = useState<Recipe>({
     version: "1.0",
     base: {
@@ -55,6 +59,7 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     const newLayer: CustomLayer = {
       id: uuidv4(),
       type: "text",
+      view: activeView,
       props: {
         x: 100,
         y: 100,
@@ -70,12 +75,13 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     }
     setRecipe((prev) => ({ ...prev, layers: [...prev.layers, newLayer] }))
     setSelectedId(newLayer.id)
-  }, [])
+  }, [activeView])
 
   const addImageLayer = useCallback((url: string, key: string) => {
     const newLayer: CustomLayer = {
       id: uuidv4(),
       type: "image",
+      view: activeView,
       props: {
         x: 100,
         y: 100,
@@ -88,7 +94,7 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     }
     setRecipe((prev) => ({ ...prev, layers: [...prev.layers, newLayer] }))
     setSelectedId(newLayer.id)
-  }, [])
+  }, [activeView])
 
   const updateLayer = useCallback((id: string, newProps: Partial<LayerProps>) => {
     setRecipe((prev) => ({
@@ -122,5 +128,7 @@ export const useCustomizer = (initialProduct: { id: string; variantId: string; i
     setBase,
     selectedId,
     setSelectedId,
+    activeView,
+    setActiveView,
   }
 }
