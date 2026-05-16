@@ -29,7 +29,7 @@ export default async function Profile() {
         <h1 className="text-2xl-semi">Profile</h1>
         <p className="text-base-regular">
           View and update your profile information, including your name, email,
-          and phone number. You can also change your password.
+          and phone number.
         </p>
       </div>
       <div className="flex flex-col gap-y-8 w-full">
@@ -38,8 +38,6 @@ export default async function Profile() {
         <ProfileEmail customer={customer} />
         <Divider />
         <ProfilePhone customer={customer} />
-        <Divider />
-        <ProfilePassword customer={customer} />
       </div>
     </div>
   )

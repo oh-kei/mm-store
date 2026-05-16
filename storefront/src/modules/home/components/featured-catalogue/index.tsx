@@ -79,10 +79,10 @@ const FeaturedCatalogue = () => {
         <div className="mt-16 flex justify-center">
           <LocalizedClientLink 
             href="/catalog" 
-            className="group flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl font-medium text-sm hover:bg-slate-800 transition-all hover:scale-105 shadow-xl shadow-slate-900/10"
+            className="group flex items-center gap-4 bg-slate-100 text-slate-900 px-8 py-4 rounded-2xl font-medium text-sm hover:bg-maritime-navy hover:text-white transition-all hover:scale-105 shadow-sm"
           >
             Explore our full catalogue
-            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-maritime-gold transition-colors">
+            <div className="w-6 h-6 rounded-full bg-slate-900/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </div>
           </LocalizedClientLink>

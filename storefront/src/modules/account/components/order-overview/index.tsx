@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useMemo } from "react"
 import { Button } from "@medusajs/ui"
 
 import OrderCard from "../order-card"
@@ -7,10 +8,16 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { HttpTypes } from "@medusajs/types"
 
 const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
-  if (orders?.length) {
+  const sortedOrders = useMemo(() => {
+    return [...(orders || [])].sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+  }, [orders])
+
+  if (sortedOrders?.length) {
     return (
       <div className="flex flex-col gap-y-8 w-full">
-        {orders.map((o) => (
+        {sortedOrders.map((o) => (
           <div
             key={o.id}
             className="border-b border-gray-200 pb-6 last:pb-0 last:border-none"

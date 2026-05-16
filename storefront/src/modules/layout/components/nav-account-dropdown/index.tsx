@@ -80,11 +80,15 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
           <div className="bg-[#f3f4f6] border border-black/5 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
             <div className="py-2">
-              <div className="px-4 py-2 border-b border-black/5 mb-1">
+              <LocalizedClientLink 
+                href="/account"
+                className="px-4 py-2 border-b border-black/5 mb-1 block hover:bg-black/5 transition-all"
+                onClick={() => toggleMenu("account")}
+              >
                 <span className="text-xs font-medium text-black">
                   {customer ? `Hi, ${customer.first_name}` : "Account"}
                 </span>
-              </div>
+              </LocalizedClientLink>
               
               {customer ? (
                 <>
@@ -106,13 +110,22 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                   </button>
                 </>
               ) : (
-                <LocalizedClientLink
-                  href="/account"
-                  className="block px-4 py-2 text-xs font-medium text-black/80 hover:text-black hover:bg-black/5 transition-all"
-                  onClick={() => toggleMenu("account")}
-                >
-                  Sign In
-                </LocalizedClientLink>
+                <>
+                  <LocalizedClientLink
+                    href="/account"
+                    className="block px-4 py-2 text-xs font-medium text-black/80 hover:text-black hover:bg-black/5 transition-all"
+                    onClick={() => toggleMenu("account")}
+                  >
+                    Sign In
+                  </LocalizedClientLink>
+                  <LocalizedClientLink
+                    href="/account"
+                    className="block px-4 py-2 text-xs font-medium text-black/60 hover:text-black hover:bg-black/5 transition-all border-t border-black/5 mt-1"
+                    onClick={() => toggleMenu("account")}
+                  >
+                    Create Account
+                  </LocalizedClientLink>
+                </>
               )}
             </div>
           </div>

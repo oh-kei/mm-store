@@ -7,7 +7,7 @@ import dynamic from "next/dynamic"
 import { useCustomizer } from "../hooks/use-customizer"
 import { uploadToS3 } from "../utils/upload"
 import { addToCart, addBulkToCart } from "@lib/data/cart"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation"
 import { PropertiesPanel } from "../components/PropertiesPanel"
 import { HttpTypes } from "@medusajs/types"
 import { Users } from "lucide-react"
@@ -34,6 +34,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const { countryCode } = useParams() as { countryCode: string }
   const searchParams = useSearchParams()
   const router = useRouter()
+  const pathname = usePathname()
   
   const [activeProduct, setActiveProduct] = useState<HttpTypes.StoreProduct | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -73,16 +74,39 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   // Initialize selected options from active product
   useEffect(() => {
-    if (activeProduct && Object.keys(selectedOptions).length === 0) {
-      const initialOptions: Record<string, string> = {}
-      activeProduct.options?.forEach(opt => {
-        if (opt.title && opt.values?.[0]) {
-          initialOptions[opt.title] = opt.values[0].value
-        }
-      })
-      setSelectedOptions(initialOptions)
+    if (activeProduct) {
+      // Only initialize if we have no options OR if we switched to a DIFFERENT product
+      // We check recipe.base.productId to see what's currently loaded in the workbench
+      const isSwitchingProduct = recipe.base.productId && activeProduct.id !== recipe.base.productId
+      const isEmpty = Object.keys(selectedOptions).length === 0
+      
+      if (isEmpty || isSwitchingProduct) {
+        const initialOptions: Record<string, string> = {}
+        const urlColor = searchParams.get("color")
+
+        activeProduct.options?.forEach(opt => {
+          const optionTitle = opt.title || ""
+          const isColorOption = optionTitle.toLowerCase().includes("color") || optionTitle.toLowerCase().includes("colour")
+          
+          if (isColorOption && urlColor) {
+            const matchingValue = opt.values?.find(v => v.value?.toLowerCase() === urlColor.toLowerCase())
+            if (matchingValue) {
+              initialOptions[optionTitle] = matchingValue.value
+              return
+            }
+          }
+          
+          if (opt.values?.[0]) {
+            initialOptions[optionTitle] = opt.values[0].value
+          }
+        })
+        
+        setSelectedOptions(initialOptions)
+      }
     }
-  }, [activeProduct])
+    // We only want to run this when the active product changes or on mount
+    // Adding searchParams here as a dependency only for the INITIAL mount case
+  }, [activeProduct?.id, recipe.base.productId])
 
   // Synchronize active product and variant selection with recipe
   useEffect(() => {
@@ -97,7 +121,13 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     })
 
     if (variant) {
-       const colorValue = selectedOptions["Color"] || selectedOptions["Colour"]
+       // Find the color option value robustly
+       const colorOption = activeProduct.options?.find(opt => 
+         (opt.title || "").toLowerCase().includes("color") || 
+         (opt.title || "").toLowerCase().includes("colour")
+       )
+       const colorValue = colorOption ? selectedOptions[colorOption.title || ""] : null
+
        let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
 
        if (colorValue) {
@@ -386,7 +416,6 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             {filteredProducts.map((p) => (
               <div 
                 key={p.id}
-                onClick={() => setActiveProduct(p)}
                 className="bg-white"
               >
                 <ProductCard 
@@ -394,6 +423,32 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                   region={region}
                   customer={customer}
                   mode="customizer"
+                  onSelect={(product, color) => {
+                    const params = new URLSearchParams(searchParams.toString())
+                    params.set("id", product.id)
+                    if (color) params.set("color", color)
+                    else params.delete("color")
+                    
+                    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+                    
+                    // Pre-initialize options to ensure they are available immediately
+                    const initialOptions: Record<string, string> = {}
+                    product.options?.forEach(opt => {
+                      const title = opt.title || ""
+                      const isColor = title.toLowerCase().includes("color") || title.toLowerCase().includes("colour")
+                      if (isColor && color) {
+                        const match = opt.values?.find(v => v.value?.toLowerCase() === color.toLowerCase())
+                        if (match) {
+                          initialOptions[title] = match.value
+                          return
+                        }
+                      }
+                      if (opt.values?.[0]) initialOptions[title] = opt.values[0].value
+                    })
+                    
+                    setSelectedOptions(initialOptions)
+                    setActiveProduct(product)
+                  }}
                 />
               </div>
             ))}
@@ -603,7 +658,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                <Button 
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || isAddingBulk}
-                className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-medium text-xs flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group"
+                className="w-full h-16 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white rounded-2xl font-medium text-xs flex items-center justify-center gap-3 transition-all group"
               >
                 {isAddingToCart ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -619,7 +674,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 onClick={openCrewModal}
                 disabled={isAddingToCart || isAddingBulk || roster.length === 0}
                 variant="secondary"
-                className="w-full h-12 mt-3 bg-white hover:bg-slate-50 border-slate-100 text-slate-900 rounded-2xl font-medium text-xs flex items-center justify-center gap-3 group"
+                className="w-full h-12 mt-3 bg-slate-50 hover:bg-slate-100 border-slate-100 text-slate-900 rounded-2xl font-medium text-xs flex items-center justify-center gap-3 group transition-all"
               >
                 <Users size={16} className="text-maritime-gold group-hover:scale-110 transition-transform" />
                 <span>Buy for all crew</span>

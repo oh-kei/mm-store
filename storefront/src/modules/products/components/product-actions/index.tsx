@@ -2,7 +2,7 @@
 
 import { Button } from "@medusajs/ui"
 import isEqual from "lodash/isEqual"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useIntersection } from "@lib/hooks/use-in-view"
@@ -42,6 +42,7 @@ export default function ProductActions({
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState<string | number>(1)
   const countryCode = useParams().countryCode as string
+  const searchParams = useSearchParams()
   const prevProductIdRef = useRef<string | null>(null)
   const hasPreselectedRef = useRef(false)
 
@@ -67,10 +68,23 @@ export default function ProductActions({
     // Otherwise, check each option and preselect if it only has one value
     const newOptions = { ...options }
     let changed = false
+    const urlColor = searchParams.get("color")
 
     product.options?.forEach((option) => {
+      const optionTitle = option.title ?? ""
+      
+      // If color is in URL, preselect it
+      if ((optionTitle.toLowerCase().includes("color") || optionTitle.toLowerCase().includes("colour")) && urlColor) {
+        const matchingValue = option.values?.find(v => v.value?.toLowerCase() === urlColor.toLowerCase())
+        if (matchingValue && !newOptions[optionTitle]) {
+          newOptions[optionTitle] = matchingValue.value
+          changed = true
+          handleColorChange(matchingValue.value, product)
+          return
+        }
+      }
+
       if (option.values?.length === 1) {
-        const optionTitle = option.title ?? ""
         const optionValue = option.values[0].value ?? undefined
         
         if (optionValue && !newOptions[optionTitle]) {
@@ -264,7 +278,7 @@ export default function ProductActions({
           <LocalizedClientLink href="/account">
             <Button
               variant="primary"
-              className="w-full h-10 font-medium tracking-widest text-[9px] sm:text-[10px]"
+              className="w-full h-10 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white border-none font-medium tracking-widest text-[9px] sm:text-[10px] transition-all"
             >
               Sign In to Add to Bag
             </Button>
@@ -274,7 +288,7 @@ export default function ProductActions({
             onClick={handleAddToCart}
             disabled={!inStock || !selectedVariant || !!disabled || isAdding || requiresCustomization}
             variant="primary"
-            className="w-full h-10 font-medium tracking-widest text-[10px]"
+            className="w-full h-10 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white border-none font-medium tracking-widest text-[10px] transition-all"
             isLoading={isAdding}
             data-testid="add-product-button"
           >
@@ -290,10 +304,10 @@ export default function ProductActions({
 
         {customer && (
           <div className="mt-4">
-            <LocalizedClientLink href={`/custom-studio?id=${product.id}`}>
+            <LocalizedClientLink href={`/custom-studio?id=${product.id}${options["Color"] ? `&color=${encodeURIComponent(options["Color"])}` : (options["Colour"] ? `&color=${encodeURIComponent(options["Colour"])}` : "")}`}>
               <Button
                 variant="secondary"
-                className="w-full h-12 font-medium tracking-widest text-[10px] border-slate-200 hover:bg-slate-50 hover:border-maritime-gold transition-all flex items-center justify-center gap-3"
+                className="w-full h-12 font-medium tracking-widest text-[10px] bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-900 transition-all flex items-center justify-center gap-3"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.5 1.5-1.3 0-.4-.1-.8-.3-1.2-.1-.4-.1-.7.1-1 .3-.3.7-.5 1.1-.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/></svg>
                 <span>Customize Design</span>

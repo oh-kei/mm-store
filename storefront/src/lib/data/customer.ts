@@ -107,9 +107,9 @@ export async function login(_currentState: unknown, formData: FormData) {
     if (error.digest?.startsWith('NEXT_REDIRECT')) throw error
     const msg = error.toString()
     if (msg.includes("401")) {
-      return "The email or password you entered is incorrect. Please double-check and try again."
+      return "Incorrect password."
     }
-    return "We couldn't sign you in at the moment. Please try again later or contact support if the issue persists."
+    return "Incorrect password."
   }
 
   redirect('/')

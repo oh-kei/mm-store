@@ -14,9 +14,10 @@ interface ProductCardProps {
   region: HttpTypes.StoreRegion;
   customer?: HttpTypes.StoreCustomer | null;
   mode?: "default" | "customizer" | "related"
+  onSelect?: (product: HttpTypes.StoreProduct, color: string | null) => void
 }
 
-export function ProductCard({ product, region, customer, mode = "default" }: ProductCardProps) {
+export function ProductCard({ product, region, customer, mode = "default", onSelect }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -155,7 +156,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
     e.stopPropagation();
 
     if (requiresCustomization) {
-      router.push(`/${countryCode}/custom-studio?id=${product.id}`);
+      router.push(`/${countryCode}/custom-studio?id=${product.id}${selectedColor ? `&color=${encodeURIComponent(selectedColor)}` : ""}`);
       return;
     }
     
@@ -251,6 +252,8 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
             </>
           )
 
+          const colorQuery = selectedColor ? `?color=${encodeURIComponent(selectedColor)}` : ""
+
           if (mode === "customizer") {
             return (
               <div className="flex flex-col cursor-pointer">
@@ -260,7 +263,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
           }
 
           return (
-            <Link href={`/products/${product.handle}`} className="flex flex-col">
+            <Link href={`/${countryCode}/products/${product.handle}${colorQuery}`} className="flex flex-col">
               {Content}
             </Link>
           )
@@ -297,27 +300,36 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
 
       {/* Permanent Action Buttons */}
       {mode !== "related" && (
-        <div className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}>
+        <div 
+          onClick={(e) => { 
+            if (mode === "customizer") {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelect?.(product, selectedColor);
+            }
+          }}
+          className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}
+        >
           {mode === "customizer" ? (
               <button 
-                className="w-full h-9 text-[10px] font-medium bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
+                className="w-full h-9 text-[10px] font-medium bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white rounded-none px-0 transition-all"
               >
                 Customise
               </button>
           ) : (
             <>
-              <Link href={`/products/${product.handle}`} className="w-full">
+              <Link href={`/${countryCode}/products/${product.handle}${selectedColor ? `?color=${encodeURIComponent(selectedColor)}` : ""}`} className="w-full">
                 <button 
-                  className="w-full h-9 text-[10px] font-medium border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+                  className="w-full h-9 text-[10px] font-medium bg-slate-100 border border-slate-100 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
                 >
                   Details
                 </button>
               </Link>
               <button 
                 disabled={isAdding}
-                className={clx("w-full h-9 text-[8px] sm:text-[10px] font-medium text-white transition-all duration-300 rounded-none px-0", {
-                  "bg-green-600 border border-green-600": isAdded,
-                  "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
+                className={clx("w-full h-9 text-[8px] sm:text-[10px] font-medium transition-all duration-300 rounded-none px-0", {
+                  "bg-green-600 border border-green-600 text-white": isAdded,
+                  "bg-slate-100 border border-slate-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy": !isAdded,
                   "opacity-50 cursor-not-allowed": isAdding
                 })}
                 onClick={handleQuickAddClick}

@@ -36,9 +36,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ name, handle, image 
 
           {/* Permanent Action Buttons */}
           <div className="grid grid-cols-1 gap-2 pt-4">
-            <button 
-              className="w-full h-9 text-[10px] font-medium border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
-            >
+            <button className="inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none border border-slate-100 text-slate-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy bg-slate-100/80 backdrop-blur-sm h-9 px-4 text-[0.7rem] md:text-sm">
               Explore Collection
             </button>
           </div>
