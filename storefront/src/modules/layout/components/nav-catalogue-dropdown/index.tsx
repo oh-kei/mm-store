@@ -15,11 +15,11 @@ const CATEGORIES = [
 ]
 
 export default function NavCatalogueDropdown() {
-  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
+  const { activeMenu, isLocked, isScrolled, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isDropdownOpen = activeMenu === "catalogue"
   const pathname = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
-  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
+  const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
 
   return (
     <div 

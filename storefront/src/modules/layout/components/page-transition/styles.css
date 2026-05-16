@@ -5,9 +5,18 @@
   top: 0;
   left: 0;
   width: 100vw;
+  height: 100vh;
   height: 100svh;
   z-index: 9999;
   pointer-events: none;
+}
+
+/* Specific fix for iPhone/iOS to prevent bottom cutoff during scroll/address bar changes */
+@supports (-webkit-touch-callout: none) {
+  .nautical-transition-wrapper {
+    height: 110vh; /* Extra height to ensure coverage */
+    top: -5vh; /* Offset to center the extra height */
+  }
 }
 
 /* This allows the 100x100 SVG to stretch to any screen ratio */

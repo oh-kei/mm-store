@@ -21,15 +21,14 @@ const CartDropdown = ({
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
+  const { closeMenu: closeGlobalMenu, isScrolled } = useNavMenu()
   const pathname = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
-  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
+  const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
   const [activeTimer, setActiveTimer] = useState<NodeJS.Timer | undefined>(
     undefined
   )
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false)
-
-  const { closeMenu: closeGlobalMenu } = useNavMenu()
   const open = () => {
     closeGlobalMenu(0)
     setCartDropdownOpen(true)
@@ -107,7 +106,7 @@ const CartDropdown = ({
         >
           <Popover.Panel
             static
-            className={`hidden small:block absolute top-[calc(100%+20px)] right-0 border border-black/5 w-[480px] rounded-xl overflow-hidden z-50 shadow-2xl transition-all duration-300 ${
+            className={`fixed small:absolute top-[80px] small:top-[calc(100%+20px)] left-4 right-4 small:left-auto small:right-0 border border-black/5 small:w-[480px] rounded-xl overflow-hidden z-50 shadow-2xl transition-all duration-300 ${
               isHomePage 
                 ? "bg-white/20 border-white/10" 
                 : "bg-[#f3f4f6]"

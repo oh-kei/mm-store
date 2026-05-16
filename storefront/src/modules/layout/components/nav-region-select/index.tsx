@@ -20,9 +20,9 @@ export default function NavRegionSelect() {
   const pathname = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
   const currentPath = pathname.split(`/${countryCode}`)[1] || ""
-  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
+  const { activeMenu, isLocked, isScrolled, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "region"
-  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
+  const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
 
   const activeCountry = REGIONS_DATA.flatMap(r => r.countries).find(c => c.code === countryCode)
 
@@ -42,7 +42,7 @@ export default function NavRegionSelect() {
         onClick={() => toggleMenu("region")}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span className="text-[10px] font-medium hidden md:inline text-white/90 relative z-[110]">
+        <span className="font-medium hidden md:inline text-white/90 relative z-[110]">
           {activeCountry ? activeCountry.code.toUpperCase() : "Region"}
         </span>
       </button>
@@ -59,7 +59,7 @@ export default function NavRegionSelect() {
         leaveTo="opacity-0 translate-y-1"
       >
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full pt-1 w-64 z-[100]"
+          className="fixed md:absolute left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-64 top-[80px] md:top-full pt-1 z-[100]"
           onMouseEnter={() => openMenu("region")}
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}

@@ -14,11 +14,11 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 export default function SearchButton() {
-  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
+  const { activeMenu, isLocked, isScrolled, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "search"
   const pathname = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
-  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
+  const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -47,7 +47,7 @@ export default function SearchButton() {
         aria-label="Search"
       >
         <MagnifyingGlassMini className="text-white/70" />
-        <span className="text-[10px] font-medium hidden md:inline">
+        <span className="font-medium hidden md:inline">
           Search
         </span>
       </LocalizedClientLink>
@@ -64,7 +64,7 @@ export default function SearchButton() {
         leaveTo="opacity-0"
       >
         <div 
-          className="fixed sm:absolute left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 top-[80px] sm:top-full sm:-mt-2 sm:w-[450px] z-[100] pt-2"
+          className="fixed sm:absolute left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 top-[80px] sm:top-full sm:-mt-2 sm:w-[350px] z-[100] pt-2"
           onMouseEnter={() => openMenu("search")}
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}
@@ -84,14 +84,14 @@ export default function SearchButton() {
               indexName={SEARCH_INDEX_NAME}
               searchClient={searchClient}
             >
-              <div className={clx("flex flex-col gap-y-4", isHomePage && "[&_input]:text-white [&_input::placeholder]:text-white/40 [&_.text-black]:text-white [&_.text-black\\/60]:text-white/60 [&_.text-black\\/40]:text-white/40")}>
+              <div className="flex flex-col gap-y-4">
                 <div className={`flex items-center gap-x-2 p-3 rounded-xl border transition-colors ${
                   isHomePage 
                     ? "bg-white/10 border-white/10 focus-within:border-white/20" 
                     : "bg-black/5 border-black/5 focus-within:border-black/10"
                 }`}>
                   <MagnifyingGlassMini className={isHomePage ? "text-white/40" : "text-black/40"} />
-                  <SearchBox />
+                  <SearchBox isHomePage={isHomePage} />
                 </div>
                 
                 <div className="relative group/scroll">

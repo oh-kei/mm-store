@@ -27,8 +27,8 @@ export default async function Nav() {
       >
         {/* Left Side: Links */}
         <div 
-          className="flex-1 flex items-center gap-4 md:gap-12 font-medium text-white/90"
-          style={{ fontSize: "clamp(0.65rem, 1.2vw, 1rem)" }}
+          className="flex-1 flex items-center gap-2 sm:gap-4 md:gap-12 font-medium text-white/90"
+          style={{ fontSize: "clamp(0.55rem, 1.2vw, 1rem)" }}
         >
           <div className="md:order-1">
             <NavCatalogueDropdown />

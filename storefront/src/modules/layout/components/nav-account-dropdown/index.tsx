@@ -10,11 +10,11 @@ import { HttpTypes } from "@medusajs/types"
 import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 export default function NavAccountDropdown({ customer: initialCustomer }: { customer: HttpTypes.StoreCustomer | null }) {
-  const { activeMenu, isLocked, openMenu, closeMenu, toggleMenu } = useNavMenu()
+  const { activeMenu, isLocked, isScrolled, openMenu, closeMenu, toggleMenu } = useNavMenu()
   const isOpen = activeMenu === "account"
   const { countryCode } = useParams() as { countryCode: string }
   const pathname = usePathname()
-  const isHomePage = pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`
+  const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
 
   const hasFetchedRef = useRef(false)
@@ -73,7 +73,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
         leaveTo="opacity-0 translate-y-1"
       >
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full pt-1 w-44 z-[100]"
+          className="fixed md:absolute left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-44 top-[80px] md:top-full pt-1 z-[100]"
           onMouseEnter={() => openMenu("account")}
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}
