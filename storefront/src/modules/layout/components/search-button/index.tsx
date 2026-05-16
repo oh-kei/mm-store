@@ -42,7 +42,7 @@ export default function SearchButton() {
         aria-label="Search"
       >
         <MagnifyingGlassMini className="text-white/70" />
-        <span className="uppercase text-[10px] tracking-widest font-bold hidden md:inline">
+        <span className="text-[10px] font-medium hidden md:inline">
           Search
         </span>
       </LocalizedClientLink>
@@ -67,7 +67,7 @@ export default function SearchButton() {
           {/* Bridge to prevent hover flickering - centered and narrow */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-transparent hidden sm:block" />
           <div 
-            className="bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl overflow-hidden p-4" 
+            className="bg-[#f3f4f6] border border-black/5 rounded-2xl shadow-2xl overflow-hidden p-4" 
             style={{ transform: "translateZ(0)" }}
             onWheel={(e) => e.stopPropagation()}
           >
@@ -76,8 +76,8 @@ export default function SearchButton() {
               searchClient={searchClient}
             >
               <div className="flex flex-col gap-y-4">
-                <div className="flex items-center gap-x-2 p-3 bg-white/5 rounded-xl border border-white/5 focus-within:border-white/10 transition-colors">
-                  <MagnifyingGlassMini className="text-white/40" />
+                <div className="flex items-center gap-x-2 p-3 bg-black/5 rounded-xl border border-black/5 focus-within:border-black/10 transition-colors">
+                  <MagnifyingGlassMini className="text-black/40" />
                   <SearchBox />
                 </div>
                 

@@ -22,10 +22,10 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ name, handle, image 
 
         <div className="space-y-3 p-5 flex-grow flex flex-col">
           <div className="flex-grow space-y-1.5">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-maritime-navy/40 font-black">
+            <p className="text-[10px] text-maritime-navy/40 font-medium">
               Category
             </p>
-            <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase font-sans">
+            <h3 className="font-medium text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight font-sans">
               {name}
             </h3>
             <div className="flex items-center gap-2 pt-2">
@@ -37,7 +37,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ name, handle, image 
           {/* Permanent Action Buttons */}
           <div className="grid grid-cols-1 gap-2 pt-4">
             <button 
-              className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+              className="w-full h-9 text-[10px] font-medium border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
             >
               Explore Collection
             </button>

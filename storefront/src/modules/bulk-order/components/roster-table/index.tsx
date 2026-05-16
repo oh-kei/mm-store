@@ -62,7 +62,7 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
   return (
     <>
       <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-        <div className="grid grid-cols-[1fr_100px_100px] p-6 bg-slate-50 border-b border-slate-100 text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">
+        <div className="grid grid-cols-[1fr_100px_100px] p-6 bg-slate-50 border-b border-slate-100 text-[10px] font-medium text-slate-400">
           <span>Crew Member</span>
           <span className="text-center">Size</span>
           <span className="text-right">Action</span>
@@ -87,21 +87,21 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
                       value={editName}
                       onChange={(e) => setEditName(e.target.value.slice(0, 100))}
                       maxLength={100}
-                      className="font-black text-slate-900 tracking-tight bg-white border border-slate-200 rounded-lg px-2 py-1 flex-1 outline-none focus:border-maritime-gold"
+                      className="font-medium text-slate-900 tracking-tight bg-white border border-slate-200 rounded-lg px-2 py-1 flex-1 outline-none focus:border-maritime-gold"
                     />
                   ) : (
                     <div className="flex flex-col">
-                      <span className="font-black text-slate-900 tracking-tight">{member.name}</span>
+                      <span className="font-medium text-slate-900 tracking-tight">{member.name}</span>
                       {member.warning && (
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">
+                          <span className="flex items-center gap-1 text-[9px] font-medium text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">
                             <AlertTriangle size={8} />
                             {member.warning}
                           </span>
                           <button 
                             id={`ignore-warning-${idx}`}
                             onClick={() => onClearWarning(idx)}
-                            className="text-[9px] font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest"
+                            className="text-[9px] font-medium text-slate-400 hover:text-slate-600 transition-colors"
                           >
                             Ignore
                           </button>
@@ -116,14 +116,14 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
                       id={`edit-size-${idx}`}
                       value={editSize}
                       onChange={(e) => setEditSize(e.target.value)}
-                      className="bg-white px-2 py-1 rounded-lg text-xs font-black uppercase text-slate-900 border border-slate-200 w-24 text-center outline-none focus:border-maritime-gold appearance-none cursor-pointer"
+                      className="bg-white px-2 py-1 rounded-lg text-xs font-medium text-slate-900 border border-slate-200 w-24 text-center outline-none focus:border-maritime-gold appearance-none cursor-pointer"
                     >
                       {["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"].map(size => (
                         <option key={size} value={size}>{size}</option>
                       ))}
                     </select>
                   ) : (
-                    <span className="bg-slate-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-slate-900 border border-slate-200">
+                    <span className="bg-slate-100 px-4 py-1.5 rounded-full text-[10px] font-medium text-slate-900 border border-slate-200">
                       {member.size}
                     </span>
                   )}
@@ -170,11 +170,11 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
           })}
         </div>
         <div className="p-6 bg-slate-50 flex justify-between items-center border-t border-slate-100">
-          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black">Total Crew: {members.length}</p>
+          <p className="text-[10px] text-slate-400 font-medium">Total Crew: {members.length}</p>
           <button 
             id="export-csv"
             onClick={handleExportCSV} 
-            className="text-[10px] uppercase tracking-widest text-maritime-gold font-black hover:underline underline-offset-8"
+            className="text-[10px] text-maritime-gold font-medium hover:underline underline-offset-8"
           >
             Export CSV
           </button>
@@ -190,8 +190,8 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
               <Trash2 size={24} />
             </div>
             <div className="text-center space-y-4 mb-8">
-              <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900">Remove Member</h3>
-              <p className="text-slate-500 text-sm font-bold leading-relaxed">
+              <h3 className="text-2xl font-medium tracking-tight text-slate-900">Remove Member</h3>
+              <p className="text-slate-500 text-sm font-medium leading-relaxed">
                 Are you sure you want to remove <span className="text-slate-900">{members[deleteIndex]?.name}</span> from the crew roster?
               </p>
             </div>
@@ -199,14 +199,14 @@ export function RosterTable({ members, onRemove, onUpdate, onClearWarning }: Ros
               <button 
                 id="confirm-cancel"
                 onClick={() => setDeleteIndex(null)}
-                className="flex-1 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-2xl h-14 font-black uppercase tracking-widest text-[10px] transition-all"
+                className="flex-1 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-2xl h-14 font-medium text-[10px] transition-all"
               >
                 Go Back
               </button>
               <button 
                 id="confirm-remove"
                 onClick={handleDelete}
-                className="flex-[1.5] bg-red-500 text-white hover:bg-red-600 rounded-2xl h-14 font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-red-500/20"
+                className="flex-[1.5] bg-red-500 text-white hover:bg-red-600 rounded-2xl h-14 font-medium text-[10px] transition-all shadow-lg shadow-red-500/20"
               >
                 Yes, Remove
               </button>

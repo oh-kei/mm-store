@@ -25,13 +25,13 @@ export function ManualAddMember({ onAdd }: ManualAddMemberProps) {
 
   return (
     <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl space-y-6 shadow-sm">
-      <Heading className="text-xl font-black uppercase tracking-tight text-slate-900">Manually Add Crew</Heading>
+      <Heading className="text-xl font-medium tracking-tight text-slate-900">Manually Add Crew</Heading>
       <form 
         onSubmit={handleSubmit}
         className="flex flex-col md:flex-row items-end gap-6"
       >
         <div className="flex-grow space-y-3 w-full">
-          <label className="text-[10px] uppercase font-black tracking-widest text-slate-400 ml-1">Member Name</label>
+          <label className="text-xs font-medium text-slate-400 ml-1">Member Name</label>
           <div className="relative">
              <input 
                type="text" 
@@ -39,18 +39,18 @@ export function ManualAddMember({ onAdd }: ManualAddMemberProps) {
                onChange={(e) => setName(e.target.value.slice(0, 100))}
                maxLength={100}
                placeholder="e.g. John Doe"
-               className="w-full bg-white border border-slate-200 rounded-xl h-12 px-5 text-sm font-bold focus:border-maritime-gold outline-none transition-all text-slate-900 placeholder:text-slate-300 shadow-sm"
+               className="w-full bg-white border border-slate-200 rounded-xl h-12 px-5 text-sm font-medium focus:border-maritime-gold outline-none transition-all text-slate-900 placeholder:text-slate-300 shadow-sm"
                required
              />
           </div>
         </div>
 
         <div className="w-full md:w-40 space-y-3">
-          <label className="text-[10px] uppercase font-black tracking-widest text-slate-400 ml-1">Size</label>
+          <label className="text-xs font-medium text-slate-400 ml-1">Size</label>
           <select 
             value={size}
             onChange={(e) => setSize(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl h-12 px-5 text-sm font-bold focus:border-maritime-gold outline-none transition-all appearance-none cursor-pointer text-slate-900 shadow-sm"
+            className="w-full bg-white border border-slate-200 rounded-xl h-12 px-5 text-sm font-medium focus:border-maritime-gold outline-none transition-all appearance-none cursor-pointer text-slate-900 shadow-sm"
             required
           >
             <option value="" disabled>Select</option>
@@ -60,7 +60,7 @@ export function ManualAddMember({ onAdd }: ManualAddMemberProps) {
 
         <button 
           type="submit"
-          className="h-12 px-10 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-maritime-gold hover:text-maritime-navy transition-all flex items-center justify-center gap-3 whitespace-nowrap w-full md:w-auto shadow-md"
+          className="h-12 px-10 bg-slate-900 text-white rounded-xl font-medium text-xs hover:bg-maritime-gold hover:text-maritime-navy transition-all flex items-center justify-center gap-3 whitespace-nowrap w-full md:w-auto shadow-md"
         >
           <Plus size={16} />
           Add Member

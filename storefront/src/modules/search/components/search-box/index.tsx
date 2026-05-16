@@ -54,16 +54,18 @@ const ControlledSearchBox = ({
             type="search"
             value={value}
             onChange={onChange}
-            className="txt-compact-large h-6 placeholder:text-ui-fg-on-color placeholder:transition-colors focus:outline-none flex-1 bg-transparent pl-2"
+            className="txt-compact-large h-6 text-black placeholder:text-black/40 placeholder:transition-colors focus:outline-none flex-1 bg-transparent pl-2"
           />
           {value && (
             <button
               onClick={handleReset}
               type="button"
-              className="items-center justify-center text-ui-fg-on-color focus:outline-none gap-x-2 px-2 txt-compact-large flex"
+              className="items-center justify-center text-black/60 hover:text-black focus:outline-none gap-x-2 px-2 txt-compact-large flex"
             >
               <XMarkMini />
-              <span className="hidden sm:inline">Cancel</span>
+              <span className="text-[10px] font-medium hidden md:inline">
+          cancel
+        </span>
             </button>
           )}
         </div>

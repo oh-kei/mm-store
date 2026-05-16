@@ -105,29 +105,7 @@ const Item = ({ item }: ItemProps) => {
           </div>
         )}
 
-        {/* Fallback for customized products - show all views if they exist */}
-        {recipe && item.variant?.product?.images && (
-          <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 max-w-md">
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Product Views</p>
-            <div className="grid grid-cols-2 gap-4">
-              {item.variant.product.images
-                .filter(img => {
-                  const url = img.url?.toLowerCase() || ""
-                  return url.includes("-back") || url.includes("-side") || (!url.includes("-back") && !url.includes("-side") && !url.includes("-blank"))
-                })
-                .slice(0, 4)
-                .map((img, idx) => (
-                <div key={idx} className="space-y-1">
-                    <img 
-                    src={img.url || ""} 
-                    alt={`View ${idx + 1}`} 
-                    className="w-full aspect-square object-contain bg-white rounded-xl border border-slate-100 shadow-sm"
-                    />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
       </Table.Cell>
 
       <Table.Cell className="!pr-0">

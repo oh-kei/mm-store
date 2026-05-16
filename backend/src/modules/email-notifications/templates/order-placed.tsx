@@ -175,19 +175,39 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                     <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase', margin: '0 0 10px' }}>
                       Design Previews (All Views)
                     </Text>
-                    <table style={{ width: '100%' }}>
-                      <tr>
-                        {Object.entries((item as any).metadata.previews as Record<string, string>).map(([view, url], idx) => (
-                          <td key={view} style={{ width: '50%', padding: '5px' }}>
-                            <img 
-                              src={getAbsoluteUrl(url)} 
-                              alt={`${view} view`} 
-                              style={{ width: '100%', borderRadius: '8px', border: '1px solid #ddd' }} 
-                            />
-                            <div style={{ fontSize: '8px', textAlign: 'center', color: '#999', marginTop: '4px', textTransform: 'uppercase' }}>{view}</div>
-                          </td>
-                        ))}
-                      </tr>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      {Object.entries((item as any).metadata.previews as Record<string, string>).reduce((rows: any[][], [view, url], idx) => {
+                        if (idx % 2 === 0) rows.push([[view, url]]);
+                        else rows[rows.length - 1].push([view, url]);
+                        return rows;
+                      }, []).map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {row.map(([view, url]) => (
+                            <td key={view} style={{ width: '50%', padding: '8px', verticalAlign: 'top' }}>
+                              <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #eee', overflow: 'hidden' }}>
+                                <img 
+                                  src={getAbsoluteUrl(url)} 
+                                  alt={`${view} view`} 
+                                  style={{ width: '100%', display: 'block' }} 
+                                />
+                                <div style={{ 
+                                  fontSize: '9px', 
+                                  textAlign: 'center', 
+                                  color: '#64748b', 
+                                  padding: '6px 0', 
+                                  textTransform: 'uppercase', 
+                                  fontWeight: 'bold',
+                                  backgroundColor: '#f8fafc',
+                                  borderTop: '1px solid #eee'
+                                }}>
+                                  {view}
+                                </div>
+                              </div>
+                            </td>
+                          ))}
+                          {row.length === 1 && <td style={{ width: '50%' }}></td>}
+                        </tr>
+                      ))}
                     </table>
                   </div>
                 ) : (item as any).metadata?.preview_url ? (
@@ -203,33 +223,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                   </div>
                 ) : null}
 
-                {/* Product Views for customized items (fallback if previews missing) */}
-                {recipe && item.variant?.product?.images && (
-                   <div style={{ margin: '15px 0' }}>
-                    <Text style={{ fontSize: '10px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', margin: '0 0 10px' }}>
-                      Product Views
-                    </Text>
-                    <table style={{ width: '100%' }}>
-                      <tr>
-                        {item.variant.product.images
-                          .filter((img: any) => {
-                            const url = img.url?.toLowerCase() || ""
-                            return url.includes("-back") || url.includes("-side") || (!url.includes("-back") && !url.includes("-side") && !url.includes("-blank"))
-                          })
-                          .slice(0, 4)
-                          .map((img: any, idx: number) => (
-                          <td key={idx} style={{ width: '50%', padding: '5px' }}>
-                            <img 
-                              src={getAbsoluteUrl(img.url)} 
-                              alt={`View ${idx + 1}`} 
-                              style={{ width: '100%', borderRadius: '8px', border: '1px solid #eee' }} 
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    </table>
-                  </div>
-                )}
+
                 
                 {/* Custom Design Details for Staff */}
                 {showProductionDetails && (recipe || item.metadata?.comment) && (

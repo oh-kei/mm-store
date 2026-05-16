@@ -16,18 +16,19 @@ export default function BulkOrderLayout({ children }: BulkOrderLayoutProps) {
   const currentSection = searchParams.get("section") || "roster"
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col md:flex-row">
-      {/* Sidebar Navigation - Kept Dark as requested */}
-      <aside className="w-full md:w-64 bg-[#0F172A] border-r border-white/5 p-6 pt-32 md:pt-32 flex flex-col gap-8 shrink-0 z-20">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+      <div className="flex flex-col md:flex-row flex-grow">
+        {/* Sidebar Navigation - Light Grey as requested */}
+        <aside className="w-full md:w-64 bg-slate-50 border-r border-slate-100 p-6 pt-32 md:pt-32 flex flex-col gap-8 shrink-0 z-20">
         <div className="flex flex-col gap-2">
           <LocalizedClientLink 
             href="/catalog" 
-            className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors mb-4"
+            className="flex items-center gap-2 text-[10px] text-slate-400 hover:text-slate-900 transition-colors mb-4"
           >
             <ArrowLeft size={12} />
             Back to Retail
           </LocalizedClientLink>
-          <Heading className="text-xl font-black uppercase tracking-tight text-white leading-none">Bulk Order</Heading>
+          <Heading className="text-xl font-medium tracking-tight text-slate-900 leading-none">Bulk Order</Heading>
         </div>
 
         <nav className="flex flex-col gap-2">
@@ -53,8 +54,9 @@ export default function BulkOrderLayout({ children }: BulkOrderLayoutProps) {
             {children}
           </div>
         </main>
-        <Footer variant="light" />
+        </div>
       </div>
+      <Footer variant="dark" />
     </div>
   )
 }
@@ -64,15 +66,15 @@ function NavItem({ href, icon, label, isActive }: { href: string; icon: React.Re
     <LocalizedClientLink 
       href={href}
       className={clx(
-        "flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-bold group border",
+        "flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-medium group border",
         isActive 
-          ? "bg-white/10 text-white border-white/10 shadow-lg shadow-black/20" 
-          : "text-white/60 hover:text-white hover:bg-white/5 border-transparent hover:border-white/5"
+          ? "bg-white text-slate-900 border-slate-100 shadow-sm" 
+          : "text-slate-500 hover:text-slate-900 hover:bg-white border-transparent hover:border-slate-100"
       )}
     >
       <span className={clx(
         "transition-colors",
-        isActive ? "text-maritime-gold" : "text-white/40 group-hover:text-maritime-gold"
+        isActive ? "text-maritime-gold" : "text-slate-300 group-hover:text-maritime-gold"
       )}>
         {icon}
       </span>

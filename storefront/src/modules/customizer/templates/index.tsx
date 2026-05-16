@@ -374,7 +374,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       <div className="min-h-screen bg-white pt-32 pb-20 px-4 md:px-8">
         <div className="max-w-[1600px] mx-auto">
           <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight uppercase font-sans">Choose something to design</h1>
+            <h1 className="text-4xl font-medium text-gray-900 tracking-tight font-sans">Choose something to design</h1>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-[4px] bg-white border border-white overflow-hidden">
@@ -418,8 +418,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         <div className="lg:col-span-3 space-y-6 order-2 lg:order-1">
           <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-8">
             <div>
-              <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">Custom Studio</Heading>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Design Lab</p>
+              <Heading className="text-2xl font-medium tracking-tight text-slate-900 leading-none">Custom Studio</Heading>
+              <p className="text-slate-400 text-[10px] font-medium mt-2">Design Lab</p>
               <p className="text-slate-500 text-[11px] mt-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
                 Please upload high-quality images (SVG or high-res PNG/JPG) to ensure the best print quality for your product!
               </p>
@@ -432,7 +432,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 onClick={() => addTextLayer()}
               >
                 <Type size={20} className="text-slate-400 group-hover:text-maritime-navy transition-colors" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Text</span>
+                <span className="text-[10px] font-medium text-slate-500">Text</span>
               </Button>
               
               <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
@@ -442,7 +442,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 ) : (
                   <>
                     <ImageIcon size={20} className="text-slate-400 group-hover:text-maritime-gold transition-colors" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Logo</span>
+                    <span className="text-[10px] font-medium text-slate-500">Logo</span>
                   </>
                 )}
               </label>
@@ -451,12 +451,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             <div className="space-y-4 pt-6 border-t border-slate-50">
               <div className="flex items-center gap-2 text-slate-400">
                 <Layers size={14} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Layers</span>
+                <span className="text-[10px] font-medium">Layers</span>
               </div>
               
               <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                 {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).length === 0 && (
-                  <p className="text-[10px] font-bold text-slate-300 italic uppercase">No layers added yet</p>
+                  <p className="text-[10px] font-medium text-slate-300 italic">No layers added yet</p>
                 )}
                 {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).map((layer) => (
                   <div 
@@ -472,7 +472,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                       <div className={`p-1.5 rounded-md ${selectedId === layer.id ? "bg-white/10" : "bg-white border border-slate-100"}`}>
                         {layer.type === "text" ? <Type size={12} /> : <ImageIcon size={12} />}
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[100px]">
+                      <span className="text-[10px] font-medium truncate max-w-[100px]">
                         {layer.type === "text" ? layer.props.text : "Logo Asset"}
                       </span>
                     </div>
@@ -510,12 +510,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/50 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <MousePointer2 size={12} className="text-maritime-navy" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-maritime-navy">Drag to Position</span>
+                <span className="text-[9px] font-medium text-maritime-navy">Drag to Position</span>
               </div>
               <div className="h-3 w-px bg-maritime-navy/10" />
               <div className="flex items-center gap-2">
                 <Plus size={12} className="text-maritime-navy rotate-45" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-maritime-navy">Scale Handles</span>
+                <span className="text-[9px] font-medium text-maritime-navy">Scale Handles</span>
               </div>
             </div>
           </div>
@@ -529,16 +529,16 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
                return (
                  <button
-                   key={view}
+                   key={view.charAt(0).toUpperCase() + view.slice(1)}
                    onClick={() => setActiveView(view)}
                    className={clx(
-                     "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                     "px-6 py-2 rounded-xl text-[10px] font-medium transition-all",
                      activeView === view 
                        ? "bg-maritime-navy text-white shadow-md" 
                        : "bg-slate-50 text-slate-500 hover:bg-slate-100"
                    )}
                  >
-                   {view}
+                   {view.charAt(0).toUpperCase() + view.slice(1)}
                  </button>
                )
              })}
@@ -555,22 +555,22 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
           <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-6">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-maritime-gold mb-2">Base Product</p>
-              <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">{activeProduct.title}</Heading>
+              <p className="text-[10px] font-medium text-maritime-gold mb-2">Base Product</p>
+              <Heading className="text-2xl font-medium tracking-tight text-slate-900 leading-none">{activeProduct.title}</Heading>
             </div>
 
             {/* Options Selectors */}
             <div className="space-y-6">
               {activeProduct.options?.map((option) => (
                 <div key={option.id} className="space-y-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{option.title}</span>
+                  <span className="text-[10px] font-medium text-slate-400">{option.title}</span>
                   <div className="flex flex-wrap gap-2">
                     {option.values?.map((v) => (
                       <button
                         key={v.id}
                         onClick={() => setSelectedOptions(prev => ({ ...prev, [option.title || ""]: v.value }))}
                         className={clx(
-                          "h-10 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
+                          "h-10 px-4 rounded-xl text-[9px] font-medium transition-all border",
                           selectedOptions[option.title || ""] === v.value 
                             ? "bg-maritime-navy text-white border-maritime-navy shadow-lg" 
                             : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200"
@@ -586,7 +586,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
             <div className="pt-6 border-t border-slate-50">
                <div className="mb-4">
-                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block">Design Notes / Comments</label>
+                 <label className="text-[10px] font-medium text-slate-400 mb-2 block">Design Notes / Comments</label>
                  <textarea 
                    value={comment}
                    onChange={(e) => setComment(e.target.value)}
@@ -598,7 +598,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                <Button 
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || isAddingBulk}
-                className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group"
+                className="w-full h-16 bg-maritime-navy hover:bg-slate-900 text-white rounded-2xl font-medium text-xs flex items-center justify-center gap-3 shadow-xl shadow-maritime-navy/10 group"
               >
                 {isAddingToCart ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -614,7 +614,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 onClick={openCrewModal}
                 disabled={isAddingToCart || isAddingBulk || roster.length === 0}
                 variant="secondary"
-                className="w-full h-12 mt-3 bg-white hover:bg-slate-50 border-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 group"
+                className="w-full h-12 mt-3 bg-white hover:bg-slate-50 border-slate-100 text-slate-900 rounded-2xl font-medium text-xs flex items-center justify-center gap-3 group"
               >
                 <Users size={16} className="text-maritime-gold group-hover:scale-110 transition-transform" />
                 <span>Buy for all crew</span>
@@ -633,8 +633,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                <Users size={20} />
              </div>
              <div>
-               <Heading className="text-xl font-black uppercase tracking-tight text-slate-900">Buy for Crew</Heading>
-               <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select members and verify sizes/colours</Text>
+               <Heading className="text-xl font-medium tracking-tight text-slate-900">Buy for Crew</Heading>
+               <Text className="text-[10px] font-medium text-slate-400">Select members and verify sizes/colours</Text>
              </div>
           </div>
         </Modal.Title>
@@ -655,17 +655,17 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         <Modal.Footer>
           <div className="flex items-center justify-between w-full">
             <div className="text-left">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Items Selected</p>
+              <p className="text-[10px] font-medium text-slate-400">Items Selected</p>
               <p className="text-lg font-black text-maritime-navy">{crewSelection.members.length} {crewSelection.members.length === 1 ? 'Garment' : 'Garments'}</p>
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" onClick={closeCrewModal} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+              <Button variant="secondary" onClick={closeCrewModal} className="h-12 px-6 rounded-xl font-medium text-[10px]">
                 Cancel
               </Button>
               <Button 
                 onClick={handleApplyToCrew} 
                 disabled={isAddingBulk || crewSelection.members.length === 0 || crewSelection.hasError}
-                className={clx("h-12 px-8 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all", {
+                className={clx("h-12 px-8 text-white rounded-xl font-medium text-xs shadow-lg transition-all", {
                   "bg-maritime-navy shadow-maritime-navy/20": !crewSelection.hasError,
                   "bg-slate-300 cursor-not-allowed opacity-50": crewSelection.hasError
                 })}

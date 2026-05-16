@@ -110,11 +110,11 @@ export function CatalogTemplate({ products, region, customer }: CatalogTemplateP
             ))}
           </div>
         ) : (
-          <div className="text-center py-40 bg-gray-50 border border-dashed border-gray-200 uppercase tracking-widest font-bold">
+          <div className="text-center py-40 bg-gray-50 border border-dashed border-gray-200 font-medium">
             <h3 className="text-lg text-gray-900 mb-2">No items match your filters</h3>
             <button 
               onClick={() => router.push(pathname)}
-              className="mt-4 text-[10px] uppercase tracking-widest font-bold text-maritime-navy hover:underline"
+              className="mt-4 text-[10px] font-medium text-maritime-navy hover:underline"
             >
               Clear all filters
             </button>

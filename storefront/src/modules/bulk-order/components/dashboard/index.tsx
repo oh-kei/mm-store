@@ -13,8 +13,8 @@ export function TeamDashboard({ rosterCount, orderCount }: DashboardProps) {
   return (
     <div className="space-y-16 bg-white min-h-[60vh] rounded-[32px] p-8 md:p-16 text-slate-900 shadow-sm border border-slate-100">
       <div className="flex flex-col gap-4 mt-8">
-        <Heading className="text-4xl md:text-6xl font-black uppercase tracking-tight text-slate-900 leading-none">Team Overview</Heading>
-        <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.2em]">Fleet Management Hub</p>
+        <Heading className="text-4xl md:text-6xl font-medium tracking-tight text-slate-900 leading-none">Team Overview</Heading>
+        <p className="text-slate-400 text-sm font-medium">Fleet Management Hub</p>
       </div>
 
       {/* Summary Cards */}
@@ -52,9 +52,9 @@ function SummaryCard({ icon, title, value, subtitle, color }: { icon: any, title
         <div className="text-current opacity-80">{icon}</div>
       </div>
       <div>
-        <h4 className="text-[10px] uppercase font-black tracking-widest opacity-40 mb-2">{title}</h4>
-        <p className="text-4xl font-black tracking-tight">{value}</p>
-        <p className="text-[10px] uppercase font-black opacity-30 mt-2">{subtitle}</p>
+        <h4 className="text-[10px] font-medium opacity-40 mb-2">{title}</h4>
+        <p className="text-4xl font-medium tracking-tight">{value}</p>
+        <p className="text-[10px] font-medium opacity-30 mt-2">{subtitle}</p>
       </div>
     </div>
   )
@@ -72,7 +72,7 @@ function ActivityItem({ title, desc, time }: { title: string, desc: string, time
           <p className="text-xs text-white/40">{desc}</p>
         </div>
       </div>
-      <p className="text-[10px] uppercase font-black tracking-widest text-white/20">{time}</p>
+          <p className="text-[10px] font-medium text-white/20">{time}</p>
     </div>
   )
 }

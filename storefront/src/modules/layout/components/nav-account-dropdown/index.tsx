@@ -78,10 +78,10 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
         >
           {/* Bridge to prevent hover flickering - adjusted height */}
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
-          <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
+          <div className="bg-[#f3f4f6] border border-black/5 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
             <div className="py-2">
-              <div className="px-4 py-2 border-b border-white/5 mb-1">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">
+              <div className="px-4 py-2 border-b border-black/5 mb-1">
+                <span className="text-xs font-medium text-black">
                   {customer ? `Hi, ${customer.first_name}` : "Account"}
                 </span>
               </div>
@@ -92,7 +92,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                     <LocalizedClientLink
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                      className="block px-4 py-2 text-xs font-medium text-black/60 hover:text-black hover:bg-black/5 transition-all"
                       onClick={() => toggleMenu("account")} // Close and unlock on click
                     >
                       {link.label}
@@ -100,7 +100,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                   ))}
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-white/5 transition-all border-t border-white/5 mt-1"
+                    className="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-black/5 transition-all border-t border-black/5 mt-1"
                   >
                     Log out
                   </button>
@@ -108,7 +108,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
               ) : (
                 <LocalizedClientLink
                   href="/account"
-                  className="block px-4 py-2 text-xs font-bold text-maritime-gold hover:text-white hover:bg-white/10 transition-all"
+                  className="block px-4 py-2 text-xs font-medium text-black/80 hover:text-black hover:bg-black/5 transition-all"
                   onClick={() => toggleMenu("account")}
                 >
                   Sign In

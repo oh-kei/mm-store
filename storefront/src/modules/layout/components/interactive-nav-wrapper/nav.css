@@ -38,18 +38,18 @@
   stroke: black !important;
 }
 
-/* Revert text and icon colors inside dark dropdown menus */
-.nav-solid .bg-\[\#1c1c1c\] .text-white,
-.nav-solid .bg-\[\#1c1c1c\] .text-white\/90,
-.nav-solid .bg-\[\#1c1c1c\] .text-white\/70,
-.nav-solid .bg-\[\#1c1c1c\] .hover\:text-white:hover {
-  color: white !important;
+/* Ensure text and icon colors inside light dropdown menus are black */
+.nav-solid .bg-\[\#f3f4f6\] .text-black,
+.nav-solid .bg-\[\#f3f4f6\] .text-black\/90,
+.nav-solid .bg-\[\#f3f4f6\] .text-black\/70,
+.nav-solid .bg-\[\#f3f4f6\] .hover\:text-black:hover {
+  color: black !important;
 }
-.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] {
-  stroke: white !important;
+.nav-solid .bg-\[\#f3f4f6\] svg[stroke="currentColor"] {
+  stroke: black !important;
 }
-.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] path,
-.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] circle,
-.nav-solid .bg-\[\#1c1c1c\] svg[stroke="currentColor"] line {
-  stroke: white !important;
+.nav-solid .bg-\[\#f3f4f6\] svg[stroke="currentColor"] path,
+.nav-solid .bg-\[\#f3f4f6\] svg[stroke="currentColor"] circle,
+.nav-solid .bg-\[\#f3f4f6\] svg[stroke="currentColor"] line {
+  stroke: black !important;
 }

@@ -44,11 +44,11 @@ export function QuantityMatrix({ product, roster, onUpdate }: QuantityMatrixProp
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-2">
-        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Quantity Matrix</h4>
+        <h4 className="text-[10px] font-medium text-slate-400">Quantity Matrix</h4>
         <button 
           onClick={applyRoster}
           disabled={roster.length === 0}
-          className="text-[10px] font-black uppercase tracking-widest text-maritime-gold border border-maritime-gold/20 px-3 py-1 rounded-full hover:bg-maritime-gold hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="text-[10px] font-medium text-maritime-gold border border-maritime-gold/20 px-3 py-1 rounded-full hover:bg-maritime-gold hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Apply Roster
         </button>
@@ -57,14 +57,14 @@ export function QuantityMatrix({ product, roster, onUpdate }: QuantityMatrixProp
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
         {sizes.map(size => (
           <div key={size} className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-slate-300 text-center uppercase">{size}</span>
+            <span className="text-[10px] font-medium text-slate-300 text-center">{size}</span>
             <input 
               type="number"
               min="0"
               value={quantities[size] || ""}
               onChange={(e) => updateQuantity(size, e.target.value)}
               placeholder="0"
-              className="bg-slate-50 border border-slate-100 rounded-lg h-9 w-full text-center text-sm font-bold focus:border-maritime-gold outline-none transition-all text-slate-900"
+              className="bg-slate-50 border border-slate-100 rounded-lg h-9 w-full text-center text-sm font-medium focus:border-maritime-gold outline-none transition-all text-slate-900"
             />
           </div>
         ))}

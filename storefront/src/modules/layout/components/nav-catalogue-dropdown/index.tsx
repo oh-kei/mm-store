@@ -42,12 +42,12 @@ export default function NavCatalogueDropdown() {
       >
         {/* Bridge to prevent hover flickering - centered and narrow, adjusted to not overlap link */}
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-4 bg-transparent" />
-        <div className="bg-[#1c1c1c] border border-white/10 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
+        <div className="bg-[#f3f4f6] border border-black/5 flex flex-col overflow-hidden rounded-b-2xl shadow-2xl transition-all duration-300 transform translate-z-0">
           {CATEGORIES.map((item, idx) => (
             <LocalizedClientLink 
               key={idx}
               href={item.href} 
-              className={`px-4 text-sm font-medium text-white hover:text-white hover:bg-white/10 transition-all duration-300 overflow-hidden flex items-center border-t border-white/5 first:border-0 ${
+              className={`px-4 text-sm font-medium text-black hover:text-black hover:bg-black/5 transition-all duration-300 overflow-hidden flex items-center border-t border-black/5 first:border-0 ${
                 isDropdownOpen ? 'max-h-12 opacity-100 py-2.5' : 'max-h-0 opacity-0 py-0'
               }`}
               style={{ 

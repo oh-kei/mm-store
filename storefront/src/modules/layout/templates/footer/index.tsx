@@ -11,16 +11,17 @@ interface FooterProps {
   variant?: "dark" | "light"
 }
 
-export default function Footer({ variant = "dark" }: FooterProps) {
-  const isLight = variant === "light" || (typeof window !== "undefined" && window.location.pathname.includes("/bulk-order") && variant === "light")
+export default function Footer({ variant }: FooterProps) {
+  const isLight = variant === "light"
+  const isDark = variant === "dark"
   const pathname = usePathname()
   const formRef = useRef<HTMLFormElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [email, setEmail] = useState("")
 
-  // Hide the global dark footer on bulk-order pages to avoid double footers
-  if (pathname.includes("/bulk-order") && !isLight) {
+  // Hide the global footer on bulk-order pages to avoid double footers, unless a variant is explicitly passed
+  if (pathname.includes("/bulk-order") && !variant) {
     return null
   }
 
@@ -59,7 +60,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
         {/* Newsletter Section */}
         <div className="flex flex-col gap-6 w-full max-w-lg">
           <div className="space-y-2">
-            <h4 className="text-2xl font-black uppercase tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>Join Our Voyage</h4>
+            <h4 className="text-2xl font-medium" style={{ fontFamily: "'Manrope', sans-serif" }}>Join Our Voyage</h4>
             <p className={clx(
               "text-sm font-medium leading-relaxed max-w-sm",
               isLight ? "text-slate-500" : "text-slate-400"
@@ -77,7 +78,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address" 
                 className={clx(
-                  "rounded-xl px-4 py-3 text-sm flex-grow outline-none transition-all font-bold",
+                  "rounded-xl px-4 py-3 text-sm flex-grow outline-none transition-all font-medium",
                   isLight 
                     ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-maritime-gold focus:ring-4 focus:ring-maritime-gold/5" 
                     : "bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-white/40 focus:ring-4 focus:ring-white/5"
@@ -87,7 +88,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
                 type="submit"
                 disabled={isSubmitting || isSuccess}
                 className={clx(
-                  "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center min-w-[120px]",
+                  "px-8 py-3 rounded-xl text-xs font-medium transition-all shadow-sm flex items-center justify-center min-w-[120px]",
                   isSuccess 
                     ? "bg-green-500 text-white" 
                     : "bg-amber-400 text-maritime-navy hover:bg-amber-500 active:scale-95 disabled:opacity-50"
@@ -103,7 +104,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
               </button>
             </div>
             {isSuccess && (
-              <p className="text-[10px] font-black uppercase tracking-widest text-green-500 animate-in fade-in slide-in-from-top-1">
+              <p className="text-xs font-medium text-green-500 animate-in fade-in slide-in-from-top-1">
                 Email added successfully
               </p>
             )}
@@ -128,7 +129,7 @@ export default function Footer({ variant = "dark" }: FooterProps) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
             </a>
           </div>
-          <div className="flex flex-col items-start md:items-end gap-3 text-[10px] uppercase tracking-[0.2em] font-black">
+          <div className="flex flex-col items-start md:items-end gap-3 text-xs font-medium">
             <div className="flex gap-6">
               <LocalizedClientLink href="/privacy-policy" className={clx(
                 "transition-colors",

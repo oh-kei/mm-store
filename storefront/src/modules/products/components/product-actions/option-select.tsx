@@ -113,7 +113,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">
+      <span className="text-sm font-medium text-gray-400">
         Select {title.toLowerCase() === "color" ? "Colour" : title}
       </span>
       <div

@@ -98,20 +98,20 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
     >
       <input {...getInputProps()} />
       <div className="flex flex-col gap-8">
-        <Heading className="text-xl font-black uppercase tracking-tight text-slate-900 text-left">Mass Upload Crew</Heading>
+        <Heading className="text-xl font-medium tracking-tight text-slate-900 text-left">Mass Upload Crew</Heading>
         
         <div className="flex flex-col items-center gap-6 text-center">
           <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100">
             <Upload className={isDragActive ? "text-maritime-gold" : "text-slate-300"} size={32} />
           </div>
           <div className="space-y-2">
-            <p className="font-black text-2xl text-slate-900 tracking-tight">Drop your crew roster here</p>
-            <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Upload a .csv, .xlsx or .xls with "Name" and "Size" columns</p>
+            <p className="font-medium text-2xl text-slate-900 tracking-tight">Drop your crew roster here</p>
+            <p className="text-sm text-slate-400 font-medium">Upload a .csv, .xlsx or .xls with "Name" and "Size" columns</p>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center gap-3 text-red-400 text-sm font-bold animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center gap-3 text-red-400 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
             <AlertCircle size={18} />
             {error}
           </div>

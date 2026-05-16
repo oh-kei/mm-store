@@ -57,8 +57,8 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
       <div className="space-y-12">
         <div className="flex justify-between items-end border-b border-slate-100 pb-8">
           <div>
-            <Heading className="text-4xl md:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none">Catalogue</Heading>
-            <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.2em] mt-2">Select a Category</p>
+            <Heading className="text-4xl md:text-5xl font-medium tracking-tight text-slate-900 leading-none">Catalogue</Heading>
+            <p className="text-slate-400 text-sm font-medium mt-2">Select a Category</p>
           </div>
         </div>
 
@@ -75,8 +75,8 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                 className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-1000 ease-out"
               />
               <div className="absolute inset-x-0 bottom-0 p-2 md:p-6 bg-gradient-to-t from-black/20 to-transparent">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-black mb-1 hidden md:block">Category</p>
-                <h3 className="font-black text-lg md:text-xl text-white tracking-tight uppercase">{cat.name}</h3>
+                <p className="text-[10px] text-white/60 font-medium mb-1 hidden md:block">Category</p>
+                <h3 className="font-medium text-lg md:text-xl text-white tracking-tight">{cat.name}</h3>
               </div>
             </button>
           ))}
@@ -91,15 +91,15 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
         <div>
           <button 
             onClick={() => setActiveCategory(null)}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-maritime-gold transition-colors mb-4"
+            className="flex items-center gap-2 text-[10px] font-medium text-slate-400 hover:text-maritime-gold transition-colors mb-4"
           >
             <ArrowLeft size={12} />
             Back to Categories
           </button>
-          <Heading className="text-4xl md:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none">
+          <Heading className="text-4xl md:text-5xl font-medium tracking-tight text-slate-900 leading-none">
             {CATEGORIES.find(c => c.handle === activeCategory)?.name || "Products"}
           </Heading>
-          <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.2em] mt-2">Team Selection</p>
+          <p className="text-slate-400 text-sm font-medium mt-2">Team Selection</p>
         </div>
       </div>
 
@@ -118,7 +118,7 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                    )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight leading-none text-slate-900">{product.title}</h3>
+                  <h3 className="text-xl font-medium tracking-tight leading-none text-slate-900">{product.title}</h3>
                 </div>
               </div>
 
@@ -137,8 +137,8 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
               <div className="mt-4 pt-6 border-t border-slate-50 flex flex-col gap-4">
                 <div className="flex justify-between items-end">
                   <div>
-                    <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1">Total Quantity</p>
-                    <p className="text-2xl font-black text-slate-900">{total} <span className="text-slate-300 text-xs font-bold ml-1">UNITS</span></p>
+                    <p className="text-[10px] font-medium text-slate-400 mb-1">Total Quantity</p>
+                    <p className="text-2xl font-medium text-slate-900">{total} <span className="text-slate-300 text-xs font-medium ml-1">UNITS</span></p>
                   </div>
                   <button 
                     onClick={() => {
@@ -147,7 +147,7 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
                       setAddedProductIds(prev => new Set(prev).add(productId))
                     }}
                     disabled={total === 0 || selections[product.id || ""]?.hasError}
-                    className="bg-maritime-gold text-maritime-navy h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    className="bg-maritime-gold text-maritime-navy h-12 px-6 rounded-xl font-medium text-xs hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
                     <ShoppingCart size={14} />
                     Add
@@ -160,7 +160,7 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
       </div>
       {filteredProducts.length === 0 && (
         <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-           <p className="text-slate-400 font-bold uppercase tracking-widest">No products found in this category.</p>
+           <p className="text-slate-400 font-medium">No products found in this category.</p>
         </div>
       )}
     </div>

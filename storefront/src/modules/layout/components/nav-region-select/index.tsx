@@ -40,8 +40,8 @@ export default function NavRegionSelect() {
         onClick={() => toggleMenu("region")}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span className="uppercase text-[10px] tracking-widest font-bold hidden md:inline text-white/90 relative z-[110]">
-          {activeCountry ? activeCountry.code : "Region"}
+        <span className="text-[10px] font-medium hidden md:inline text-white/90 relative z-[110]">
+          {activeCountry ? activeCountry.code.toUpperCase() : "Region"}
         </span>
       </button>
 
@@ -64,22 +64,22 @@ export default function NavRegionSelect() {
         >
           {/* Bridge to prevent hover flickering - adjusted height */}
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
-          <div className="bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
+          <div className="bg-[#f3f4f6] border border-black/5 rounded-xl shadow-2xl overflow-hidden" style={{ transform: "translateZ(0)" }}>
             <div className="py-2">
-              <div className="px-4 py-2 border-b border-white/5 mb-2">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">Select Region</span>
+              <div className="px-4 py-2 border-b border-black/5 mb-2">
+                <span className="text-xs font-medium text-black">Select Region</span>
               </div>
               {REGIONS_DATA.map((region) => (
                 <div key={region.name} className="px-2 mb-2">
-                  <div className="px-2 py-1 text-[10px] font-bold text-white/30 uppercase tracking-widest">{region.name}</div>
+                  <div className="px-2 py-1 text-[10px] font-medium text-black tracking-widest">{region.name}</div>
                   {region.countries.map((country) => (
                     <button
                       key={country.code}
                       onClick={() => handleCountryChange(country.code)}
                       className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-all cursor-pointer ${
                         countryCode === country.code 
-                          ? "bg-white/10 text-white" 
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                          ? "bg-black/5 text-black" 
+                          : "text-black/60 hover:bg-black/5 hover:text-black"
                       }`}
                     >
                       <ReactCountryFlag
@@ -88,8 +88,8 @@ export default function NavRegionSelect() {
                         style={{ width: '16px', height: '12px' }}
                       />
                       <div className="flex-1 flex items-center justify-between gap-4">
-                        <span className="text-xs font-bold">{country.name}</span>
-                        <span className="text-[10px] uppercase font-black text-white/30">{country.currency}</span>
+                        <span className="text-xs font-medium text-black">{country.name}</span>
+                        <span className="text-[10px] font-medium text-black/40">{country.currency}</span>
                       </div>
                     </button>
                   ))}

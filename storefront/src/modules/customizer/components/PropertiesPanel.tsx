@@ -39,8 +39,8 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6">
           <Type size={24} className="text-slate-200" />
         </div>
-        <Heading className="text-xl font-black uppercase tracking-tight text-slate-300">Select an element</Heading>
-        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">To reveal properties</p>
+        <Heading className="text-xl font-medium tracking-tight text-slate-300">Select an element</Heading>
+        <p className="text-slate-400 text-[10px] font-medium mt-2">To reveal properties</p>
       </div>
     )
   }
@@ -52,8 +52,8 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <Heading className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-none">Properties</Heading>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Adjust Layer</p>
+            <Heading className="text-2xl font-medium tracking-tight text-slate-900 leading-none">Properties</Heading>
+            <p className="text-slate-400 text-[10px] font-medium mt-2">Adjust Layer</p>
           </div>
           <Button 
             variant="secondary" 
@@ -69,7 +69,7 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
         {/* Content Section */}
         {isText && (
           <div className="space-y-3">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Text Content</Label>
+            <Label className="text-[10px] font-medium text-slate-400">Text Content</Label>
             <Input 
               value={layer.props.text || ""} 
               onChange={(e) => onUpdate(layer.id, { text: e.target.value.slice(0, 500) })}
@@ -83,13 +83,13 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
         <div className="space-y-4 pt-6 border-t border-slate-50">
           <div className="flex items-center gap-2">
             <Palette size={14} className="text-maritime-gold" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Styling</span>
+            <span className="text-[10px] font-medium text-slate-400">Styling</span>
           </div>
 
           {isText && (
             <>
               <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Font Family</Label>
+                <Label className="text-[10px] font-medium text-slate-400">Font Family</Label>
                 <div className="relative">
                   <button
                     onClick={() => setIsFontListExpanded(!isFontListExpanded)}
@@ -136,8 +136,8 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Size</Label>
-                  <span className="text-[10px] font-black text-maritime-navy">{layer.props.fontSize || 40}px</span>
+                  <Label className="text-[10px] font-medium text-slate-400">Size</Label>
+                  <span className="text-[10px] font-medium text-maritime-navy">{layer.props.fontSize || 40}px</span>
                 </div>
                 <input 
                   type="range" 
@@ -150,7 +150,7 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
               </div>
 
               <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Color</Label>
+                <Label className="text-[10px] font-medium text-slate-400">Color</Label>
                 <div className="flex flex-wrap gap-2">
                   {DEFAULT_COLORS.map((color) => (
                     <button
@@ -195,14 +195,14 @@ export const PropertiesPanel = ({ layer, onUpdate, onRemove }: PropertiesPanelPr
           <div className="space-y-4 pt-6 border-t border-slate-50">
             <div className="flex items-center gap-2">
               <RotateCcw size={14} className="text-maritime-gold" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Rotation</span>
+              <span className="text-[10px] font-medium text-slate-400">Rotation</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[0, 90, 180, 270].map((angle) => (
                 <button
                   key={angle}
                   onClick={() => onUpdate(layer.id, { rotation: angle })}
-                  className={`h-10 rounded-xl text-[10px] font-black transition-all ${
+                  className={`h-10 rounded-xl text-[10px] font-medium transition-all ${
                     Math.round(layer.props.rotation || 0) === angle
                       ? "bg-maritime-navy text-white shadow-lg"
                       : "bg-slate-50 text-slate-500 hover:bg-slate-100"

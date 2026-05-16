@@ -201,13 +201,13 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
                 {/* Size Selector Overlay (Only in default mode) */}
                 {mode !== "customizer" && showSizeSelector && (
                   <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-maritime-navy">Select Size</h4>
+                    <h4 className="text-[10px] font-medium mb-4 text-maritime-navy">Select Size</h4>
                     <div className="grid grid-cols-3 gap-2 w-full">
                       {sizes.map(size => (
                         <button
                           key={size}
                           onClick={(e) => { e.preventDefault(); handleAddToCart(size); }}
-                          className="h-10 border border-gray-200 text-[10px] font-bold hover:bg-maritime-navy hover:text-white transition-all"
+                          className="h-10 border border-gray-200 text-[10px] font-medium hover:bg-maritime-navy hover:text-white transition-all"
                         >
                           {size}
                         </button>
@@ -215,7 +215,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
                     </div>
                     <button 
                       onClick={(e) => { e.preventDefault(); setShowSizeSelector(false); }}
-                      className="mt-4 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4"
+                      className="mt-4 text-[10px] font-medium underline underline-offset-4"
                     >
                       Cancel
                     </button>
@@ -225,7 +225,7 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
                 {/* Color Error Overlay (Only in default mode) */}
                 {mode !== "customizer" && showColorError && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex justify-center">
-                    <div className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
+                    <div className="bg-red-600 text-white text-[10px] font-medium px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
                       Select a colour
                     </div>
                   </div>
@@ -234,11 +234,11 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
 
               <div className="p-5 pb-0 space-y-1.5">
                 {product.type?.value && (
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-maritime-navy/40 font-black">
+                  <p className="text-[10px] text-maritime-navy/40 font-medium">
                     {product.type.value}
                   </p>
                 )}
-                <h3 className="font-bold text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight uppercase font-sans">
+                <h3 className="font-medium text-xs text-gray-900 group-hover:text-maritime-navy transition-colors tracking-tight font-sans">
                   {title}
                 </h3>
                 
@@ -299,23 +299,23 @@ export function ProductCard({ product, region, customer, mode = "default" }: Pro
       {mode !== "related" && (
         <div className={clx("p-5 pt-0", mode === "customizer" ? "flex" : "grid grid-cols-2 gap-2")}>
           {mode === "customizer" ? (
-             <button 
-              className="w-full h-9 text-[10px] uppercase tracking-widest font-bold bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
-            >
-              Customise
-            </button>
+              <button 
+                className="w-full h-9 text-[10px] font-medium bg-maritime-navy text-white hover:bg-black transition-all duration-300 rounded-none px-0"
+              >
+                Customise
+              </button>
           ) : (
             <>
               <Link href={`/products/${product.handle}`} className="w-full">
                 <button 
-                  className="w-full h-9 text-[10px] uppercase tracking-widest font-bold border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
+                  className="w-full h-9 text-[10px] font-medium border border-gray-200 text-gray-900 hover:bg-maritime-navy hover:text-white hover:border-maritime-navy transition-all duration-300 rounded-none px-0"
                 >
                   Details
                 </button>
               </Link>
               <button 
                 disabled={isAdding}
-                className={clx("w-full h-9 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold text-white transition-all duration-300 rounded-none px-0", {
+                className={clx("w-full h-9 text-[8px] sm:text-[10px] font-medium text-white transition-all duration-300 rounded-none px-0", {
                   "bg-green-600 border border-green-600": isAdded,
                   "bg-maritime-navy hover:bg-black border border-maritime-navy": !isAdded,
                   "opacity-50 cursor-not-allowed": isAdding

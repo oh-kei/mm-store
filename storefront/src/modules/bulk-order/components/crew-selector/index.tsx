@@ -132,7 +132,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
       {/* Color Selection */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Select Global Colour</h4>
+          <h4 className="text-[10px] font-medium text-slate-400">Select Global Colour</h4>
         </div>
         <div className="flex flex-wrap gap-2">
           {colors.map(color => (
@@ -143,7 +143,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                 setHasInteracted(true)
               }}
               className={clx(
-                "h-10 px-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
+                "h-10 px-4 rounded-xl border text-[10px] font-medium transition-all",
                 selectedColour === color 
                   ? "bg-slate-900 text-white border-slate-900 shadow-md" 
                   : "bg-white text-slate-900 border-slate-100 hover:border-slate-300"
@@ -160,8 +160,8 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
       {isOneSize && (hasInteracted || forceShowMessage) && (
         <div className="bg-maritime-gold/10 border border-maritime-gold/20 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2">
           <AlertTriangle className="text-maritime-gold flex-shrink-0" size={16} />
-          <p className="text-[10px] font-bold text-slate-600 leading-relaxed uppercase tracking-wider">
-            Note: This item is <span className="text-maritime-gold font-black">ONE SIZE ONLY ({oneSize})</span>. 
+          <p className="text-[10px] font-medium text-slate-600 leading-relaxed">
+            Note: This item is <span className="text-maritime-gold font-bold">One size only ({oneSize})</span>. 
             All member sizes have been automatically adjusted to fit.
           </p>
         </div>
@@ -169,7 +169,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
 
       {/* Crew Selection Dropdown */}
       <div className="space-y-3">
-        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Crew Selection</h4>
+        <h4 className="text-[10px] font-medium text-slate-400">Crew Selection</h4>
         
         <div className="relative">
           <button
@@ -181,10 +181,10 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                 {selectionMode === "all" ? <Users size={16} /> : <User size={16} />}
               </div>
               <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">
+                <p className="text-[10px] font-medium text-slate-900">
                   {selectionMode === "all" ? "All Crew" : `${selectedMemberIndices.length} Members Selected`}
                 </p>
-                <p className="text-[9px] font-bold text-slate-300 uppercase">
+                <p className="text-[9px] font-medium text-slate-300">
                   {selectionMode === "all" ? `Total: ${roster.length} People` : "Custom Selection"}
                 </p>
               </div>
@@ -198,8 +198,8 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
           {(hasInteracted || forceShowMessage) && selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size)) && (
             <div className="mt-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <AlertTriangle className="text-red-500 flex-shrink-0" size={16} />
-              <p className="text-[10px] font-bold text-red-600 leading-relaxed uppercase tracking-wider">
-                Some selected members have <span className="font-black underline">unavailable sizes</span> for this product. 
+              <p className="text-[10px] font-medium text-red-600 leading-relaxed">
+                Some selected members have <span className="font-bold underline">unavailable sizes</span> for this product. 
                 Please adjust their sizes or remove them to proceed.
               </p>
             </div>
@@ -218,13 +218,13 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                <div className="flex gap-1 mb-2 px-1">
                  <button 
                    onClick={() => setSelectedMemberIndices(roster.map((_, i) => i))}
-                   className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-200 hover:text-slate-600 transition-all"
+                   className="flex-1 py-2 text-[8px] font-medium bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-200 hover:text-slate-600 transition-all"
                  >
                    Select All
                  </button>
                  <button 
                    onClick={() => setSelectedMemberIndices([])}
-                   className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-200 hover:text-slate-600 transition-all"
+                   className="flex-1 py-2 text-[8px] font-medium bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-200 hover:text-slate-600 transition-all"
                  >
                    Clear All
                  </button>
@@ -252,16 +252,16 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           <Check size={12} strokeWidth={4} />
                         </div>
                         <div className="text-left">
-                          <p className={clx("text-xs font-black uppercase tracking-tight", isSelected ? "text-slate-900" : "text-slate-400")}>
+                          <p className={clx("text-xs font-medium tracking-tight", isSelected ? "text-slate-900" : "text-slate-400")}>
                             {member.name}
                           </p>
                           <div className="flex items-center gap-2">
-                             <p className="text-[9px] font-bold text-slate-300 uppercase">
+                             <p className="text-[11px] font-medium text-slate-300">
                                Size: {currentOverride.size || member.size}
-                               {currentOverride.size && <span className="text-maritime-gold ml-1">(OVERRIDE)</span>}
+                               {currentOverride.size && <span className="text-maritime-gold ml-1">(Override)</span>}
                              </p>
                              {currentOverride.colour && (
-                               <p className="text-[9px] font-bold text-maritime-gold uppercase">
+                               <p className="text-[11px] font-medium text-maritime-gold">
                                  Colour: {currentOverride.colour}
                                </p>
                              )}
@@ -274,7 +274,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           {availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && (
                             <div className="flex items-center gap-2 px-2 py-1 bg-red-50 rounded-lg border border-red-100">
                               <AlertTriangle size={10} className="text-red-500" />
-                              <span className="text-[8px] font-black text-red-500 uppercase tracking-tighter">Size Unavailable</span>
+                              <span className="text-[8px] font-medium text-red-500 tracking-tighter">Size Unavailable</span>
                             </div>
                           )}
                           <button 
@@ -298,7 +298,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       <div className="px-3 pb-2 flex gap-2">
                          <button 
                            onClick={() => setEditingMemberIdx(idx)}
-                           className="text-[9px] font-black uppercase tracking-widest text-maritime-gold hover:underline"
+                           className="text-[9px] font-medium text-maritime-gold hover:underline"
                          >
                            Change Size
                          </button>
@@ -311,7 +311,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                                handleToggleMember(idx)
                              }
                            }}
-                           className="text-[9px] font-black uppercase tracking-widest text-red-400 hover:underline"
+                           className="text-[9px] font-medium text-red-400 hover:underline"
                          >
                            Remove from Selection
                          </button>
@@ -323,7 +323,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       <div className="px-3 pb-3 pt-1 space-y-3 animate-in slide-in-from-top-1">
                         <div className="grid grid-cols-2 gap-2">
                           <div className="space-y-1">
-                            <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Override Size</label>
+                            <label className="text-[8px] font-medium text-slate-400">Override Size</label>
                             <select 
                               value={currentOverride.size || "default"}
                               onChange={(e) => handleUpdateOverride(idx, 'size', e.target.value)}
@@ -334,7 +334,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                             </select>
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Override Colour</label>
+                            <label className="text-[8px] font-medium text-slate-400">Override Colour</label>
                             <select 
                               value={currentOverride.colour || "default"}
                               onChange={(e) => handleUpdateOverride(idx, 'colour', e.target.value)}

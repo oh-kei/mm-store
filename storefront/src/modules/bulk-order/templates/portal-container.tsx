@@ -233,8 +233,8 @@ export function PortalContainer({ products }: PortalContainerProps) {
         <div className="space-y-12">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <Heading className="text-4xl font-black uppercase tracking-tight text-slate-900">Add Crew</Heading>
-              {isSyncing && <span className="text-[10px] font-black uppercase tracking-widest text-maritime-gold animate-pulse">Syncing...</span>}
+              <Heading className="text-4xl font-medium tracking-tight text-slate-900">Add Crew</Heading>
+              {isSyncing && <span className="text-[10px] font-medium text-maritime-gold animate-pulse">Syncing...</span>}
             </div>
             <ManualAddMember onAdd={handleManualAdd} />
             <CSVUploader onUpload={handleRosterUpload} />
@@ -242,7 +242,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
           
           {roster.length > 0 && (
             <div className="space-y-6">
-              <Heading className="text-4xl font-black uppercase tracking-tight text-slate-900">Active Crew List</Heading>
+              <Heading className="text-4xl font-medium tracking-tight text-slate-900">Active Crew List</Heading>
               <RosterTable 
                 members={roster} 
                 onRemove={handleRemoveMember} 
@@ -270,10 +270,10 @@ export function PortalContainer({ products }: PortalContainerProps) {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             </div>
             <div>
-              <Heading className="text-xl font-black uppercase tracking-tight text-slate-900">Notice</Heading>
-              <p className="text-sm font-bold text-slate-500 mt-2">{errorMsg}</p>
+              <Heading className="text-xl font-medium tracking-tight text-slate-900">Notice</Heading>
+              <p className="text-sm font-medium text-slate-500 mt-2">{errorMsg}</p>
             </div>
-            <button onClick={() => setErrorMsg(null)} className="w-full bg-slate-900 text-white rounded-xl h-12 font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-colors">
+            <button onClick={() => setErrorMsg(null)} className="w-full bg-slate-900 text-white rounded-xl h-12 font-medium text-[10px] hover:bg-slate-800 transition-colors">
               Dismiss
             </button>
           </div>
@@ -287,10 +287,10 @@ export function PortalContainer({ products }: PortalContainerProps) {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <div>
-              <Heading className="text-xl font-black uppercase tracking-tight text-slate-900">Success</Heading>
-              <p className="text-sm font-bold text-slate-500 mt-2">{successMsg}</p>
+              <Heading className="text-xl font-medium tracking-tight text-slate-900">Success</Heading>
+              <p className="text-sm font-medium text-slate-500 mt-2">{successMsg}</p>
             </div>
-            <button onClick={() => setSuccessMsg(null)} className="w-full bg-maritime-gold text-white rounded-xl h-12 font-black uppercase tracking-widest text-[10px] hover:bg-yellow-500 transition-colors">
+            <button onClick={() => setSuccessMsg(null)} className="w-full bg-maritime-gold text-white rounded-xl h-12 font-medium text-[10px] hover:bg-yellow-500 transition-colors">
               Continue
             </button>
           </div>

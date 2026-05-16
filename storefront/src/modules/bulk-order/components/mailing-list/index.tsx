@@ -50,14 +50,14 @@ export default function MailingList() {
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-8 md:p-12 shadow-sm mt-12 overflow-hidden relative">
+    <div className="bg-maritime-navy rounded-3xl border border-white/5 p-8 md:p-12 shadow-sm mt-12 overflow-hidden relative">
       <div className="max-w-xl space-y-6 relative z-10">
         <div>
-          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-maritime-gold mb-3">Stay Updated</h4>
-          <Heading className="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900 leading-none">
+          <h4 className="text-[10px] font-medium text-maritime-gold mb-3">Stay Updated</h4>
+          <Heading className="text-3xl md:text-4xl font-medium tracking-tight text-white leading-none">
             Join Our Voyage
           </Heading>
-          <p className="text-slate-500 text-sm font-medium mt-4 leading-relaxed">
+          <p className="text-white/60 text-sm font-medium mt-4 leading-relaxed">
             Join our mailing list to receive the latest updates, exclusive fleet offers, and maritime news directly in your inbox.
           </p>
         </div>
@@ -69,13 +69,13 @@ export default function MailingList() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email address"
             required
-            className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-maritime-gold/20 focus:border-maritime-gold transition-all"
+            className="flex-grow bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-maritime-gold/20 focus:border-maritime-gold transition-all"
           />
           <button
             type="submit"
             disabled={status === 'loading'}
             className={clx(
-              "bg-slate-900 text-white rounded-2xl px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-black/5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
+              "bg-white text-maritime-navy rounded-2xl px-8 py-4 text-xs font-medium hover:bg-maritime-gold hover:text-maritime-navy transition-all shadow-lg shadow-black/5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
               status === 'loading' ? 'animate-pulse' : ''
             )}
           >
@@ -85,7 +85,7 @@ export default function MailingList() {
 
         {status !== 'idle' && (
           <p className={clx(
-            "text-xs font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-2",
+            "text-xs font-medium animate-in fade-in slide-in-from-top-2",
             status === 'success' ? "text-green-500" : "text-red-500"
           )}>
             {message}
@@ -94,9 +94,9 @@ export default function MailingList() {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-slate-50 rounded-full blur-3xl opacity-50" />
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-white/5 rounded-full blur-3xl opacity-50" />
       <div className="absolute bottom-0 right-12 w-24 h-24 truncate">
-         <svg className="w-full h-full text-slate-50 opacity-20 rotate-12" viewBox="0 0 24 24" fill="currentColor">
+         <svg className="w-full h-full text-white opacity-5 rotate-12" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" />
          </svg>
       </div>
