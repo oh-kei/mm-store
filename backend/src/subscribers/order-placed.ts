@@ -72,24 +72,32 @@ export default async function orderPlacedHandler({
           o.title?.toLowerCase().includes("color") || 
           o.title?.toLowerCase().includes("colour")
         )
-        const colorValue = (colorOption?.value || "").toLowerCase()
+        const colorValue = (colorOption?.value || "").toLowerCase().trim()
+        const colorNoSpaces = colorValue.replace(/\s+/g, "")
         
         let bestImage = item.variant.images?.[0]?.url
         
         if (colorValue) {
-          // Check variant images first
-          const matchedVariantImg = item.variant.images?.find((img: any) => 
-            img.url?.toLowerCase().includes(`-${colorValue}`) || 
-            img.url?.toLowerCase().includes(`_${colorValue}`)
-          )
+          // Check variant images first with more robust matching
+          const matchedVariantImg = item.variant.images?.find((img: any) => {
+            const url = img.url?.toLowerCase() || ""
+            return url.includes(`-${colorValue}`) || 
+                   url.includes(`_${colorValue}`) ||
+                   url.includes(`-${colorNoSpaces}`) || 
+                   url.includes(`_${colorNoSpaces}`)
+          })
+
           if (matchedVariantImg) {
             bestImage = matchedVariantImg.url
           } else {
             // Check product images if variant images didn't match
-            const matchedProductImg = item.variant.product?.images?.find((img: any) => 
-              img.url?.toLowerCase().includes(`-${colorValue}`) || 
-              img.url?.toLowerCase().includes(`_${colorValue}`)
-            )
+            const matchedProductImg = item.variant.product?.images?.find((img: any) => {
+              const url = img.url?.toLowerCase() || ""
+              return url.includes(`-${colorValue}`) || 
+                     url.includes(`_${colorValue}`) ||
+                     url.includes(`-${colorNoSpaces}`) || 
+                     url.includes(`_${colorNoSpaces}`)
+            })
             if (matchedProductImg) bestImage = matchedProductImg.url
           }
         }

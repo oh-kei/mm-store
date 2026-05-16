@@ -30,19 +30,51 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
       return
     }
 
-    const formatted = data
-      .map(row => ({
-        name: row[nameKey]?.toString().slice(0, 100) || "",
-        size: row[sizeKey]?.toString().toUpperCase() || ""
-      }))
-      .filter(item => item.name && item.size)
+    const VALID_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"]
+    const SIZE_MAP: Record<string, string> = {
+      "XXL": "2XL",
+      "XXXL": "3XL",
+      "XXXXL": "4XL",
+      "XXXXXL": "5XL"
+    }
+
+    const invalidEntries: string[] = []
     
-    if (formatted.length === 0) {
-      setError("No valid crew members found. Check common formatting issues.")
+    const formatted = data
+      .map((row, index) => {
+        const rawName = row[nameKey]?.toString().trim() || ""
+        let rawSize = row[sizeKey]?.toString().toUpperCase().trim() || ""
+        
+        // Normalize common variations
+        if (SIZE_MAP[rawSize]) rawSize = SIZE_MAP[rawSize]
+
+        const isSizeValid = VALID_SIZES.includes(rawSize)
+        const isNameValid = rawName.length > 0
+
+        if (rawName && !isSizeValid) {
+          invalidEntries.push(`${rawName} (${rawSize})`)
+        }
+
+        return {
+          name: rawName.slice(0, 100),
+          size: rawSize,
+          isValid: isSizeValid && isNameValid
+        }
+      })
+      .filter(item => item.isValid)
+    
+    if (invalidEntries.length > 0) {
+      setError(`Skipped ${invalidEntries.length} invalid entries: ${invalidEntries.slice(0, 2).join(", ")}${invalidEntries.length > 2 ? "..." : ""}. Only sizes XS to 5XL are accepted.`)
+    }
+
+    if (formatted.length === 0 && invalidEntries.length === 0) {
+      setError("No crew members found. Please check your file formatting.")
       return
     }
 
-    onUpload(formatted)
+    if (formatted.length > 0) {
+      onUpload(formatted.map(({ name, size }) => ({ name, size })))
+    }
   }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {

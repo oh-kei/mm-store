@@ -147,7 +147,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
               }}>
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'flex-start' }}>
                   {(item.thumbnail || item.variant?.thumbnail || item.variant?.images?.[0]?.url) && (
-                    <img src={getAbsoluteUrl(item.variant?.images?.[0]?.url || item.thumbnail || item.variant?.thumbnail)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
+                    <img src={getAbsoluteUrl(item.thumbnail || item.variant?.thumbnail || item.variant?.images?.[0]?.url)} alt={item.title} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee' }} />
                   )}
                   <div style={{ flex: 1 }}>
                     <Text style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px', color: '#0F172A' }}>

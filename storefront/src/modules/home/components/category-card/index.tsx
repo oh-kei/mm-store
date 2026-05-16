@@ -88,7 +88,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
           </div>
         ) : (
           <div className="flex items-center justify-center w-full h-full">
-            <div className="text-gray-300 text-[0.6rem] md:text-xs font-semibold uppercase tracking-wider">Image Placeholder</div>
+            <div className="text-gray-300 text-[0.6rem] md:text-xs font-medium tracking-wide">Image Placeholder</div>
           </div>
         )}
       </div>
@@ -101,7 +101,7 @@ const CategoryCard = ({ title, className = '', isBig = false, image, hoverImage,
           </h3>
           {subtitle && (
             <div className="mt-0.5">
-              <span className={`font-extrabold uppercase tracking-[0.1em] text-[#000080] ${isBig ? 'text-[0.6rem] md:text-[0.7rem]' : 'text-[0.5rem] md:text-[0.6rem]'}`}>
+              <span className={`font-medium tracking-wide text-[#000080] ${isBig ? 'text-[0.6rem] md:text-[0.7rem]' : 'text-[0.5rem] md:text-[0.6rem]'}`}>
                 {subtitle}
               </span>
             </div>

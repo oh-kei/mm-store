@@ -52,20 +52,20 @@ export default function SearchButton() {
         as="div"
         unmount={false}
         enter="transition ease-out duration-200"
-        enterFrom="opacity-0 translate-y-1"
-        enterTo="opacity-100 translate-y-0"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
         leave="transition ease-in duration-150"
-        leaveFrom="opacity-100 translate-y-0"
-        leaveTo="opacity-0 translate-y-1"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
       >
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[85vw] max-w-[400px] sm:w-[450px] z-[100]"
+          className="fixed sm:absolute left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 top-[80px] sm:top-full sm:-mt-2 sm:w-[450px] z-[100] pt-2"
           onMouseEnter={() => openMenu("search")}
           onMouseLeave={() => closeMenu(300)}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Bridge to prevent hover flickering - centered and narrow */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-transparent hidden sm:block" />
+          {/* Bridge to prevent hover flickering - full width and taller */}
+          <div className="absolute top-0 left-0 w-full h-4 bg-transparent" />
           <div 
             className="bg-[#f3f4f6] border border-black/5 rounded-2xl shadow-2xl overflow-hidden p-4" 
             style={{ transform: "translateZ(0)" }}

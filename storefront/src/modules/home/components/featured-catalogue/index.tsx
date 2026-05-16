@@ -26,7 +26,7 @@ const FeaturedCatalogue = () => {
               isBig={true} 
               image="/mariners-jacket.webp" 
               hoverImage="/mm-jacket-closeup.webp"
-              subtitle="MOST POPULAR"
+              subtitle="Most Popular"
               link="/products/inshore-sailing-jacket"
               priority={true}
             />
@@ -79,7 +79,7 @@ const FeaturedCatalogue = () => {
         <div className="mt-16 flex justify-center">
           <LocalizedClientLink 
             href="/catalog" 
-            className="group flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-800 transition-all hover:scale-105 shadow-xl shadow-slate-900/10"
+            className="group flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl font-medium text-sm hover:bg-slate-800 transition-all hover:scale-105 shadow-xl shadow-slate-900/10"
           >
             Explore our full catalogue
             <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-maritime-gold transition-colors">

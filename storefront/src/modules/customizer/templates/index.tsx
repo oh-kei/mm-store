@@ -246,10 +246,15 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     
     for (const view of views) {
       setActiveView(view as any)
-      // Wait for re-render and image load
-      await new Promise(resolve => setTimeout(resolve, 600)) 
+      // Wait for re-render and image load - increased delay for reliability
+      await new Promise(resolve => setTimeout(resolve, 800)) 
       const url = await capturePreview()
-      if (url) previews[view] = url
+      if (url) {
+        previews[view] = url
+      } else if (view === "right" && previews["left"]) {
+        // Fallback for right view if capture fails but left exists (since they usually share the same base image)
+        previews[view] = previews["left"]
+      }
     }
     
     setActiveView(originalView)
