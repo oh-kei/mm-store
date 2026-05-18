@@ -14,7 +14,6 @@ import { Users } from "lucide-react"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import Modal from "@modules/common/components/modal"
 import { ViewType } from "../hooks/use-customizer"
-import { ViewType } from "../hooks/use-customizer"
 import { CrewSelector } from "@modules/bulk-order/components/crew-selector"
 import { getCustomer } from "@lib/data/customer"
 import { ProductCard } from "@modules/catalog/components/product-card"
@@ -185,6 +184,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const { state: isCrewModalOpen, open: openCrewModal, close: closeCrewModal } = useToggleState(false)
+  const { state: isSizingModalOpen, open: openSizingModal, close: closeSizingModal } = useToggleState(false)
   const [crewSelection, setCrewSelection] = useState<{ members: any[], colour: string | null, hasError?: boolean }>({ members: [], colour: null, hasError: false })
   const [roster, setRoster] = useState<any[]>([])
   const [comment, setComment] = useState("")
@@ -266,7 +266,31 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   }
 
   const captureAllPreviews = async () => {
-    const views = ["front", "back", "left", "right"]
+    const titleLower = activeProduct?.title?.toLowerCase() || ""
+    let views = ["front", "back", "left", "right"]
+
+    const isSingleView = [
+      "baseball cap",
+      "breathable cap",
+      "sun visor",
+      "neck scarf",
+      "regatta banner",
+      "burgee flag"
+    ].some(keyword => titleLower.includes(keyword)) ||
+    (titleLower.includes("cap") && (titleLower.includes("baseball") || titleLower.includes("breathable"))) ||
+    titleLower.includes("visor") ||
+    titleLower.includes("scarf") ||
+    titleLower.includes("banner") ||
+    titleLower.includes("flag")
+
+    const isTwoViews = titleLower.includes("fleece")
+
+    if (isSingleView) {
+      views = ["front"]
+    } else if (isTwoViews) {
+      views = ["front", "back"]
+    }
+
     const previews: Record<string, string> = {}
     
     // Save current view to restore it later
@@ -399,7 +423,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   // Filter products for the selection grid
   const filteredProducts = useMemo(() => {
-    return products.filter(p => p.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+    return products.filter(p => {
+      const titleLower = p.title?.toLowerCase() || ""
+      if (titleLower.includes("hat clip")) return false
+      return titleLower.includes(searchQuery.toLowerCase())
+    })
   }, [products, searchQuery])
 
   if (!activeProduct) {
@@ -615,6 +643,26 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             <div>
               <p className="text-[10px] font-medium text-maritime-gold mb-2">Base Product</p>
               <Heading className="text-2xl font-medium tracking-tight text-slate-900 leading-none">{activeProduct.title}</Heading>
+              {(() => {
+                const titleLower = activeProduct.title?.toLowerCase() || ""
+                const hasNoSizingGuide = 
+                  titleLower.includes("hat clip") || 
+                  titleLower.includes("banner") || 
+                  titleLower.includes("flag") || 
+                  titleLower.includes("neck scarf") || 
+                  titleLower.includes("duffel")
+                
+                if (hasNoSizingGuide) return null;
+                return (
+                  <button
+                    onClick={openSizingModal}
+                    className="mt-3 text-[10px] font-semibold text-maritime-navy hover:text-maritime-gold transition-colors flex items-center gap-1.5 underline underline-offset-2 cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+                    Sizing Guide
+                  </button>
+                )
+              })()}
             </div>
 
             {/* Options Selectors */}
@@ -752,6 +800,43 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 {isAddingBulk ? "Adding..." : "Add to Cart"}
               </Button>
             </div>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Sizing Guide Modal */}
+      <Modal isOpen={isSizingModalOpen} close={closeSizingModal} size="large">
+        <Modal.Title>
+          <div className="flex items-center gap-3">
+             <div className="h-10 w-10 rounded-full bg-maritime-navy/10 flex items-center justify-center text-maritime-navy">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+             </div>
+             <div>
+               <Heading className="text-xl font-medium tracking-tight text-slate-900">Sizing Guide</Heading>
+               <Text className="text-[10px] font-medium text-slate-400">Find the perfect fit for {activeProduct.title}</Text>
+             </div>
+          </div>
+        </Modal.Title>
+        <Modal.Body>
+          <div data-lenis-prevent className="py-4 flex justify-center bg-white rounded-2xl p-4 border border-slate-100 shadow-inner">
+            {activeProduct.images?.find(img => img.url?.toLowerCase().includes("-sizing"))?.url ? (
+              <img 
+                src={activeProduct.images?.find(img => img.url?.toLowerCase().includes("-sizing"))?.url} 
+                alt="Sizing Guide" 
+                className="max-w-full max-h-[50vh] h-auto object-contain rounded-xl" 
+              />
+            ) : (
+              <div className="text-small-regular text-slate-400 py-12 italic">
+                No sizing guide image available for this product.
+              </div>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="flex justify-end w-full">
+            <Button onClick={closeSizingModal} className="h-12 px-6 rounded-xl font-medium text-[10px] bg-maritime-navy text-white cursor-pointer">
+              Close
+            </Button>
           </div>
         </Modal.Footer>
       </Modal>

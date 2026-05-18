@@ -26,8 +26,9 @@ export function getVariantImage(variant: HttpTypes.StoreProductVariant | undefin
     const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
     const simplePattern = new RegExp(`${escapedNormalized}`, "i")
 
-    const colorMatch = parentProduct.images?.find(img => pattern.test(img.url || "")) || 
-                      parentProduct.images?.find(img => simplePattern.test(img.url || ""));
+    const filteredImages = parentProduct.images?.filter(img => img.url && !img.url.includes("-side") && !img.url.includes("-back")) || [];
+    const colorMatch = filteredImages.find(img => pattern.test(img.url || "")) || 
+                      filteredImages.find(img => simplePattern.test(img.url || ""));
                       
     if (colorMatch?.url) return colorMatch.url;
   }

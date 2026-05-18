@@ -165,7 +165,9 @@ export default function ProductActions({
   const inView = useIntersection(actionsRef, "0px")
 
   const requiresCustomization = useMemo(() => {
-    return ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+    const title = product.title?.toLowerCase() || ""
+    if (title.includes("hat clip")) return false
+    return ["flag", "banner"].some(k => title.includes(k))
   }, [product.title])
 
   // add the selected variant to the cart
@@ -302,7 +304,7 @@ export default function ProductActions({
           </Button>
         )}
 
-        {customer && (
+        {customer && !product.title?.toLowerCase().includes("hat clip") && (
           <div className="mt-4">
             <LocalizedClientLink href={`/custom-studio?id=${product.id}${options["Color"] ? `&color=${encodeURIComponent(options["Color"])}` : (options["Colour"] ? `&color=${encodeURIComponent(options["Colour"])}` : "")}`}>
               <Button

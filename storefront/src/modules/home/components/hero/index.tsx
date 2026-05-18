@@ -18,13 +18,21 @@ const Hero = () => {
           src="/banner.webp" 
           alt="Banner" 
           fill 
-          className="object-cover object-[48.5%_center] md:object-center"
+          /* OPACITY CONFIGURATION: 
+             To change the background image's own opacity, add Tailwind classes like 
+             "opacity-90", "opacity-80", or custom styles like "style={{ opacity: 0.85 }}". 
+          */
+          className="object-cover object-[48.5%_center] md:object-center transition-opacity duration-300"
           priority 
         />
       </div>
       
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Overlay Opacity Layer */}
+      {/* OPACITY CONFIGURATION:
+         Change "bg-black/40" to higher values (e.g. "bg-black/50" or "bg-black/60") to make the 
+         image darker and increase text contrast, or lower values (e.g. "bg-black/20") to make it brighter.
+      */}
+      <div className="absolute inset-0 bg-black/20" />
 
       {/* Scroll Indicator (Semi-circle with Arrow) */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20">

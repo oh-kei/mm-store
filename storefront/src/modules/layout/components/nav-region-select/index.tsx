@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useState, useRef, useEffect } from "react"
-import { Transition } from "@headlessui/react"
+import { clx } from "@medusajs/ui"
 import { useParams, usePathname } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
 import ReactCountryFlag from "react-country-flag"
@@ -47,66 +47,59 @@ export default function NavRegionSelect() {
         </span>
       </button>
 
-      <Transition
-        show={isOpen}
-        as={Fragment}
-        unmount={false}
-        enter="transition ease-out duration-200"
-        enterFrom="opacity-0 translate-y-1"
-        enterTo="opacity-100 translate-y-0"
-        leave="transition ease-in duration-150"
-        leaveFrom="opacity-100 translate-y-0"
-        leaveTo="opacity-0 translate-y-1"
+      <div 
+        className={clx(
+          "fixed md:absolute left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-64 top-[80px] md:top-full pt-1 z-[100] transition-all duration-200 ease-out origin-top",
+          isOpen 
+            ? "opacity-100 translate-y-0 scale-100 pointer-events-auto visible" 
+            : "opacity-0 translate-y-1 scale-95 pointer-events-none invisible"
+        )}
+        onMouseEnter={() => openMenu("region")}
+        onMouseLeave={() => closeMenu(300)}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div 
-          className="fixed md:absolute left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-64 top-[80px] md:top-full pt-1 z-[100]"
-          onMouseEnter={() => openMenu("region")}
-          onMouseLeave={() => closeMenu(300)}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Bridge to prevent hover flickering - adjusted height */}
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
-          <div className={`border border-black/5 rounded-xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-z-0 ${
-            isHomePage 
-              ? "bg-white/20 border-white/10" 
-              : "bg-[#f3f4f6]"
-          }`}>
-            <div className="py-2">
-              <div className={`px-4 py-2 border-b border-black/5 mb-2 ${isHomePage ? "text-white" : "text-black"}`}>
-                <span className="text-xs font-medium">Select Region</span>
-              </div>
-              {REGIONS_DATA.map((region) => (
-                <div key={region.name} className="px-2 mb-2">
-                  <div className={`px-2 py-1 text-[10px] font-medium tracking-widest ${isHomePage ? "text-white/80" : "text-black"}`}>
-                    {region.name}
-                  </div>
-                  {region.countries.map((country) => (
-                    <button
-                      key={country.code}
-                      onClick={() => handleCountryChange(country.code)}
-                      className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-all cursor-pointer ${
-                        countryCode === country.code 
-                          ? isHomePage ? "bg-white/20 text-white" : "bg-black/5 text-black"
-                          : isHomePage ? "text-white/60 hover:bg-white/10 hover:text-white" : "text-black/60 hover:bg-black/5 hover:text-black"
-                      }`}
-                    >
-                      <ReactCountryFlag
-                        svg
-                        countryCode={country.code}
-                        style={{ width: '16px', height: '12px' }}
-                      />
-                      <div className="flex-1 flex items-center justify-between gap-4">
-                        <span className={`text-xs font-medium ${isHomePage ? "text-white" : "text-black"}`}>{country.name}</span>
-                        <span className={`text-[10px] font-medium ${isHomePage ? "text-white/40" : "text-black/40"}`}>{country.currency}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ))}
+        {/* Bridge to prevent hover flickering - adjusted height */}
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1 bg-transparent" />
+        <div className={`border border-black/5 rounded-xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-z-0 ${
+          isHomePage 
+            ? "bg-white/20 border-white/10" 
+            : "bg-[#f3f4f6]"
+        }`}>
+          <div className="py-2">
+            <div className={`px-4 py-2 border-b border-black/5 mb-2 ${isHomePage ? "text-white" : "text-black"}`}>
+              <span className="text-xs font-medium">Select Region</span>
             </div>
+            {REGIONS_DATA.map((region) => (
+              <div key={region.name} className="px-2 mb-2">
+                <div className={`px-2 py-1 text-[10px] font-medium tracking-widest ${isHomePage ? "text-white/80" : "text-black"}`}>
+                  {region.name}
+                </div>
+                {region.countries.map((country) => (
+                  <button
+                    key={country.code}
+                    onClick={() => handleCountryChange(country.code)}
+                    className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-all cursor-pointer ${
+                      countryCode === country.code 
+                        ? isHomePage ? "bg-white/20 text-white" : "bg-black/5 text-black"
+                        : isHomePage ? "text-white/60 hover:bg-white/10 hover:text-white" : "text-black/60 hover:bg-black/5 hover:text-black"
+                    }`}
+                  >
+                    <ReactCountryFlag
+                      svg
+                      countryCode={country.code}
+                      style={{ width: '16px', height: '12px' }}
+                    />
+                    <div className="flex-1 flex items-center justify-between gap-4">
+                      <span className={`text-xs font-medium ${isHomePage ? "text-white" : "text-black"}`}>{country.name}</span>
+                      <span className={`text-[10px] font-medium ${isHomePage ? "text-white/40" : "text-black/40"}`}>{country.currency}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
-      </Transition>
+      </div>
     </div>
   )
 }

@@ -12,12 +12,40 @@ type ProductTabsProps = {
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
-  const tabs = [
-    {
+  const titleLower = product.title?.toLowerCase() || ""
+  
+  // Hat clips, banners, flags, neck scarves, and duffel bags do not get a sizing guide
+  const hasNoSizingGuide = 
+    titleLower.includes("hat clip") || 
+    titleLower.includes("banner") || 
+    titleLower.includes("flag") || 
+    titleLower.includes("neck scarf") || 
+    titleLower.includes("duffel")
+
+  const tabs: { label: string; component: React.ReactNode }[] = []
+
+  if (!hasNoSizingGuide) {
+    const sizingImage = product.images?.find(img => img.url?.toLowerCase().includes("-sizing"))
+
+    tabs.push({
       label: "Sizing guide",
-      component: <div className="py-8"></div>,
-    },
-  ]
+      component: sizingImage?.url ? (
+        <div className="py-4 flex justify-center bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+          <img 
+            src={sizingImage.url} 
+            alt="Sizing Guide" 
+            className="max-w-full h-auto object-contain rounded-xl" 
+          />
+        </div>
+      ) : (
+        <div className="text-small-regular text-slate-400 py-4 italic">
+          No sizing guide image available.
+        </div>
+      )
+    })
+  }
+
+  if (tabs.length === 0) return null
 
   return (
     <div className="w-full">

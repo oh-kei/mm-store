@@ -43,7 +43,7 @@ export function CatalogTemplate({ products, region, customer }: CatalogTemplateP
   }, [selectedCategory]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product: any) => {
+    const list = products.filter((product: any) => {
       // 1. Type/Category Filter
       if (typeFilter !== 'All' && typeFilter !== 'all') {
         const targetType = typeFilter.toLowerCase().trim();
@@ -78,6 +78,46 @@ export function CatalogTemplate({ products, region, customer }: CatalogTemplateP
 
       return true;
     });
+
+    // Helper to determine if a product belongs to the "Tops" category/collection/type
+    const isProductTop = (product: any) => {
+      const productType = (product.type?.value || "").toLowerCase().trim();
+      if (productType === "tops") return true;
+      
+      const hasCategoryMatch = product.categories?.some((cat: any) => {
+        const name = (cat.name || "").toLowerCase().trim();
+        const handle = (cat.handle || "").toLowerCase().trim();
+        return name === "tops" || handle === "tops";
+      });
+      if (hasCategoryMatch) return true;
+      
+      const collectionTitle = (product.collection?.title || "").toLowerCase().trim();
+      const collectionHandle = (product.collection?.handle || "").toLowerCase().trim();
+      if (collectionTitle === "tops" || collectionHandle === "tops") return true;
+
+      return false;
+    };
+
+    // Sort to place Technical Long Sleeve products after all other Tops items
+    const topsProducts: any[] = [];
+    const longSleeveProducts: any[] = [];
+    const nonTopsProducts: any[] = [];
+
+    list.forEach((product: any) => {
+      const handle = (product.handle || "").toLowerCase();
+      const title = (product.title || "").toLowerCase();
+      const isLongSleeve = handle.includes("technical-long-sleeve") || title.includes("technical long sleeve");
+      
+      if (isLongSleeve) {
+        longSleeveProducts.push(product);
+      } else if (isProductTop(product)) {
+        topsProducts.push(product);
+      } else {
+        nonTopsProducts.push(product);
+      }
+    });
+
+    return [...topsProducts, ...longSleeveProducts, ...nonTopsProducts];
   }, [products, typeFilter]);
 
   return (

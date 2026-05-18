@@ -22,7 +22,11 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   className,
   "data-testid": dataTestid,
 }) => {
-  const initialImage = thumbnail || images?.[0]?.url
+  let initialImage = thumbnail || images?.[0]?.url
+  if (initialImage && (initialImage.includes("-side") || initialImage.includes("-back"))) {
+    const frontImage = images?.find(img => img.url && !img.url.includes("-side") && !img.url.includes("-back"));
+    initialImage = frontImage?.url || initialImage;
+  }
 
   return (
     <Container

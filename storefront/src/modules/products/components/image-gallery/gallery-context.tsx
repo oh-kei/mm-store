@@ -14,6 +14,11 @@ const ProductGalleryContext = createContext<ProductGalleryContextType | undefine
 export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, images: any[] }> = ({ children, images }) => {
   const [activeIndex, setActiveIndex] = useState(0)
 
+  // Filter out side and back images exactly like the gallery component does
+  const filteredImages = React.useMemo(() => {
+    return images.filter(img => !img.url?.includes("-side") && !img.url?.includes("-back"))
+  }, [images])
+
   // Helper to find an image by color pattern in filename (e.g. -Black-)
   const findImageByColorPattern = useCallback((color: string) => {
     if (!color) return null
@@ -22,20 +27,25 @@ export const ProductGalleryProvider: React.FC<{ children: React.ReactNode, image
     const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     
-    // Pattern to match color in filename:
-    // Preceded by a dash or underscore
-    // Followed by a dash, underscore, dot, or end of string
-    const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+    // 1. Strict boundary-safe pattern (matches color preceded by slash, dash, underscore or start,
+    // and followed by dash, underscore, dot or end)
+    const strictPattern = new RegExp(`([/\\-_]|^)(${escapedColor}|${escapedNormalized})([\\-_.]|$)`, "i")
+    let matchIndex = filteredImages.findIndex((img) => strictPattern.test(img.url || ""))
     
-    // Find first image matching the pattern
-    const matchIndex = images.findIndex((img) => pattern.test(img.url || ""))
+    // 2. Loose fallback case-insensitive substring search for maximum compatibility across all naming styles
+    if (matchIndex === -1) {
+      matchIndex = filteredImages.findIndex((img) => 
+        (img.url || "").toLowerCase().includes(color.toLowerCase()) || 
+        (img.url || "").toLowerCase().includes(normalizedColor)
+      )
+    }
     
     if (matchIndex !== -1) {
       return matchIndex
     }
     
     return null
-  }, [images])
+  }, [filteredImages])
 
   const handleVariantChange = useCallback((variant: any) => {
     if (!variant) return

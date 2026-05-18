@@ -13,6 +13,36 @@ type OptionSelectProps = {
   "data-testid"?: string
 }
 
+const getColorHex = (colorName: string) => {
+  const map: Record<string, string> = {
+    black: "#000000",
+    white: "#FFFFFF",
+    navy: "#1E3A8A",
+    grey: "#4B5563",
+    gray: "#4B5563",
+    blue: "#3B82F6",
+    red: "#EF4444",
+    green: "#10B981",
+    yellow: "#FFD700",
+    cyan: "#06B6D4",
+    "light green": "#86EFAC",
+    lightgreen: "#86EFAC",
+    "light blue": "#ADD8E6",
+    lightblue: "#ADD8E6",
+    "dark blue": "#1E3A8A",
+    orange: "#F97316",
+    "cool blue": "#60A5FA",
+    "khaki": "#C3B091",
+    "dark green": "#064E3B",
+    "red black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+    "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+    "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
+    "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+    purple: "#581C87",
+  }
+  return map[colorName.toLowerCase()] || "#E5E7EB"
+}
+
 const OptionSelect: React.FC<OptionSelectProps> = ({
   option,
   current,
@@ -28,20 +58,46 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
   const filteredOptions = option.values?.map((v) => v.value)
   if (isColor) {
-    const colorOrder = ["navy", "gray", "grey"];
-    filteredOptions?.sort((a, b) => {
-      const aLower = (a || "").toLowerCase();
-      const bLower = (b || "").toLowerCase();
-      
-      const aIdx = colorOrder.indexOf(aLower);
-      const bIdx = colorOrder.indexOf(bLower);
-      
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-      if (aIdx !== -1) return -1;
-      if (bIdx !== -1) return 1;
-      
-      return aLower.localeCompare(bLower);
+    const getLuminance = (hexColor: string) => {
+      if (hexColor.includes('gradient')) return 0.5;
+      const hex = hexColor.replace('#', '');
+      if (hex.length !== 6) return 0.5;
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    };
+
+    const preSorted = [...(filteredOptions || [])].sort((a, b) => {
+      if (!a || !b) return 0;
+      // Pure Luminance: Lightest to Darkest
+      const lumA = getLuminance(getColorHex(a));
+      const lumB = getLuminance(getColorHex(b));
+      return lumB - lumA;
     });
+
+    const withoutGrayBlack: string[] = [];
+    const grayColors: string[] = [];
+    const blackColors: string[] = [];
+
+    preSorted.forEach(color => {
+      if (!color) return;
+      const lower = color.toLowerCase().trim();
+      if (lower === "black") {
+        blackColors.push(color);
+      } else if (lower === "gray" || lower === "grey") {
+        grayColors.push(color);
+      } else {
+        withoutGrayBlack.push(color);
+      }
+    });
+
+    const sortedColors = [...withoutGrayBlack, ...grayColors, ...blackColors];
+    
+    if (filteredOptions) {
+      filteredOptions.length = 0;
+      filteredOptions.push(...sortedColors);
+    }
   } else if (isSize) {
     const sizeOrder: Record<string, number> = {
       "xxs": 1,
@@ -81,35 +137,6 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
     });
   }
 
-  const getColorHex = (colorName: string) => {
-    const map: Record<string, string> = {
-      black: "#000000",
-      white: "#FFFFFF",
-      navy: "#1E3A8A",
-      grey: "#4B5563",
-      gray: "#4B5563",
-      blue: "#3B82F6",
-      red: "#EF4444",
-      green: "#10B981",
-      yellow: "#FFD700",
-      cyan: "#06B6D4",
-      "light green": "#86EFAC",
-      lightgreen: "#86EFAC",
-      "light blue": "#ADD8E6",
-      lightblue: "#ADD8E6",
-      "dark blue": "#1E3A8A",
-      orange: "#F97316",
-      "cool blue": "#60A5FA",
-      "khaki": "#C3B091",
-      "dark green": "#064E3B",
-      "red black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
-      "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
-      "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
-      "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
-      purple: "#581C87",
-    }
-    return map[colorName.toLowerCase()] || "#E5E7EB"
-  }
 
   return (
     <div className="flex flex-col gap-y-3">

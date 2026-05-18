@@ -24,6 +24,7 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [showColorError, setShowColorError] = useState(false);
+  const [showAllColors, setShowAllColors] = useState(false);
   const { countryCode } = useParams() as { countryCode: string };
   const router = useRouter(); 
   const title = product.title || "";
@@ -47,7 +48,38 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
   }, [product.variants, displayColor, product.id]);
 
   const productImage = useMemo(() => {
-    return getVariantImage(variant, product) || product.thumbnail;
+    let img = getVariantImage(variant, product) || product.thumbnail;
+
+    // Make sure cover image of duffel bag / small duffel show different colours by default
+    const titleLower = (product.title || "").toLowerCase();
+    if (!variant && titleLower.includes("duffel")) {
+      if (titleLower.includes("small")) {
+        // Small Duffel should default to Grey or Black variant if available
+        const otherColorImg = product.images?.find(i => {
+          const url = (i.url || "").toLowerCase();
+          return (url.includes("-grey") || url.includes("-gray") || url.includes("-black")) &&
+                 !url.includes("-side") && !url.includes("-back");
+        });
+        if (otherColorImg?.url) {
+          img = otherColorImg.url;
+        }
+      } else {
+        // Large Duffel should default to Navy if available
+        const navyImg = product.images?.find(i => {
+          const url = (i.url || "").toLowerCase();
+          return url.includes("-navy") && !url.includes("-side") && !url.includes("-back");
+        });
+        if (navyImg?.url) {
+          img = navyImg.url;
+        }
+      }
+    }
+
+    if (img && (img.includes("-side") || img.includes("-back"))) {
+      const front = product.images?.find(i => i.url && !i.url.includes("-side") && !i.url.includes("-back"));
+      img = front?.url || img;
+    }
+    return img;
   }, [variant, product]);
 
   const getColorHex = (colorName: string) => {
@@ -75,6 +107,7 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
       "blue black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
       "red/black": "linear-gradient(135deg, #EF4444 50%, #000000 50%)",
       "blue/black": "linear-gradient(135deg, #3B82F6 50%, #000000 50%)",
+      purple: "#581C87",
     }
     return map[colorName.toLowerCase()] || "#E5E7EB"
   }
@@ -94,22 +127,33 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
     const s = product.options?.find(o => o.title?.toLowerCase().includes("size"))?.values?.map(v => v.value).filter(Boolean) as string[] || [];
     const c = (product.options?.find(o => o.title?.toLowerCase().includes("color") || o.title?.toLowerCase().includes("colour"))?.values?.map(v => v.value).filter(Boolean) as string[] || []);
     
-    const sortedColors = [...c].sort((a, b) => {
-      const aLower = a.toLowerCase();
-      const bLower = b.toLowerCase();
-      const colorOrder = ["navy", "gray", "grey"];
-      
-      const aIdx = colorOrder.indexOf(aLower);
-      const bIdx = colorOrder.indexOf(bLower);
-      
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-      if (aIdx !== -1) return -1;
-      if (bIdx !== -1) return 1;
+    // Sort colors so that gray/black are always the last 2 colors
+    const preSorted = [...c].sort((a, b) => {
+      const aLower = a.toLowerCase().trim();
+      const bLower = b.toLowerCase().trim();
 
+      // Pure Luminance: Lightest to Darkest
       const lumA = getLuminance(getColorHex(a));
       const lumB = getLuminance(getColorHex(b));
-      return lumB - lumA; // Pure Luminance: Lightest to Darkest
+      return lumB - lumA;
     });
+
+    const withoutGrayBlack: string[] = [];
+    const grayColors: string[] = [];
+    const blackColors: string[] = [];
+
+    preSorted.forEach(color => {
+      const lower = color.toLowerCase().trim();
+      if (lower === "black") {
+        blackColors.push(color);
+      } else if (lower === "gray" || lower === "grey") {
+        grayColors.push(color);
+      } else {
+        withoutGrayBlack.push(color);
+      }
+    });
+
+    const sortedColors = [...withoutGrayBlack, ...grayColors, ...blackColors];
 
     return { sizes: s, colors: sortedColors };
   }, [product.options]);
@@ -272,8 +316,8 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
         <div className="px-5 pb-5 pt-3">
           {/* DYNAMIC COLOR SWATCHES - Outside the Link to fix nesting and navigation */}
           {mode !== "related" && colors.length > 0 && (
-            <div className="flex flex-wrap gap-1" onMouseLeave={() => setHoveredColor(null)}>
-              {colors.map((color) => (
+            <div className="flex flex-wrap gap-1 items-center animate-in fade-in duration-300" onMouseLeave={() => setHoveredColor(null)}>
+              {(colors.length <= 7 || showAllColors ? colors : colors.slice(0, 6)).map((color) => (
                 <button 
                   key={color}
                   onMouseEnter={() => setHoveredColor(color)}
@@ -293,6 +337,19 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
                   title={color}
                 />
               ))}
+              {colors.length > 7 && !showAllColors && (
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowAllColors(true);
+                  }}
+                  className="text-[9px] font-black text-slate-500 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 transition-colors rounded-full h-3 px-1.5 flex items-center justify-center border border-slate-200 tracking-tight cursor-pointer"
+                  title="Show all colours"
+                >
+                  +{colors.length - 6}
+                </button>
+              )}
             </div>
           )}
         </div>
