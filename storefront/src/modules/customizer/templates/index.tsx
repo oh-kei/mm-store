@@ -281,29 +281,14 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   }
 
   const captureAllPreviews = async () => {
-    const titleLower = activeProduct?.title?.toLowerCase() || ""
-    let views = ["front", "back", "left", "right"]
-
-    const isSingleView = [
-      "baseball cap",
-      "breathable cap",
-      "sun visor",
-      "neck scarf",
-      "regatta banner",
-      "burgee flag"
-    ].some(keyword => titleLower.includes(keyword)) ||
-    (titleLower.includes("cap") && (titleLower.includes("baseball") || titleLower.includes("breathable"))) ||
-    titleLower.includes("visor") ||
-    titleLower.includes("scarf") ||
-    titleLower.includes("banner") ||
-    titleLower.includes("flag")
-
-    const isTwoViews = titleLower.includes("fleece")
-
-    if (isSingleView) {
-      views = ["front"]
-    } else if (isTwoViews) {
-      views = ["front", "back"]
+    if (!activeProduct) return {}
+    
+    const views = ["front"]
+    if (activeProduct.images?.some(img => img.url?.toLowerCase().includes("-back"))) {
+      views.push("back")
+    }
+    if (activeProduct.images?.some(img => img.url?.toLowerCase().includes("-side"))) {
+      views.push("left", "right")
     }
 
     const previews: Record<string, string> = {}
