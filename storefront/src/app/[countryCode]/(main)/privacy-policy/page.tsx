@@ -110,7 +110,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-xl font-black uppercase tracking-tight">9. Contact Us</h2>
           <div className="bg-slate-50 p-6 rounded-2xl space-y-2 border border-slate-100">
             <p className="text-sm"><strong>Email:</strong> <a href="mailto:christopherlam@marinersmarkets.com" className="underline">christopherlam@marinersmarkets.com</a></p>
-            <p className="text-sm"><strong>Address:</strong> 129 Lung Mei Tsuen Road, Sai Kung, NT, HK</p>
+            <p className="text-sm"><strong>Address:</strong>  Unit E, 14/F Golden Sun Centre, 59–67 Bonham Strand West, Sheung Wan, Hong Kong</p>
             <p className="text-sm"><strong>Data Controller:</strong> Mariners Market's</p>
           </div>
         </section>

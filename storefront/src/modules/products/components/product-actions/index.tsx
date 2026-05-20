@@ -172,7 +172,6 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!customer) return null
     if (!selectedVariant?.id) return null
 
     setIsAdding(true)
@@ -276,35 +275,24 @@ export default function ProductActions({
           </div>
         </div>
 
-        {!customer ? (
-          <LocalizedClientLink href="/account">
-            <Button
-              variant="primary"
-              className="w-full h-10 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white border-none font-medium tracking-widest text-[9px] sm:text-[10px] transition-all"
-            >
-              Sign In to Add to Bag
-            </Button>
-          </LocalizedClientLink>
-        ) : (
-          <Button
-            onClick={handleAddToCart}
-            disabled={!inStock || !selectedVariant || !!disabled || isAdding || requiresCustomization}
-            variant="primary"
-            className="w-full h-10 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white border-none font-medium tracking-widest text-[10px] transition-all"
-            isLoading={isAdding}
-            data-testid="add-product-button"
-          >
-            {!selectedVariant
-              ? "Select variant"
-              : requiresCustomization
-              ? "Customize to Purchase"
-              : !inStock
-              ? "Out of stock"
-              : "Add to cart"}
-          </Button>
-        )}
+        <Button
+          onClick={handleAddToCart}
+          disabled={!inStock || !selectedVariant || !!disabled || isAdding || requiresCustomization}
+          variant="primary"
+          className="w-full h-10 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white border-none font-medium tracking-widest text-[10px] transition-all"
+          isLoading={isAdding}
+          data-testid="add-product-button"
+        >
+          {!selectedVariant
+            ? "Select variant"
+            : requiresCustomization
+            ? "Customize to Purchase"
+            : !inStock
+            ? "Out of stock"
+            : "Add to cart"}
+        </Button>
 
-        {customer && !product.title?.toLowerCase().includes("hat clip") && (
+        {!product.title?.toLowerCase().includes("hat clip") && (
           <div className="mt-4">
             <LocalizedClientLink href={`/custom-studio?id=${product.id}${options["Color"] ? `&color=${encodeURIComponent(options["Color"])}` : (options["Colour"] ? `&color=${encodeURIComponent(options["Colour"])}` : "")}`}>
               <Button
@@ -317,19 +305,17 @@ export default function ProductActions({
             </LocalizedClientLink>
           </div>
         )}
-        {customer && (
-          <MobileActions
-            product={product}
-            variant={selectedVariant}
-            options={options}
-            updateOptions={setOptionValue}
-            inStock={inStock}
-            handleAddToCart={handleAddToCart}
-            isAdding={isAdding}
-            show={!inView}
-            optionsDisabled={!!disabled || isAdding}
-          />
-        )}
+        <MobileActions
+          product={product}
+          variant={selectedVariant}
+          options={options}
+          updateOptions={setOptionValue}
+          inStock={inStock}
+          handleAddToCart={handleAddToCart}
+          isAdding={isAdding}
+          show={!inView}
+          optionsDisabled={!!disabled || isAdding}
+        />
       </div>
     </>
   )

@@ -203,11 +203,6 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
       router.push(`/${countryCode}/custom-studio?id=${product.id}${selectedColor ? `&color=${encodeURIComponent(selectedColor)}` : ""}`);
       return;
     }
-    
-    if (!customer) {
-      router.push(`/${countryCode}/account`);
-      return;
-    }
 
     if (colors.length > 0 && !selectedColor) {
       setShowColorError(true);
@@ -391,7 +386,7 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
                 })}
                 onClick={handleQuickAddClick}
               >
-                {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : requiresCustomization ? 'Customise' : !customer ? 'Sign In to Add to Bag' : 'Add to Cart'}
+                {isAdding ? 'Wait...' : isAdded ? 'Added ✓' : requiresCustomization ? 'Customise' : 'Add to Cart'}
               </button>
             </>
           )}

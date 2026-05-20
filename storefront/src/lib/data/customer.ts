@@ -6,7 +6,8 @@ import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import { cache } from "react"
-import { getAuthHeaders, removeAuthToken, setAuthToken, removeCartId } from "./cookies"
+import { getAuthHeaders, removeAuthToken, setAuthToken, removeCartId, getCartId, setCartId } from "./cookies"
+import { retrieveCart } from "./cart"
 
 export const getCustomer = cache(async function () {
   return await sdk.store.customer
@@ -26,6 +27,76 @@ export const updateCustomer = cache(async function (
   revalidateTag("customer")
   return updateRes
 })
+
+export async function mergeCartAfterSignIn(token: string) {
+  const authHeaders = { authorization: `Bearer ${token}` }
+  try {
+    const guestCartId = await getCartId()
+    let guestCart = null
+    if (guestCartId) {
+      guestCart = await retrieveCart()
+    }
+
+    const { customer } = await sdk.store.customer.retrieve({}, { headers: authHeaders })
+    if (customer) {
+      let customerCart = null
+      try {
+        const cartRes: any = await sdk.client.request(
+          "GET",
+          "/store/customer-cart",
+          {},
+          {},
+          { ...authHeaders }
+        )
+        customerCart = cartRes.cart
+      } catch (e) {
+        console.error("Failed to fetch customer cart from custom endpoint:", e)
+      }
+
+      if (guestCart && guestCart.items && guestCart.items.length > 0) {
+        if (customerCart) {
+          console.log(`[mergeCartAfterSignIn] Appending guest cart items to customer cart: ${customerCart.id}`)
+          for (const item of guestCart.items) {
+            try {
+              await sdk.store.cart.createLineItem(
+                customerCart.id,
+                {
+                  variant_id: item.variant_id,
+                  quantity: item.quantity,
+                  metadata: item.metadata,
+                },
+                {},
+                authHeaders
+              )
+            } catch (err) {
+              console.error(`Failed to append item ${item.variant_id} to customer cart:`, err)
+            }
+          }
+          await setCartId(customerCart.id)
+        } else {
+          console.log(`[mergeCartAfterSignIn] No existing customer cart. Associating guest cart ${guestCart.id} with customer.`)
+          try {
+            await sdk.store.cart.update(
+              guestCart.id,
+              { email: customer.email },
+              {},
+              authHeaders
+            )
+            await setCartId(guestCart.id)
+          } catch (err) {
+            console.error("Failed to associate guest cart with customer:", err)
+          }
+        }
+      } else if (customerCart) {
+        console.log(`[mergeCartAfterSignIn] No guest cart items. Using existing customer cart: ${customerCart.id}`)
+        await setCartId(customerCart.id)
+      }
+    }
+  } catch (error) {
+    console.error("Error merging carts:", error)
+  }
+  revalidateTag("cart")
+}
 
 export async function signup(_currentState: unknown, formData: FormData) {
   const password = formData.get("password") as string
@@ -69,6 +140,7 @@ export async function signup(_currentState: unknown, formData: FormData) {
 
     await setAuthToken(loginToken)
     revalidateTag("customer")
+    await mergeCartAfterSignIn(loginToken)
   } catch (error: any) {
     if (error.digest?.startsWith('NEXT_REDIRECT')) throw error
     let msg = error.toString()
@@ -102,6 +174,7 @@ export async function login(_currentState: unknown, formData: FormData) {
     if (token) {
       await setAuthToken(token)
       revalidateTag("customer")
+      await mergeCartAfterSignIn(token)
     }
   } catch (error: any) {
     if (error.digest?.startsWith('NEXT_REDIRECT')) throw error
@@ -116,6 +189,16 @@ export async function login(_currentState: unknown, formData: FormData) {
 }
 
 export async function signout(countryCode: string) {
+  try {
+    const cart = await retrieveCart()
+    if (cart && cart.items && cart.items.length > 0) {
+      for (const item of cart.items) {
+        await sdk.store.cart.deleteLineItem(cart.id, item.id, {}, await getAuthHeaders())
+      }
+    }
+  } catch (e) {
+    console.error("Failed to clear cart on signout:", e)
+  }
   await sdk.auth.logout()
   await removeAuthToken()
   await removeCartId()

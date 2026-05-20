@@ -14,7 +14,7 @@ export async function retrieveCart() {
   const cartId = await getCartId()
   const authHeaders = await getAuthHeaders()
 
-  if (!cartId || !("authorization" in authHeaders)) {
+  if (!cartId) {
     return null
   }
 
@@ -33,12 +33,7 @@ export async function getOrSetCart(countryCode: string) {
   if (!region) {
     throw new Error(`Region not found for country code: ${countryCode}`)
   }
-
   const authHeaders = await getAuthHeaders()
-  if (!("authorization" in authHeaders)) {
-    return null
-  }
-
   if (!cart) {
     const cartResp = await sdk.store.cart.create({ region_id: region.id }, {}, authHeaders)
     cart = cartResp.cart

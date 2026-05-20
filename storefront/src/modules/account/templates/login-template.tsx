@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
@@ -10,8 +11,10 @@ export enum LOGIN_VIEW {
   REGISTER = "register",
 }
 
-const LoginTemplate = () => {
-  const [currentView, setCurrentView] = useState("sign-in")
+const LoginTemplateContent = () => {
+  const searchParams = useSearchParams()
+  const initialView = searchParams.get("mode") === "register" ? "register" : "sign-in"
+  const [currentView, setCurrentView] = useState(initialView)
 
   return (
     <div className="w-full flex justify-start px-8 py-8">
@@ -21,6 +24,14 @@ const LoginTemplate = () => {
         <Register setCurrentView={setCurrentView} />
       )}
     </div>
+  )
+}
+
+const LoginTemplate = () => {
+  return (
+    <Suspense fallback={<div className="w-full min-h-[50vh] flex items-center justify-center">Loading...</div>}>
+      <LoginTemplateContent />
+    </Suspense>
   )
 }
 

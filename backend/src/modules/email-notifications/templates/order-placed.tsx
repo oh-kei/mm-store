@@ -38,7 +38,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           {isAdmin ? 'New Order Received' : 'Order Confirmation'}
         </Text>
         <Text style={{ fontSize: '14px', textAlign: 'center', margin: '0 0 30px', color: '#D4AF37', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>
-          Mariner's Market
+          Mariners Market's
         </Text>
 
         {!isAdmin && (

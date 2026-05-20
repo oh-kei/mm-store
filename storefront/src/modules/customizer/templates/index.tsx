@@ -146,8 +146,16 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
           const simplePattern = new RegExp(`${escapedNormalized}`, "i")
           
-          const colorMatch = activeProduct.images?.find(img => pattern.test(img.url || "")) || 
-                            activeProduct.images?.find(img => simplePattern.test(img.url || ""));
+          const findImage = (regex: RegExp) => activeProduct.images?.find(img => {
+            const url = img.url?.toLowerCase() || ""
+            if (!regex.test(url)) return false
+            if (!suffix) {
+              if (url.includes("-back") || url.includes("-side")) return false
+            }
+            return true
+          })
+          
+          const colorMatch = findImage(pattern) || findImage(simplePattern);
 
           if (colorMatch?.url) {
             imageUrl = colorMatch.url;
@@ -160,7 +168,14 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             suffix = "-blank"
           }
           
-          const matchingImage = activeProduct.images.find(img => img.url?.includes(suffix));
+          const matchingImage = activeProduct.images.find(img => {
+            const url = img.url?.toLowerCase() || ""
+            if (!suffix) {
+              if (url.includes("-back") || url.includes("-side")) return false
+              return true
+            }
+            return url.includes(suffix)
+          });
           if (matchingImage) {
             imageUrl = matchingImage.url;
           }
@@ -314,13 +329,6 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   }
 
   const handleAddToCart = async (qty: number = 1) => {
-    if (!customer) {
-      localStorage.setItem("mm-customizer-recipe", JSON.stringify(recipe))
-      localStorage.setItem("mm-customizer-options", JSON.stringify(selectedOptions))
-      router.push(`/${countryCode}/account`)
-      return
-    }
-
     if (!activeVariant?.id) return
 
     setIsAddingToCart(true)
@@ -732,20 +740,22 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 ) : (
                   <>
                     <ShoppingCart size={18} className="group-hover:-translate-y-1 transition-transform" />
-                    <span>{customer ? "Add Design to Cart" : "Sign In to Add to Cart"}</span>
+                    <span>Add Design to Cart</span>
                   </>
                 )}
               </Button>
 
-              <Button 
-                onClick={openCrewModal}
-                disabled={isAddingToCart || isAddingBulk || roster.length === 0}
-                variant="secondary"
-                className="w-full h-12 mt-3 bg-slate-50 hover:bg-slate-100 border-slate-100 text-slate-900 rounded-2xl font-medium text-xs flex items-center justify-center gap-3 group transition-all"
-              >
-                <Users size={16} className="text-maritime-gold group-hover:scale-110 transition-transform" />
-                <span>Buy for all crew</span>
-              </Button>
+              {customer && (
+                <Button 
+                  onClick={openCrewModal}
+                  disabled={isAddingToCart || isAddingBulk || roster.length === 0}
+                  variant="secondary"
+                  className="w-full h-12 mt-3 bg-slate-50 hover:bg-slate-100 border-slate-100 text-slate-900 rounded-2xl font-medium text-xs flex items-center justify-center gap-3 group transition-all"
+                >
+                  <Users size={16} className="text-maritime-gold group-hover:scale-110 transition-transform" />
+                  <span>Buy for all crew</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>

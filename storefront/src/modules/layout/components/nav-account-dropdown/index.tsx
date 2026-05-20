@@ -133,7 +133,7 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
                     Sign In
                   </LocalizedClientLink>
                   <LocalizedClientLink
-                    href="/account"
+                    href="/account?mode=register"
                     className={`block px-4 py-2 text-xs font-medium hover:bg-black/5 transition-all border-t border-black/5 mt-1 ${
                       isHomePage ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"
                     }`}

@@ -112,7 +112,7 @@ export default async function orderPlacedHandler({
     const customerNotificationData = {
       emailOptions: {
         replyTo: 'christopherlam@marinersmarkets.com',
-        subject: `Order Confirmation for Mariner's Market`,
+        subject: `Order Confirmation for Mariners Market's`,
       },
       order,
       shippingAddress: order.shipping_address,

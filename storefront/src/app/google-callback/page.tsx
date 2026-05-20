@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { decodeToken } from "react-jwt"
 import { sdk } from "@lib/config"
+import { mergeCartAfterSignIn } from "@lib/data/customer"
 
 function GoogleCallbackInner() {
   const searchParams = useSearchParams()
@@ -92,7 +93,10 @@ function GoogleCallbackInner() {
           throw new Error("Failed to persist auth token")
         }
 
-        // Step 5: Confirm login succeeded
+        // Step 5: Merge cart items
+        await mergeCartAfterSignIn(token)
+
+        // Step 6: Confirm login succeeded
         const { customer: customerData } = await sdk.store.customer.retrieve()
         setCustomer(customerData)
         setLoading(false)
