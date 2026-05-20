@@ -25,12 +25,49 @@ const getAbsoluteUrl = (url?: string) => {
   return `${baseUrl}${url}`
 }
 
+const groupOrderItems = (items: any[]) => {
+  if (!items) return []
+  const groups: Record<string, any> = {}
+  for (const item of items) {
+    const variantId = item.variant_id || item.variant?.id
+    const recipe = item.metadata?.recipe as any
+    let designKey = `${variantId}_standard`
+    if (recipe) {
+      const cleanLayers = (recipe.layers || []).map((l: any) => ({
+        type: l.type,
+        props: l.props,
+        view: l.view
+      }))
+      designKey = `${variantId}_custom_${JSON.stringify(cleanLayers)}`
+    }
+    if (!groups[designKey]) {
+      groups[designKey] = {
+        ...item,
+        crew_members: item.metadata?.crew_member ? [item.metadata.crew_member] : [],
+        original_item_ids: [item.id],
+      }
+    } else {
+      groups[designKey].quantity = Number(groups[designKey].quantity) + Number(item.quantity)
+      if (groups[designKey].total !== undefined && item.total !== undefined) {
+        groups[designKey].total = Number(groups[designKey].total) + Number(item.total)
+      }
+      if (item.metadata?.crew_member) {
+        groups[designKey].crew_members.push(item.metadata.crew_member)
+      }
+      groups[designKey].original_item_ids.push(item.id)
+    }
+  }
+  return Object.values(groups)
+}
+
 export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplateProps =>
   typeof data.order === 'object' && typeof data.shippingAddress === 'object'
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps
 } = ({ order, shippingAddress, preview = 'Your order has been placed!', showProductionDetails = true, isAdmin = false }) => {
+  const groupedItems = groupOrderItems(order.items || [])
+
   return (
     <Base preview={preview}>
       <Section>
@@ -76,7 +113,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           
           <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
             <Text style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Items Purchased</Text>
-            {order.items.map((item: any, i) => {
+            {groupedItems.map((item: any, i) => {
               const isCustom = !!item.metadata?.recipe
               return (
                 <div key={i} style={{ marginBottom: '8px' }}>
@@ -136,7 +173,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           border: '1px solid #ddd',
           margin: '10px 0'
         }}>
-          {order.items.map((item: any) => {
+          {groupedItems.map((item: any) => {
             const recipe = item.metadata?.recipe
             const crewMember = item.metadata?.crew_member
 
@@ -148,21 +185,46 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 <div style={{ display: 'flex', gap: '24px', marginBottom: '15px', alignItems: 'flex-start' }}>
                   {(() => {
                     const variant = item.variant
-                    const images = variant?.product?.images || variant?.images || []
+                    const product = variant?.product
+                    const images = product?.images || variant?.images || []
+                    
                     const colorOption = variant?.options?.find((o: any) => 
                       ["color", "colour"].some(t => o.option?.title?.toLowerCase().includes(t) || o.title?.toLowerCase().includes(t))
                     )
-                    const colorValue = colorOption?.value || variant?.title?.split(" / ").pop()
+                    let colorValue = colorOption?.value
+                    
+                    if (!colorValue && variant?.title) {
+                      const parts = variant.title.split(" / ")
+                      const isSize = (str: string) => /^(xs|s|m|l|xl|2xl|3xl|4xl|[0-9]+[t]?)$/i.test(str.trim())
+                      if (parts.length === 2) {
+                        if (isSize(parts[1])) {
+                          colorValue = parts[0]
+                        } else if (isSize(parts[0])) {
+                          colorValue = parts[1]
+                        } else {
+                          colorValue = parts[0]
+                        }
+                      } else {
+                        colorValue = parts[0]
+                      }
+                    }
                     
                     let imageUrl = item.thumbnail || variant?.thumbnail || images[0]?.url
                     
                     if (colorValue && images.length > 0) {
                       const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
-                      const pattern = new RegExp(`[-_](${colorValue.toLowerCase()}|${normalizedColor})([-_.]|$)`, "i")
-                      const simplePattern = new RegExp(`${normalizedColor}`, "i")
+                      const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                      const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                       
-                      const match = images.find((img: any) => pattern.test(img.url || "")) || 
-                                    images.find((img: any) => simplePattern.test(img.url || ""))
+                      const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})([-_.]|$)`, "i")
+                      const simplePattern = new RegExp(`${escapedNormalized}`, "i")
+                      
+                      const filteredImages = images.filter((img: any) => 
+                        img.url && !img.url.toLowerCase().includes("-side") && !img.url.toLowerCase().includes("-back")
+                      )
+                      
+                      const match = filteredImages.find((img: any) => pattern.test(img.url || "")) || 
+                                    filteredImages.find((img: any) => simplePattern.test(img.url || ""))
                       
                       if (match?.url) imageUrl = match.url
                     }
@@ -180,11 +242,15 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                         {item.variant.title}
                       </Text>
                     )}
-                    {crewMember && (
+                    {item.crew_members && item.crew_members.length > 0 ? (
+                      <div style={{ margin: '4px 0' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase' }}>For: {item.crew_members.join(', ')}</span>
+                      </div>
+                    ) : crewMember ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: '4px 0' }}>
                         <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#D4AF37', textTransform: 'uppercase' }}>For: {String(crewMember)}</span>
                       </div>
-                    )}
+                    ) : null}
                     <Text style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>
                       {Number(item.quantity)} x {Number(item.unit_price)} {order.currency_code?.toUpperCase()}
                     </Text>

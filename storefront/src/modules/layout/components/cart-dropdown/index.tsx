@@ -189,7 +189,7 @@ const CartDropdown = ({
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <LocalizedClientLink href="/cart" className="w-full">
                       <button className={`w-full py-3 text-xs font-medium border transition-all rounded-lg ${
                         isHomePage 
@@ -197,6 +197,15 @@ const CartDropdown = ({
                           : "border-black/10 text-black hover:bg-black/5"
                       }`}>
                         View Cart
+                      </button>
+                    </LocalizedClientLink>
+                    <LocalizedClientLink href="/checkout" className="w-full">
+                      <button className={`w-full py-3 text-xs font-medium border transition-all rounded-lg ${
+                        isHomePage
+                          ? "bg-maritime-gold hover:bg-maritime-gold/90 text-white border-transparent"
+                          : "bg-maritime-navy hover:bg-maritime-navy/90 text-white border-transparent"
+                      }`}>
+                        Checkout
                       </button>
                     </LocalizedClientLink>
                   </div>
