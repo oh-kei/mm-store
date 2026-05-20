@@ -35,7 +35,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  
+
   const [activeProduct, setActiveProduct] = useState<HttpTypes.StoreProduct | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [quantity, setQuantity] = useState(1)
@@ -62,7 +62,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   useEffect(() => {
     const productId = searchParams.get("id")
     const handle = searchParams.get("handle")
-    
+
     if ((productId || handle) && products.length > 0 && !activeProduct) {
       const product = products.find(p => p.id === productId || p.handle === handle)
       if (product) {
@@ -80,7 +80,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       // We check recipe.base.productId to see what's currently loaded in the workbench
       const isSwitchingProduct = recipe.base.productId && activeProduct.id !== recipe.base.productId
       const isEmpty = Object.keys(selectedOptions).length === 0
-      
+
       if (isEmpty || isSwitchingProduct) {
         const initialOptions: Record<string, string> = {}
         const urlColor = searchParams.get("color")
@@ -88,7 +88,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         activeProduct.options?.forEach(opt => {
           const optionTitle = opt.title || ""
           const isColorOption = optionTitle.toLowerCase().includes("color") || optionTitle.toLowerCase().includes("colour")
-          
+
           if (isColorOption && urlColor) {
             const matchingValue = opt.values?.find(v => v.value?.toLowerCase() === urlColor.toLowerCase())
             if (matchingValue) {
@@ -96,12 +96,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               return
             }
           }
-          
+
           if (opt.values?.[0]) {
             initialOptions[optionTitle] = opt.values[0].value
           }
         })
-        
+
         setSelectedOptions(initialOptions)
       }
     }
@@ -122,72 +122,72 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     })
 
     if (variant) {
-       // Find the color option value robustly
-       const colorOption = activeProduct.options?.find(opt => 
-         (opt.title || "").toLowerCase().includes("color") || 
-         (opt.title || "").toLowerCase().includes("colour")
-       )
-       const colorValue = colorOption ? selectedOptions[colorOption.title || ""] : null
+      // Find the color option value robustly
+      const colorOption = activeProduct.options?.find(opt =>
+        (opt.title || "").toLowerCase().includes("color") ||
+        (opt.title || "").toLowerCase().includes("colour")
+      )
+      const colorValue = colorOption ? selectedOptions[colorOption.title || ""] : null
 
-       let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
+      let imageUrl = (variant as any)?.images?.[0]?.url || activeProduct.thumbnail || ""
 
-       if (colorValue) {
-          const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
-          const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          
-          let suffix = ""
-          if (activeView === "back") suffix = "-back"
-          else if (activeView === "left" || activeView === "right") suffix = "-side"
-          else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
-            suffix = "-blank"
+      if (colorValue) {
+        const normalizedColor = colorValue.toLowerCase().replace(/\s+/g, "")
+        const escapedColor = colorValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        let suffix = ""
+        if (activeView === "back") suffix = "-back"
+        else if (activeView === "left" || activeView === "right") suffix = "-side"
+        else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
+          suffix = "-blank"
+        }
+
+        const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
+        const simplePattern = new RegExp(`${escapedNormalized}`, "i")
+
+        const findImage = (regex: RegExp) => activeProduct.images?.find(img => {
+          const url = img.url?.toLowerCase() || ""
+          if (!regex.test(url)) return false
+          if (!suffix) {
+            if (url.includes("-back") || url.includes("-side")) return false
           }
-          
-          const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
-          const simplePattern = new RegExp(`${escapedNormalized}`, "i")
-          
-          const findImage = (regex: RegExp) => activeProduct.images?.find(img => {
-            const url = img.url?.toLowerCase() || ""
-            if (!regex.test(url)) return false
-            if (!suffix) {
-              if (url.includes("-back") || url.includes("-side")) return false
-            }
+          return true
+        })
+
+        const colorMatch = findImage(pattern) || findImage(simplePattern);
+
+        if (colorMatch?.url) {
+          imageUrl = colorMatch.url;
+        }
+      } else if (activeProduct.images) {
+        let suffix = ""
+        if (activeView === "back") suffix = "-back"
+        else if (activeView === "left" || activeView === "right") suffix = "-side"
+        else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
+          suffix = "-blank"
+        }
+
+        const matchingImage = activeProduct.images.find(img => {
+          const url = img.url?.toLowerCase() || ""
+          if (!suffix) {
+            if (url.includes("-back") || url.includes("-side")) return false
             return true
-          })
-          
-          const colorMatch = findImage(pattern) || findImage(simplePattern);
+          }
+          return url.includes(suffix)
+        });
+        if (matchingImage) {
+          imageUrl = matchingImage.url;
+        }
+      }
 
-          if (colorMatch?.url) {
-            imageUrl = colorMatch.url;
-          }
-       } else if (activeProduct.images) {
-          let suffix = ""
-          if (activeView === "back") suffix = "-back"
-          else if (activeView === "left" || activeView === "right") suffix = "-side"
-          else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
-            suffix = "-blank"
-          }
-          
-          const matchingImage = activeProduct.images.find(img => {
-            const url = img.url?.toLowerCase() || ""
-            if (!suffix) {
-              if (url.includes("-back") || url.includes("-side")) return false
-              return true
-            }
-            return url.includes(suffix)
-          });
-          if (matchingImage) {
-            imageUrl = matchingImage.url;
-          }
-       }
-
-       if (recipe.base.variantId !== variant.id || recipe.base.productId !== activeProduct.id || recipe.base.imageUrl !== imageUrl) {
-         setBase({
-           productId: activeProduct.id,
-           variantId: variant.id,
-           imageUrl: imageUrl,
-         })
-       }
+      if (recipe.base.variantId !== variant.id || recipe.base.productId !== activeProduct.id || recipe.base.imageUrl !== imageUrl) {
+        setBase({
+          productId: activeProduct.id,
+          variantId: variant.id,
+          imageUrl: imageUrl,
+        })
+      }
     }
   }, [selectedOptions, activeProduct, setBase, recipe.base.productId, recipe.base.variantId, activeView, recipe.base.imageUrl])
 
@@ -208,26 +208,26 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     const init = async () => {
       const cust = await getCustomer()
       setCustomer(cust)
-      
+
       const saved = localStorage.getItem("mm-crew-roster")
       if (saved) {
-        try { setRoster(JSON.parse(saved)) } catch(e) {}
+        try { setRoster(JSON.parse(saved)) } catch (e) { }
       }
 
       const savedRecipe = localStorage.getItem("mm-customizer-recipe")
       const savedOptions = localStorage.getItem("mm-customizer-options")
-      
+
       if (savedRecipe && savedOptions) {
         try {
           const parsedRecipe = JSON.parse(savedRecipe)
           const parsedOptions = JSON.parse(savedOptions)
-          
+
           // Set options
           setSelectedOptions(parsedOptions)
-          
+
           // Set recipe
           setRecipe(parsedRecipe)
-          
+
           // Find and set active product if not already set
           if (!activeProduct && products.length > 0) {
             const product = products.find(p => p.id === parsedRecipe.base.productId)
@@ -235,7 +235,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               setActiveProduct(product)
             }
           }
-          
+
           // Clear storage so it doesn't persist forever
           localStorage.removeItem("mm-customizer-recipe")
           localStorage.removeItem("mm-customizer-options")
@@ -266,12 +266,12 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     try {
       const dataUrl = await stageRef.current.getScreenshot()
       if (!dataUrl) return null
-      
+
       // Convert data URL to File
       const res = await fetch(dataUrl)
       const blob = await res.blob()
       const file = new File([blob], `preview-${Date.now()}.jpg`, { type: "image/jpeg" })
-      
+
       const { publicUrl } = await uploadToS3(file)
       return publicUrl
     } catch (err) {
@@ -292,14 +292,14 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
 
     const previews: Record<string, string> = {}
-    
+
     // Save current view to restore it later
     const originalView = activeView
-    
+
     for (const view of views) {
       setActiveView(view as any)
       // Wait for re-render and image load - increased delay for reliability
-      await new Promise(resolve => setTimeout(resolve, 800)) 
+      await new Promise(resolve => setTimeout(resolve, 800))
       const url = await capturePreview()
       if (url) {
         previews[view] = url
@@ -308,7 +308,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         previews[view] = previews["left"]
       }
     }
-    
+
     setActiveView(originalView)
     return previews
   }
@@ -324,7 +324,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       } catch (previewErr) {
         console.error("Preview capture failed, proceeding without it", previewErr)
       }
-      
+
       await addToCart({
         variantId: activeVariant.id,
         quantity: qty,
@@ -353,7 +353,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     try {
       const previews = await captureAllPreviews()
       const itemsToAdd: { variantId: string; quantity: number; metadata: any }[] = []
-      
+
       const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
 
       for (const member of crewSelection.members) {
@@ -433,11 +433,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-[4px] bg-white border border-white overflow-hidden">
             {filteredProducts.map((p) => (
-              <div 
+              <div
                 key={p.id}
                 className="bg-white"
               >
-                <ProductCard 
+                <ProductCard
                   product={p}
                   region={region}
                   customer={customer}
@@ -447,9 +447,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                     params.set("id", product.id)
                     if (color) params.set("color", color)
                     else params.delete("color")
-                    
+
                     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-                    
+
                     // Pre-initialize options to ensure they are available immediately
                     const initialOptions: Record<string, string> = {}
                     product.options?.forEach(opt => {
@@ -464,7 +464,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                       }
                       if (opt.values?.[0]) initialOptions[title] = opt.values[0].value
                     })
-                    
+
                     setSelectedOptions(initialOptions)
                     setActiveProduct(product)
                   }}
@@ -480,8 +480,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   return (
     <div className="min-h-screen bg-[#F8FAFC] pt-48 pb-20 px-4 md:px-8 relative">
       {/* Absolute Back Button */}
-      <Button 
-        variant="secondary" 
+      <Button
+        variant="secondary"
         className="absolute top-32 left-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10"
         onClick={() => {
           // Hard redirect to clear all states and URL parameters reliably
@@ -492,7 +492,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       </Button>
 
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* Left Sidebar: Tools */}
         <div className="lg:col-span-3 space-y-6 order-2 lg:order-1">
           <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-8">
@@ -505,15 +505,15 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md transition-all group"
                 onClick={() => addTextLayer()}
               >
                 <Type size={20} className="text-slate-400 group-hover:text-maritime-navy transition-colors" />
                 <span className="text-[10px] font-medium text-slate-500">Text</span>
               </Button>
-              
+
               <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
                 <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*,.svg" disabled={isUploading} />
                 {isUploading ? (
@@ -532,20 +532,19 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 <Layers size={14} />
                 <span className="text-[10px] font-medium">Layers</span>
               </div>
-              
+
               <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                 {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).length === 0 && (
                   <p className="text-[10px] font-medium text-slate-300 italic">No layers added yet</p>
                 )}
                 {recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front')).map((layer) => (
-                  <div 
+                  <div
                     key={layer.id}
                     onClick={() => setSelectedId(layer.id)}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                      selectedId === layer.id 
-                        ? "bg-slate-900 border-slate-900 text-white shadow-lg" 
+                    className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${selectedId === layer.id
+                        ? "bg-slate-900 border-slate-900 text-white shadow-lg"
                         : "bg-slate-50 border-slate-50 text-slate-500 hover:border-slate-200"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`p-1.5 rounded-md ${selectedId === layer.id ? "bg-white/10" : "bg-white border border-slate-100"}`}>
@@ -555,7 +554,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                         {layer.type === "text" ? layer.props.text : "Logo Asset"}
                       </span>
                     </div>
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); removeLayer(layer.id); }}
                       className={`p-1 transition-colors ${selectedId === layer.id ? "text-white/40 hover:text-white" : "text-slate-300 hover:text-red-500"}`}
                     >
@@ -572,19 +571,19 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         <div className="lg:col-span-6 order-1 lg:order-2">
           <div className="bg-[#EDEEF3] rounded-[48px] overflow-hidden shadow-inner border border-slate-200 relative aspect-square flex items-center justify-center group mb-6">
             <div className="absolute inset-0 flex items-center justify-center p-12">
-               <CustomizerStage 
+              <CustomizerStage
                 ref={stageRef}
                 recipe={{
                   ...recipe,
                   layers: recipe.layers.filter(l => l.view === activeView || (!l.view && activeView === 'front'))
-                }} 
-                selectedId={selectedId} 
+                }}
+                selectedId={selectedId}
                 setSelectedId={setSelectedId}
                 onUpdateLayer={updateLayer}
                 activeView={activeView}
               />
             </div>
-            
+
             {/* Stage Overlay UI */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/50 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -601,32 +600,32 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
           {/* View Selector UI */}
           <div className="flex justify-center items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-sm border border-slate-100 w-max mx-auto">
-             {(['front', 'back', 'left', 'right'] as ViewType[]).map((view) => {
-               // Only show back/side views if they exist for the current product
-               if (view === 'back' && !activeProduct.images?.some(img => img.url?.includes('-back'))) return null;
-               if ((view === 'left' || view === 'right') && !activeProduct.images?.some(img => img.url?.includes('-side'))) return null;
+            {(['front', 'back', 'left', 'right'] as ViewType[]).map((view) => {
+              // Only show back/side views if they exist for the current product
+              if (view === 'back' && !activeProduct.images?.some(img => img.url?.includes('-back'))) return null;
+              if ((view === 'left' || view === 'right') && !activeProduct.images?.some(img => img.url?.includes('-side'))) return null;
 
-               return (
-                 <button
-                   key={view.charAt(0).toUpperCase() + view.slice(1)}
-                   onClick={() => setActiveView(view)}
-                   className={clx(
-                     "px-6 py-2 rounded-xl text-[10px] font-medium transition-all",
-                     activeView === view 
-                       ? "bg-maritime-navy text-white shadow-md" 
-                       : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                   )}
-                 >
-                   {view.charAt(0).toUpperCase() + view.slice(1)}
-                 </button>
-               )
-             })}
+              return (
+                <button
+                  key={view.charAt(0).toUpperCase() + view.slice(1)}
+                  onClick={() => setActiveView(view)}
+                  className={clx(
+                    "px-6 py-2 rounded-xl text-[10px] font-medium transition-all",
+                    activeView === view
+                      ? "bg-maritime-navy text-white shadow-md"
+                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                  )}
+                >
+                  {view.charAt(0).toUpperCase() + view.slice(1)}
+                </button>
+              )
+            })}
           </div>
         </div>
 
         {/* Right Sidebar: Properties & Action */}
         <div className="lg:col-span-3 space-y-6 order-3">
-          <PropertiesPanel 
+          <PropertiesPanel
             layer={recipe.layers.find(l => l.id === selectedId) || null}
             onUpdate={updateLayer}
             onRemove={removeLayer}
@@ -638,20 +637,20 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               <Heading className="text-2xl font-medium tracking-tight text-slate-900 leading-none">{activeProduct.title}</Heading>
               {(() => {
                 const titleLower = activeProduct.title?.toLowerCase() || ""
-                const hasNoSizingGuide = 
-                  titleLower.includes("hat clip") || 
-                  titleLower.includes("banner") || 
-                  titleLower.includes("flag") || 
-                  titleLower.includes("neck scarf") || 
+                const hasNoSizingGuide =
+                  titleLower.includes("hat clip") ||
+                  titleLower.includes("banner") ||
+                  titleLower.includes("flag") ||
+                  titleLower.includes("neck scarf") ||
                   titleLower.includes("duffel")
-                
+
                 if (hasNoSizingGuide) return null;
                 return (
                   <button
                     onClick={openSizingModal}
                     className="mt-3 text-[10px] font-semibold text-maritime-navy hover:text-maritime-gold transition-colors flex items-center gap-1.5 underline underline-offset-2 cursor-pointer"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" /><path d="M6 6h10" /><path d="M6 10h10" /></svg>
                     Sizing Guide
                   </button>
                 )
@@ -670,8 +669,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                         onClick={() => setSelectedOptions(prev => ({ ...prev, [option.title || ""]: v.value }))}
                         className={clx(
                           "h-10 px-4 rounded-xl text-[9px] font-medium transition-all border",
-                          selectedOptions[option.title || ""] === v.value 
-                            ? "bg-maritime-navy text-white border-maritime-navy shadow-lg" 
+                          selectedOptions[option.title || ""] === v.value
+                            ? "bg-maritime-navy text-white border-maritime-navy shadow-lg"
                             : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200"
                         )}
                       >
@@ -682,46 +681,46 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 </div>
               ))}
             </div>
-            
+
             <Divider />
 
             <div className="flex items-center justify-between px-2">
-               <p className="text-[10px] font-medium text-slate-400">Order Quantity</p>
-               <div className="flex items-center border border-slate-100 rounded-xl overflow-hidden bg-slate-50 h-10">
-                  <button 
-                    onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}
-                    className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
-                  >
-                    -
-                  </button>
-                  <span className="w-10 text-center text-xs font-bold text-slate-900">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(q => q < 99 ? q + 1 : q)}
-                    className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
-                  >
-                    +
-                  </button>
-               </div>
+              <p className="text-[10px] font-medium text-slate-400">Order Quantity</p>
+              <div className="flex items-center border border-slate-100 rounded-xl overflow-hidden bg-slate-50 h-10">
+                <button
+                  onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}
+                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
+                >
+                  -
+                </button>
+                <span className="w-10 text-center text-xs font-bold text-slate-900">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(q => q < 99 ? q + 1 : q)}
+                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors font-bold text-lg"
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             <div className="pt-2 border-t border-slate-50">
-               <div className="mb-4">
-                 <label className="text-[10px] font-medium text-slate-400 mb-2 block">Design Notes / Comments</label>
-                 <textarea 
-                   value={comment}
-                   onChange={(e) => setComment(e.target.value)}
-                   placeholder="Any special instructions for this design?"
-                   className="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 resize-none h-20 outline-none focus:border-maritime-gold focus:ring-1 focus:ring-maritime-gold transition-all text-slate-700 placeholder:text-slate-400"
-                 />
-               </div>
+              <div className="mb-4">
+                <label className="text-[10px] font-medium text-slate-400 mb-2 block">Design Notes / Comments</label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Any special instructions for this design?"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 resize-none h-20 outline-none focus:border-maritime-gold focus:ring-1 focus:ring-maritime-gold transition-all text-slate-700 placeholder:text-slate-400"
+                />
+              </div>
 
-               <Button 
+              <Button
                 onClick={() => handleAddToCart(quantity)}
                 disabled={isAddingToCart || isAddingBulk}
                 className="w-full h-16 bg-slate-100 hover:bg-maritime-navy text-slate-900 hover:text-white rounded-2xl font-medium text-xs flex items-center justify-center gap-3 transition-all group"
               >
                 {isAddingToCart ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     <ShoppingCart size={18} className="group-hover:-translate-y-1 transition-transform" />
@@ -731,7 +730,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </Button>
 
               {customer && (
-                <Button 
+                <Button
                   onClick={openCrewModal}
                   disabled={isAddingToCart || isAddingBulk || roster.length === 0}
                   variant="secondary"
@@ -744,34 +743,34 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             </div>
           </div>
         </div>
-        
+
       </div>
 
       {/* Crew Selection Modal */}
       <Modal isOpen={isCrewModalOpen} close={closeCrewModal} size="large">
         <Modal.Title>
           <div className="flex items-center gap-3">
-             <div className="h-10 w-10 rounded-full bg-maritime-gold/10 flex items-center justify-center text-maritime-gold">
-               <Users size={20} />
-             </div>
-             <div>
-               <Heading className="text-xl font-medium tracking-tight text-slate-900">Buy for Crew</Heading>
-               <Text className="text-[10px] font-medium text-slate-400">Select members and verify sizes/colours</Text>
-             </div>
+            <div className="h-10 w-10 rounded-full bg-maritime-gold/10 flex items-center justify-center text-maritime-gold">
+              <Users size={20} />
+            </div>
+            <div>
+              <Heading className="text-xl font-medium tracking-tight text-slate-900">Buy for Crew</Heading>
+              <Text className="text-[10px] font-medium text-slate-400">Select members and verify sizes/colours</Text>
+            </div>
           </div>
         </Modal.Title>
         <Modal.Body>
           <div data-lenis-prevent className="py-4 w-full">
-             {activeProduct && (
-               <CrewSelector 
-                 product={activeProduct}
-                 roster={roster}
-                 customer={customer}
-                 onUpdate={setCrewSelection}
-                 initialColour={selectedOptions["Color"] || selectedOptions["Colour"]}
-                 forceShowMessage={true}
-               />
-             )}
+            {activeProduct && (
+              <CrewSelector
+                product={activeProduct}
+                roster={roster}
+                customer={customer}
+                onUpdate={setCrewSelection}
+                initialColour={selectedOptions["Color"] || selectedOptions["Colour"]}
+                forceShowMessage={true}
+              />
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -784,8 +783,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               <Button variant="secondary" onClick={closeCrewModal} className="h-12 px-6 rounded-xl font-medium text-[10px]">
                 Cancel
               </Button>
-              <Button 
-                onClick={handleApplyToCrew} 
+              <Button
+                onClick={handleApplyToCrew}
                 disabled={isAddingBulk || crewSelection.members.length === 0 || crewSelection.hasError}
                 className={clx("h-12 px-8 text-white rounded-xl font-medium text-xs shadow-lg transition-all", {
                   "bg-maritime-navy shadow-maritime-navy/20": !crewSelection.hasError,
@@ -803,22 +802,22 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       <Modal isOpen={isSizingModalOpen} close={closeSizingModal} size="large">
         <Modal.Title>
           <div className="flex items-center gap-3">
-             <div className="h-10 w-10 rounded-full bg-maritime-navy/10 flex items-center justify-center text-maritime-navy">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-             </div>
-             <div>
-               <Heading className="text-xl font-medium tracking-tight text-slate-900">Sizing Guide</Heading>
-               <Text className="text-[10px] font-medium text-slate-400">Find the perfect fit for {activeProduct.title}</Text>
-             </div>
+            <div className="h-10 w-10 rounded-full bg-maritime-navy/10 flex items-center justify-center text-maritime-navy">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" /><path d="M6 6h10" /><path d="M6 10h10" /></svg>
+            </div>
+            <div>
+              <Heading className="text-xl font-medium tracking-tight text-slate-900">Sizing Guide</Heading>
+              <Text className="text-[10px] font-medium text-slate-400">Find the perfect fit for {activeProduct.title}</Text>
+            </div>
           </div>
         </Modal.Title>
         <Modal.Body>
           <div data-lenis-prevent className="py-4 flex justify-center bg-white rounded-2xl p-4 border border-slate-100 shadow-inner">
             {activeProduct.images?.find(img => img.url?.toLowerCase().includes("-sizing"))?.url ? (
-              <img 
-                src={activeProduct.images?.find(img => img.url?.toLowerCase().includes("-sizing"))?.url} 
-                alt="Sizing Guide" 
-                className="max-w-full max-h-[50vh] h-auto object-contain rounded-xl" 
+              <img
+                src={activeProduct.images?.find(img => img.url?.toLowerCase().includes("-sizing"))?.url}
+                alt="Sizing Guide"
+                className="max-w-full max-h-[50vh] h-auto object-contain rounded-xl"
               />
             ) : (
               <div className="text-small-regular text-slate-400 py-12 italic">
