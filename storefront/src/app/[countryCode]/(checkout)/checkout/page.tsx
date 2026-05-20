@@ -33,10 +33,6 @@ export default async function Checkout({ params }: { params: Promise<{ countryCo
   const cart = await fetchCart()
   const customer = await getCustomer()
 
-  if (!customer) {
-    redirect(`/${countryCode}/account`)
-  }
-
   return (
     <div className="grid grid-cols-1 small:grid-cols-[1fr_416px] content-container gap-x-40 py-12">
       <Wrapper cart={cart}>

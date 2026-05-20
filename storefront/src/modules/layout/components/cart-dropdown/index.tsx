@@ -18,8 +18,10 @@ import { useNavMenu } from "@modules/layout/components/nav-menu-context"
 
 const CartDropdown = ({
   cart: cartState,
+  customer,
 }: {
   cart?: HttpTypes.StoreCart | null
+  customer?: HttpTypes.StoreCustomer | null
 }) => {
   const { closeMenu: closeGlobalMenu, isScrolled } = useNavMenu()
   const pathname = usePathname()
@@ -137,7 +139,7 @@ const CartDropdown = ({
                             thumbnail={getVariantImage(item.variant) || item.variant?.product?.thumbnail}
                             images={item.variant?.product?.images}
                             size="square"
-                            className="w-full h-full object-contain mix-blend-lighten"
+                            className="w-full h-full object-contain"
                           />
                         </LocalizedClientLink>
                         
@@ -199,11 +201,11 @@ const CartDropdown = ({
                         View Cart
                       </button>
                     </LocalizedClientLink>
-                    <LocalizedClientLink href="/checkout" className="w-full">
+                    <LocalizedClientLink href={customer ? "/checkout" : "/cart"} className="w-full">
                       <button className={`w-full py-3 text-xs font-medium border transition-all rounded-lg ${
                         isHomePage
-                          ? "bg-maritime-gold hover:bg-maritime-gold/90 text-white border-transparent"
-                          : "bg-maritime-navy hover:bg-maritime-navy/90 text-white border-transparent"
+                          ? "border-white/20 text-white hover:bg-white/10" 
+                          : "border-black/10 text-black hover:bg-black/5"
                       }`}>
                         Checkout
                       </button>

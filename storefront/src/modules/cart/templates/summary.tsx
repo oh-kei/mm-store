@@ -54,9 +54,14 @@ const Summary = ({ cart }: SummaryProps) => {
       <LocalizedClientLink
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
-        className={!confirmed ? "pointer-events-none opacity-50" : ""}
+        className={`w-full ${!confirmed ? "pointer-events-none opacity-50" : ""}`}
       >
-        <Button className="w-full h-10" disabled={!confirmed}>Go to checkout</Button>
+        <button
+          className="w-full py-3 text-xs font-medium border transition-all rounded-lg bg-maritime-navy hover:bg-maritime-navy/90 text-white border-transparent flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!confirmed}
+        >
+          Checkout
+        </button>
       </LocalizedClientLink>
     </div>
   )
