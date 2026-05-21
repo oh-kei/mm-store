@@ -11,13 +11,25 @@
   pointer-events: none;
 }
 
-/* Specific fix for iPhone/iOS to prevent bottom cutoff during scroll/address bar changes */
+/* Safari/iOS only: Sticky footer to cover the bottom dynamic bar gap on the homescreen
+.safari-home-footer {
+  display: none;
+}
+
 @supports (-webkit-touch-callout: none) {
-  .nautical-transition-wrapper {
-    height: 110vh; /* Extra height to ensure coverage */
-    top: -5vh; /* Offset to center the extra height */
+  .safari-home-footer {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2vh;
+    background-color: #6396ee;
+    z-index: 40;
+    pointer-events: none;
   }
 }
+*/
 
 /* This allows the 100x100 SVG to stretch to any screen ratio */
 .nautical-transition-svg {

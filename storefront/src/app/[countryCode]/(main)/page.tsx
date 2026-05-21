@@ -36,6 +36,7 @@ export default async function Home({
     <>
       <Hero />
       <FeaturedCatalogue />
+      {/* <div className="safari-home-footer" /> */}
     </>
   )
 }

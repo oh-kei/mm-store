@@ -240,14 +240,14 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
                 
                 {/* Size Selector Overlay (Only in default mode) */}
                 {mode !== "customizer" && showSizeSelector && (
-                  <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-                    <h4 className="text-[10px] font-medium mb-4 text-maritime-navy">Select Size</h4>
-                    <div className="grid grid-cols-3 gap-2 w-full">
+                  <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-2 sm:p-4" onClick={(e) => e.stopPropagation()}>
+                    <h4 className="text-[10px] font-medium mb-1.5 sm:mb-4 text-maritime-navy">Select Size</h4>
+                    <div className="grid grid-cols-3 gap-1 sm:gap-2 w-full">
                       {sizes.map(size => (
                         <button
                           key={size}
                           onClick={(e) => { e.preventDefault(); handleAddToCart(size); }}
-                          className="h-10 border border-gray-200 text-[10px] font-medium hover:bg-maritime-navy hover:text-white transition-all"
+                          className="h-7 sm:h-10 border border-gray-200 text-[10px] font-medium hover:bg-maritime-navy hover:text-white transition-all"
                         >
                           {size}
                         </button>
@@ -255,7 +255,7 @@ export function ProductCard({ product, region, customer, mode = "default", onSel
                     </div>
                     <button 
                       onClick={(e) => { e.preventDefault(); setShowSizeSelector(false); }}
-                      className="mt-4 text-[10px] font-medium underline underline-offset-4"
+                      className="mt-2 sm:mt-4 text-[10px] font-medium underline underline-offset-4"
                     >
                       Cancel
                     </button>
