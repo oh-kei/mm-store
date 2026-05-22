@@ -106,7 +106,7 @@ export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ rec
   // Load base image here instead of in a separate component to avoid React 19 internal errors
   const baseUrl = recipe.base.imageUrl
   const proxyBaseUrl = baseUrl ? `/api/proxy-image?url=${encodeURIComponent(baseUrl)}` : ""
-  const [baseImage] = useImage(proxyBaseUrl, "anonymous")
+  const [baseImage, baseImageStatus] = useImage(proxyBaseUrl, "anonymous")
   
   const baseImageData = React.useMemo(() => {
     if (!baseImage) return null
@@ -116,21 +116,37 @@ export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ rec
     return { width: baseImage.width * scale, height: baseImage.height * scale, x, y }
   }, [baseImage])
 
+  const [hideBaseImage, setHideBaseImage] = useState(false)
+
   React.useImperativeHandle(ref, () => ({
-    getScreenshot: async () => {
+    isLoaded: (expectedView: string) => activeView === expectedView && (!proxyBaseUrl || baseImageStatus === "loaded"),
+    getScreenshot: async (options?: { mimeType?: string; hideBase?: boolean }) => {
       if (!stageRef.current) return null
       
       // Deselect everything for a clean screenshot
       setSelectedId(null)
       
-      // Wait for re-render
-      await new Promise(resolve => setTimeout(resolve, 50))
+      const hideBase = options?.hideBase ?? false
+      const mimeType = options?.mimeType ?? "image/jpeg"
       
-      return stageRef.current.toDataURL({
+      if (hideBase) {
+        setHideBaseImage(true)
+        // Wait for state update and re-render
+        await new Promise(resolve => setTimeout(resolve, 80))
+      }
+      
+      const dataUrl = stageRef.current.toDataURL({
         pixelRatio: 2, // High res
-        mimeType: "image/jpeg",
+        mimeType: mimeType,
         quality: 0.8
       })
+      
+      if (hideBase) {
+        setHideBaseImage(false)
+        await new Promise(resolve => setTimeout(resolve, 80))
+      }
+      
+      return dataUrl
     }
   }))
 
@@ -185,7 +201,7 @@ export const CustomizerStage = React.forwardRef<any, StageComponentProps>(({ rec
       >
         <Layer>
           {/* Base Product */}
-          {baseImage && baseImageData && (
+          {!hideBaseImage && baseImage && baseImageData && (
             <Image 
               image={baseImage} 
               width={baseImageData.width} 

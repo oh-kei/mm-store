@@ -20,6 +20,67 @@ import { ProductCard } from "@modules/catalog/components/product-card"
 import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import Divider from "@modules/common/components/divider"
 
+// Helper to merge base garment image and transparent design overlay onto a canvas
+const mergeImages = (baseImgUrl: string, overlayDataUrl: string, activeView: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    if (!ctx) {
+      reject(new Error("Could not get canvas context"))
+      return
+    }
+
+    const proxiedBaseUrl = `/api/proxy-image?url=${encodeURIComponent(baseImgUrl)}`
+
+    const baseImage = new window.Image()
+    baseImage.crossOrigin = "anonymous"
+    
+    const overlayImage = new window.Image()
+    
+    let loadedCount = 0
+    const checkLoaded = () => {
+      loadedCount++
+      if (loadedCount === 2) {
+        const size = 2000
+        canvas.width = size
+        canvas.height = size
+
+        // 1. Draw base image
+        const scale = Math.min(size / baseImage.width, size / baseImage.height)
+        const w = baseImage.width * scale
+        const h = baseImage.height * scale
+        const x = (size - w) / 2
+        const y = (size - h) / 2
+
+        ctx.save()
+        if (activeView === "right") {
+          ctx.translate(x + w, y)
+          ctx.scale(-1, 1)
+          ctx.drawImage(baseImage, 0, 0, w, h)
+        } else {
+          ctx.drawImage(baseImage, x, y, w, h)
+        }
+        ctx.restore()
+
+        // 2. Draw overlay image
+        ctx.drawImage(overlayImage, 0, 0, size, size)
+
+        const mergedDataUrl = canvas.toDataURL("image/jpeg", 0.8)
+        resolve(mergedDataUrl)
+      }
+    }
+
+    baseImage.onload = checkLoaded
+    baseImage.onerror = (err) => reject(new Error("Failed to load base image: " + err))
+    
+    overlayImage.onload = checkLoaded
+    overlayImage.onerror = (err) => reject(new Error("Failed to load overlay image: " + err))
+
+    baseImage.src = proxiedBaseUrl
+    overlayImage.src = overlayDataUrl
+  })
+}
+
 // Dynamically import Stage to avoid SSR issues with Konva
 const CustomizerStage = dynamic(() => import("../components/stage"), {
   ssr: false,
@@ -280,6 +341,19 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
   }
 
+  const waitForStageLoad = async (expectedView: string, timeout = 3000) => {
+    const start = Date.now()
+    while (Date.now() - start < timeout) {
+      if (stageRef.current?.isLoaded?.(expectedView)) {
+        // Give a short buffer for canvas rendering/Konva setup
+        await new Promise(resolve => setTimeout(resolve, 50))
+        return true
+      }
+      await new Promise(resolve => setTimeout(resolve, 20))
+    }
+    return false
+  }
+
   const captureAllPreviews = async () => {
     if (!activeProduct) return {}
     
@@ -291,25 +365,42 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       views.push("left", "right")
     }
 
-    const previews: Record<string, string> = {}
+    const localDataUrls: Record<string, string> = {}
 
     // Save current view to restore it later
     const originalView = activeView
 
+    // 1. Capture data URLs from canvas sequentially (very fast, no S3 delay)
     for (const view of views) {
       setActiveView(view as any)
-      // Wait for re-render and image load - increased delay for reliability
-      await new Promise(resolve => setTimeout(resolve, 800))
-      const url = await capturePreview()
-      if (url) {
-        previews[view] = url
-      } else if (view === "right" && previews["left"]) {
-        // Fallback for right view if capture fails but left exists (since they usually share the same base image)
-        previews[view] = previews["left"]
+      await waitForStageLoad(view)
+      const dataUrl = await stageRef.current?.getScreenshot()
+      if (dataUrl) {
+        localDataUrls[view] = dataUrl
+      } else if (view === "right" && localDataUrls["left"]) {
+        localDataUrls[view] = localDataUrls["left"]
       }
     }
 
+    // Restore original view immediately so the UI snaps back
     setActiveView(originalView)
+
+    // 2. Upload all captured previews to S3 in parallel (massive speedup)
+    const previews: Record<string, string> = {}
+    const uploadPromises = Object.keys(localDataUrls).map(async (view) => {
+      const dataUrl = localDataUrls[view]
+      try {
+        const res = await fetch(dataUrl)
+        const blob = await res.blob()
+        const file = new File([blob], `preview-${view}-${Date.now()}.jpg`, { type: "image/jpeg" })
+        const { publicUrl } = await uploadToS3(file)
+        previews[view] = publicUrl
+      } catch (err) {
+        console.error(`S3 Upload failed for view ${view}`, err)
+      }
+    })
+
+    await Promise.all(uploadPromises)
     return previews
   }
 
@@ -344,6 +435,87 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
     }
   }
 
+  const getBaseImageUrlForColorAndView = (color: string | null, view: string) => {
+    if (!activeProduct) return ""
+
+    let suffix = ""
+    if (view === "back") suffix = "-back"
+    else if (view === "left" || view === "right") suffix = "-side"
+    else if (["flag", "banner", "neck scarf"].some(k => activeProduct.title?.toLowerCase().includes(k))) {
+      suffix = "-blank"
+    }
+
+    if (color) {
+      const normalizedColor = color.toLowerCase().replace(/\s+/g, "")
+      const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const escapedNormalized = normalizedColor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+      const pattern = new RegExp(`[-_](${escapedColor}|${escapedNormalized})${suffix}([-_.]|$)`, "i")
+      const simplePattern = new RegExp(`${escapedNormalized}`, "i")
+
+      const findImage = (regex: RegExp) => activeProduct.images?.find(img => {
+        const url = img.url?.toLowerCase() || ""
+        if (!regex.test(url)) return false
+        if (!suffix) {
+          if (url.includes("-back") || url.includes("-side")) return false
+        }
+        return true
+      })
+
+      const colorMatch = findImage(pattern) || findImage(simplePattern)
+      if (colorMatch?.url) {
+        return colorMatch.url
+      }
+    }
+
+    // Fallback: search by view suffix only
+    if (activeProduct.images) {
+      const matchingImage = activeProduct.images.find(img => {
+        const url = img.url?.toLowerCase() || ""
+        if (!suffix) {
+          if (url.includes("-back") || url.includes("-side")) return false
+          return true
+        }
+        return url.includes(suffix)
+      })
+      if (matchingImage?.url) {
+        return matchingImage.url
+      }
+    }
+
+    return activeProduct.thumbnail || ""
+  }
+
+  const captureAllOverlayPreviews = async () => {
+    if (!activeProduct || !stageRef.current) return {}
+    
+    const views = ["front"]
+    if (activeProduct.images?.some(img => img.url?.toLowerCase().includes("-back"))) {
+      views.push("back")
+    }
+    if (activeProduct.images?.some(img => img.url?.toLowerCase().includes("-side"))) {
+      views.push("left", "right")
+    }
+
+    const overlays: Record<string, string> = {}
+    const originalView = activeView
+
+    for (const view of views) {
+      setActiveView(view as any)
+      await waitForStageLoad(view)
+      
+      const dataUrl = await stageRef.current.getScreenshot({ hideBase: true, mimeType: "image/png" })
+      if (dataUrl) {
+        overlays[view] = dataUrl
+      } else if (view === "right" && overlays["left"]) {
+        overlays[view] = overlays["left"]
+      }
+    }
+
+    setActiveView(originalView)
+    return overlays
+  }
+
   const [isAddingBulk, setIsAddingBulk] = useState(false)
 
   const handleApplyToCrew = async () => {
@@ -351,11 +523,52 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
     setIsAddingBulk(true)
     try {
-      const previews = await captureAllPreviews()
-      const itemsToAdd: { variantId: string; quantity: number; metadata: any }[] = []
-
+      // 1. Capture transparent overlay previews for each view once
+      const overlays = await captureAllOverlayPreviews()
+      
+      // 2. Identify all unique colors to generate/upload previews for
       const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
+      const colorsToProcess = Array.from(
+        new Set(
+          crewSelection.members.map(m => {
+            const color = m.overrideColour || globalColor
+            return color ? color : "default"
+          })
+        )
+      )
 
+      // 3. Merge overlays with respective base images and upload to S3 in parallel (massive speedup)
+      const colorPreviewsCache: Record<string, Record<string, string>> = {}
+      const uploadPromises: Promise<void>[] = []
+
+      for (const color of colorsToProcess) {
+        colorPreviewsCache[color] = {}
+        for (const view of Object.keys(overlays)) {
+          const overlayUrl = overlays[view]
+          if (!overlayUrl) continue
+
+          const uploadTask = async () => {
+            try {
+              const baseImgUrl = getBaseImageUrlForColorAndView(color === "default" ? null : color, view)
+              const mergedDataUrl = await mergeImages(baseImgUrl, overlayUrl, view)
+              
+              const res = await fetch(mergedDataUrl)
+              const blob = await res.blob()
+              const file = new File([blob], `preview-${color}-${view}-${Date.now()}.jpg`, { type: "image/jpeg" })
+              
+              const { publicUrl } = await uploadToS3(file)
+              colorPreviewsCache[color][view] = publicUrl
+            } catch (err) {
+              console.error(`Failed to generate/upload preview for color ${color} view ${view}`, err)
+            }
+          }
+          uploadPromises.push(uploadTask())
+        }
+      }
+
+      await Promise.all(uploadPromises)
+
+      // 4. Add each member to cart with color-accurate custom preview URLs
       for (const member of crewSelection.members) {
         const targetSize = member.overrideSize || member.size
         const targetColor = member.overrideColour || globalColor
@@ -368,6 +581,9 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         })
 
         if (variant) {
+          const colorKey = targetColor || "default"
+          const memberPreviews = colorPreviewsCache[colorKey] || {}
+
           await addToCart({
             variantId: variant.id,
             quantity: 1,
@@ -381,8 +597,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 }
               },
               crew_member: member.name,
-              previews: previews,
-              preview_url: (previews as any).front || (previews as any)[activeView] || null,
+              previews: memberPreviews,
+              preview_url: (memberPreviews as any).front || (memberPreviews as any)[activeView] || null,
               comment: comment,
             }
           })
@@ -397,6 +613,87 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       setIsAddingBulk(false)
     }
   }
+
+  // Preload base images for the active product
+  useEffect(() => {
+    if (!activeProduct) return
+    const views = ["front", "back", "left", "right"]
+    views.forEach(view => {
+      const url = getBaseImageUrlForColorAndView(null, view)
+      if (url) {
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`
+        const img = new window.Image()
+        img.src = proxyUrl
+      }
+    })
+  }, [activeProduct])
+
+  // Preload base images for unique crew colors when crew selection changes
+  useEffect(() => {
+    if (!activeProduct || crewSelection.members.length === 0) return
+    
+    const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
+    const uniqueColors = Array.from(
+      new Set(
+        crewSelection.members.map(m => {
+          const color = m.overrideColour || globalColor
+          return color ? color : "default"
+        })
+      )
+    )
+
+    const views = ["front", "back", "left", "right"]
+    uniqueColors.forEach(color => {
+      views.forEach(view => {
+        const url = getBaseImageUrlForColorAndView(color === "default" ? null : color, view)
+        if (url) {
+          const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`
+          const img = new window.Image()
+          img.src = proxyUrl
+        }
+      })
+    })
+  }, [crewSelection, activeProduct, selectedOptions])
+
+  // Warn user before leaving if screenshots are in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isAddingToCart || isAddingBulk) {
+        e.preventDefault()
+        e.returnValue = "Your design previews are still generating. Are you sure you want to leave?"
+        return e.returnValue
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [isAddingToCart, isAddingBulk])
+
+  // Intercept browser back button and navigation when screenshots are in progress
+  useEffect(() => {
+    if (!isAddingToCart && !isAddingBulk) return
+
+    // Push a dummy state to history so we have something to pop
+    window.history.pushState({ blocking: true }, "", window.location.href)
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (isAddingToCart || isAddingBulk) {
+        // Push the state again to keep them on this page
+        window.history.pushState({ blocking: true }, "", window.location.href)
+        alert("Your design previews are still generating. Please do not navigate away until they are complete.")
+      }
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => {
+      window.removeEventListener("popstate", handlePopState)
+      // Clean up the dummy state if we finished successfully without popping it
+      if (window.history.state?.blocking) {
+        window.history.back()
+      }
+    }
+  }, [isAddingToCart, isAddingBulk])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -659,27 +956,45 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
             {/* Options Selectors */}
             <div className="space-y-6">
-              {activeProduct.options?.map((option) => (
-                <div key={option.id} className="space-y-3">
-                  <span className="text-[10px] font-medium text-slate-400">{option.title}</span>
-                  <div className="flex flex-wrap gap-2">
-                    {option.values?.map((v) => (
-                      <button
-                        key={v.id}
-                        onClick={() => setSelectedOptions(prev => ({ ...prev, [option.title || ""]: v.value }))}
-                        className={clx(
-                          "h-10 px-4 rounded-xl text-[9px] font-medium transition-all border",
-                          selectedOptions[option.title || ""] === v.value
-                            ? "bg-maritime-navy text-white border-maritime-navy shadow-lg"
-                            : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200"
-                        )}
-                      >
-                        {v.value}
-                      </button>
-                    ))}
+              {activeProduct.options?.map((option) => {
+                const values = option.values || []
+                const isSize = (option.title || "").toLowerCase().includes("size")
+                const sortedValues = isSize 
+                  ? [...values].sort((a, b) => {
+                      const SIZE_ORDER = ["xxs", "xs", "s", "m", "l", "xl", "2xl", "3xl", "4xl", "5xl"]
+                      const valA = (a.value || "").toLowerCase()
+                      const valB = (b.value || "").toLowerCase()
+                      const indexA = SIZE_ORDER.indexOf(valA)
+                      const indexB = SIZE_ORDER.indexOf(valB)
+                      if (indexA !== -1 && indexB !== -1) return indexA - indexB
+                      if (indexA !== -1) return -1
+                      if (indexB !== -1) return 1
+                      return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
+                    })
+                  : values
+
+                return (
+                  <div key={option.id} className="space-y-3">
+                    <span className="text-[10px] font-medium text-slate-400">{option.title}</span>
+                    <div className="flex flex-wrap gap-2">
+                      {sortedValues.map((v) => (
+                        <button
+                          key={v.id}
+                          onClick={() => setSelectedOptions(prev => ({ ...prev, [option.title || ""]: v.value }))}
+                          className={clx(
+                            "h-10 px-4 rounded-xl text-[9px] font-medium transition-all border",
+                            selectedOptions[option.title || ""] === v.value
+                              ? "bg-maritime-navy text-white border-maritime-navy shadow-lg"
+                              : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200"
+                          )}
+                        >
+                          {v.value}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <Divider />
@@ -729,7 +1044,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                 )}
               </Button>
 
-              {customer && (
+              {customer && !["flag", "banner"].some(k => activeProduct.title?.toLowerCase().includes(k)) && (
                 <Button
                   onClick={openCrewModal}
                   disabled={isAddingToCart || isAddingBulk || roster.length === 0}
@@ -747,7 +1062,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       </div>
 
       {/* Crew Selection Modal */}
-      <Modal isOpen={isCrewModalOpen} close={closeCrewModal} size="large">
+      <Modal isOpen={isCrewModalOpen} close={closeCrewModal} size="large" className="max-h-[90vh]">
         <Modal.Title>
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-maritime-gold/10 flex items-center justify-center text-maritime-gold">
@@ -834,6 +1149,30 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
           </div>
         </Modal.Footer>
       </Modal>
+
+      {(isAddingToCart || isAddingBulk) && (
+        <div className="fixed inset-0 bg-slate-900/85 backdrop-blur-md z-[9999] flex flex-col items-center justify-center p-6 text-center animate-fade-in pointer-events-auto">
+          <div className="bg-white rounded-[32px] p-10 max-w-md w-full shadow-2xl border border-slate-100 flex flex-col items-center gap-6">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-maritime-gold/20 animate-ping w-16 h-16" />
+              <div className="relative w-16 h-16 border-4 border-maritime-gold border-t-transparent rounded-full animate-spin flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maritime-gold animate-pulse"><path d="M23 19a2 2 0 0 1-3.5 1.5l-3.9-3.9a3.5 3.5 0 1 1 2.8-2.8l3.9 3.9c.7.7.7 1.8 0 2.5z"/><circle cx="11" cy="11" r="8"/></svg>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Heading className="text-xl font-bold text-slate-900">
+                {isAddingBulk ? "Saving Crew Designs..." : "Generating Previews..."}
+              </Heading>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                {isAddingBulk 
+                  ? "We are generating and saving unique previews for each crew member's color choice. Please do not close or navigate away."
+                  : "We are preparing high-resolution preview images of your custom design. This will only take a moment."
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

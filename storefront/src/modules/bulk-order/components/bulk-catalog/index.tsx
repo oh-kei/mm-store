@@ -4,7 +4,8 @@ import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { CrewSelector } from "../crew-selector"
 import { Heading } from "@medusajs/ui"
-import { Box, ShoppingCart, ArrowLeft } from "lucide-react"
+import { Box, ShoppingCart, ArrowLeft, Paintbrush } from "lucide-react"
+import { useRouter, useParams } from "next/navigation"
 
 const CATEGORIES = [
   { name: "All", handle: "all", image: "/mm-allclothes.webp" },
@@ -23,6 +24,8 @@ interface BulkCatalogProps {
 }
 
 export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCatalogProps) {
+  const router = useRouter()
+  const { countryCode } = useParams() as { countryCode: string }
   const [selections, setSelections] = useState<Record<string, { members: any[], colour: string | null, hasError?: boolean }>>({})
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set())
@@ -176,36 +179,70 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
               </div>
 
               {/* Selector */}
-              <div className="flex-grow pt-4 border-t border-slate-50">
-                <CrewSelector 
-                  product={product} 
-                  roster={roster} 
-                  customer={customer}
-                  onUpdate={(selection) => handleUpdate(product.id || "", selection)} 
-                  forceShowMessage={addedProductIds.has(product.id || "")}
-                />
-              </div>
+              {(() => {
+                const isCustomOnly = ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+                if (isCustomOnly) {
+                  return (
+                    <div className="flex-grow flex flex-col justify-center items-center py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-100 p-4 min-h-[160px]">
+                      <Paintbrush className="text-slate-300 mb-2" size={24} />
+                      <p className="text-xs text-slate-500 font-medium">Custom design required</p>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed max-w-[200px]">Please go to Custom Studio to customize your banner or flag design before purchasing.</p>
+                    </div>
+                  )
+                }
+                return (
+                  <div className="flex-grow pt-4 border-t border-slate-50">
+                    <CrewSelector 
+                      product={product} 
+                      roster={roster} 
+                      customer={customer}
+                      onUpdate={(selection) => handleUpdate(product.id || "", selection)} 
+                      forceShowMessage={addedProductIds.has(product.id || "")}
+                    />
+                  </div>
+                )
+              })()}
 
               {/* Actions */}
               <div className="mt-4 pt-6 border-t border-slate-50 flex flex-col gap-4">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] font-medium text-slate-400 mb-1">Total Quantity</p>
-                    <p className="text-2xl font-medium text-slate-900">{total} <span className="text-slate-300 text-xs font-medium ml-1">UNITS</span></p>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      const productId = product.id || ""
-                      onAddToCart(productId, selections[productId] || { members: [], colour: null })
-                      setAddedProductIds(prev => new Set(prev).add(productId))
-                    }}
-                    disabled={total === 0 || selections[product.id || ""]?.hasError}
-                    className="bg-maritime-gold text-maritime-navy h-12 px-6 rounded-xl font-medium text-xs hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                  >
-                    <ShoppingCart size={14} />
-                    Add
-                  </button>
-                </div>
+                {(() => {
+                  const isCustomOnly = ["flag", "banner"].some(k => product.title?.toLowerCase().includes(k))
+                  if (isCustomOnly) {
+                    return (
+                      <div className="w-full">
+                        <button 
+                          onClick={() => {
+                            router.push(`/${countryCode}/custom-studio?id=${product.id}`)
+                          }}
+                          className="w-full bg-maritime-gold text-maritime-navy h-12 rounded-xl font-semibold text-xs hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <Paintbrush size={14} />
+                          Customise
+                        </button>
+                      </div>
+                    )
+                  }
+                  return (
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p className="text-[10px] font-medium text-slate-400 mb-1">Total Quantity</p>
+                        <p className="text-2xl font-medium text-slate-900">{total} <span className="text-slate-300 text-xs font-medium ml-1">UNITS</span></p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const productId = product.id || ""
+                          onAddToCart(productId, selections[productId] || { members: [], colour: null })
+                          setAddedProductIds(prev => new Set(prev).add(productId))
+                        }}
+                        disabled={total === 0 || selections[product.id || ""]?.hasError}
+                        className="bg-maritime-gold text-maritime-navy h-12 px-6 rounded-xl font-medium text-xs hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                      >
+                        <ShoppingCart size={14} />
+                        Add
+                      </button>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           )

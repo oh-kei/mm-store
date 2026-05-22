@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect, Fragment } from "react"
+import React, { useState, useEffect, Fragment } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Transition } from "@headlessui/react"
 import { useParams, usePathname } from "next/navigation"
@@ -17,21 +17,28 @@ export default function NavAccountDropdown({ customer: initialCustomer }: { cust
   const isHomePage = (pathname === "/" || pathname === `/${countryCode}` || pathname === `/${countryCode}/`) && !isScrolled
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(initialCustomer)
 
-  const hasFetchedRef = useRef(false)
   useEffect(() => {
-    if (hasFetchedRef.current) return
-    const fetchCustomer = async () => {
-      try {
-        const c = await getCustomer()
-        setCustomer(c)
-      } catch (e) {
-        setCustomer(null)
-      } finally {
-        hasFetchedRef.current = true
+    let active = true
+    if (initialCustomer) {
+      setCustomer(initialCustomer)
+    } else {
+      const fetchCustomer = async () => {
+        try {
+          const c = await getCustomer()
+          if (active) {
+            setCustomer(c)
+          }
+        } catch (e) {
+          if (active) {
+            setCustomer(null)
+          }
+        }
       }
+      fetchCustomer()
     }
-    if (!initialCustomer) fetchCustomer()
-    else hasFetchedRef.current = true
+    return () => {
+      active = false
+    }
   }, [initialCustomer])
 
   const handleLogout = async () => {

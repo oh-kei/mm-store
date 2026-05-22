@@ -90,7 +90,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
     
     const updated = [...roster]
     data.forEach(item => {
-      const isDuplicate = roster.some(m => m.name.toLowerCase() === item.name.toLowerCase())
+      const isDuplicate = updated.some(m => m.name.toLowerCase() === item.name.toLowerCase())
       updated.push({
         ...item,
         warning: isDuplicate ? "duplicate name" : undefined

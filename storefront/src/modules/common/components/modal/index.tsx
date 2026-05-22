@@ -12,6 +12,7 @@ type ModalProps = {
   search?: boolean
   children: React.ReactNode
   'data-testid'?: string
+  className?: string
 }
 
 const Modal = ({
@@ -20,7 +21,8 @@ const Modal = ({
   size = "medium",
   search = false,
   children,
-  'data-testid': dataTestId
+  'data-testid': dataTestId,
+  className
 }: ModalProps) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -59,14 +61,16 @@ const Modal = ({
               <Dialog.Panel
                 data-testid={dataTestId}
                 className={clx(
-                  "flex flex-col justify-start w-full transform p-5 text-left align-middle transition-all max-h-[75vh] h-fit",
+                  "flex flex-col justify-start w-full transform p-5 text-left align-middle transition-all h-fit overflow-y-auto",
+                  className?.includes("max-h-") ? "" : "max-h-[75vh]",
                   {
                     "max-w-md": size === "small",
                     "max-w-xl": size === "medium",
                     "max-w-3xl": size === "large",
                     "bg-transparent shadow-none": search,
                     "bg-white shadow-xl border rounded-rounded": !search,
-                  }
+                  },
+                  className
                 )}
               >
                 <ModalProvider close={close}>{children}</ModalProvider>

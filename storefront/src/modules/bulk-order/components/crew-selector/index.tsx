@@ -85,7 +85,16 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
   // Extract available sizes
   const availableSizes = useMemo(() => {
     const sizeOption = product.options?.find(o => o.title?.toLowerCase().includes("size"))
-    return sizeOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+    const rawSizes = sizeOption?.values?.map(v => v.value).filter(Boolean) as string[] || []
+    const SIZE_ORDER = ["xxs", "xs", "s", "m", "l", "xl", "2xl", "3xl", "4xl", "5xl"]
+    return [...rawSizes].sort((a, b) => {
+      const indexA = SIZE_ORDER.indexOf(a.toLowerCase())
+      const indexB = SIZE_ORDER.indexOf(b.toLowerCase())
+      if (indexA !== -1 && indexB !== -1) return indexA - indexB
+      if (indexA !== -1) return -1
+      if (indexB !== -1) return 1
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    })
   }, [product.options])
   
   const isOneSize = availableSizes.length === 1
@@ -272,29 +281,35 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       {isSelected && (
                         <div className="flex items-center gap-2">
                           {availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && (
-                            <div className="flex items-center gap-2 px-2 py-1 bg-red-50 rounded-lg border border-red-100">
-                              <AlertTriangle size={10} className="text-red-500" />
-                              <span className="text-[8px] font-medium text-red-500 tracking-tighter">Size Unavailable</span>
-                            </div>
+                            isOneSize ? (
+                              <span className="text-[10px] font-medium text-slate-400">One size only</span>
+                            ) : (
+                              <div className="flex items-center gap-2 px-2 py-1 bg-red-50 rounded-lg border border-red-100">
+                                <AlertTriangle size={10} className="text-red-500" />
+                                <span className="text-[8px] font-medium text-red-500 tracking-tighter">Size Unavailable</span>
+                              </div>
+                            )
                           )}
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setEditingMemberIdx(isEditing ? null : idx)
-                            }}
-                            className={clx(
-                              "p-2 rounded-lg transition-colors bg-slate-50 hover:bg-maritime-gold/10",
-                              isEditing ? "text-maritime-gold" : "text-slate-300"
-                            )}
-                          >
-                            <Edit2 size={12} />
-                          </button>
+                          {(!isOneSize || colors.length > 1) && (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setEditingMemberIdx(isEditing ? null : idx)
+                              }}
+                              className={clx(
+                                "p-2 rounded-lg transition-colors bg-slate-50 hover:bg-maritime-gold/10",
+                                isEditing ? "text-maritime-gold" : "text-slate-300"
+                              )}
+                            >
+                              <Edit2 size={12} />
+                            </button>
+                          )}
                         </div>
                       )}
                     </button>
 
                     {/* Size Unavailable Action Hint */}
-                    {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && !isEditing && (
+                    {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && !isEditing && !isOneSize && (
                       <div className="px-3 pb-2 flex gap-2">
                          <button 
                            onClick={() => setEditingMemberIdx(idx)}
@@ -321,29 +336,33 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                     {/* Inline Override Controls */}
                     {isEditing && isSelected && (
                       <div className="px-3 pb-3 pt-1 space-y-3 animate-in slide-in-from-top-1">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="space-y-1">
-                            <label className="text-[8px] font-medium text-slate-400">Override Size</label>
-                            <select 
-                              value={currentOverride.size || "default"}
-                              onChange={(e) => handleUpdateOverride(idx, 'size', e.target.value)}
-                              className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
-                            >
-                              <option value="default">Default ({member.size})</option>
-                              {availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[8px] font-medium text-slate-400">Override Colour</label>
-                            <select 
-                              value={currentOverride.colour || "default"}
-                              onChange={(e) => handleUpdateOverride(idx, 'colour', e.target.value)}
-                              className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
-                            >
-                              <option value="default">Global ({selectedColour || "None"})</option>
-                              {colors.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                          </div>
+                        <div className={clx("grid gap-2", isOneSize || colors.length <= 1 ? "grid-cols-1" : "grid-cols-2")}>
+                          {!isOneSize && (
+                            <div className="space-y-1">
+                              <label className="text-[8px] font-medium text-slate-400">Override Size</label>
+                              <select 
+                                value={currentOverride.size || "default"}
+                                onChange={(e) => handleUpdateOverride(idx, 'size', e.target.value)}
+                                className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
+                              >
+                                <option value="default">Default ({member.size})</option>
+                                {availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                              </select>
+                            </div>
+                          )}
+                          {colors.length > 1 && (
+                            <div className="space-y-1">
+                              <label className="text-[8px] font-medium text-slate-400">Override Colour</label>
+                              <select 
+                                value={currentOverride.colour || "default"}
+                                onChange={(e) => handleUpdateOverride(idx, 'colour', e.target.value)}
+                                className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
+                              >
+                                <option value="default">Global ({selectedColour || "None"})</option>
+                                {colors.map(c => <option key={c} value={c}>{c}</option>)}
+                              </select>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
