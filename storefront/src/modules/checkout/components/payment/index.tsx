@@ -145,8 +145,13 @@ const Payment = ({
 
       const loadDropIn = async () => {
         try {
+          const airwallexEnv = process.env.NEXT_PUBLIC_AIRWALLEX_ENV === 'prod' || 
+            (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_AIRWALLEX_ENV !== 'demo')
+            ? 'prod'
+            : 'demo'
+
           await init({
-            env: 'demo',
+            env: airwallexEnv,
             enabledElements: ['payments'],
           })
 

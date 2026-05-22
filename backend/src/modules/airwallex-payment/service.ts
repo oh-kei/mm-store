@@ -1,6 +1,11 @@
 import { AbstractPaymentProvider } from "@medusajs/framework/utils"
 import crypto from "crypto"
 
+const isProduction = process.env.NODE_ENV === "production"
+const AIRWALLEX_BASE_URL = isProduction 
+  ? "https://api.airwallex.com/api/v1" 
+  : "https://api-demo.airwallex.com/api/v1"
+
 class AirwallexPaymentProviderService extends AbstractPaymentProvider {
   static identifier = "airwallex"
 
@@ -19,11 +24,11 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     const { amount, currency_code, context } = input
     const resource_id = context?.id || `order_${crypto.randomUUID().slice(0, 8)}`
 
-    console.log(`[Airwallex] Initiating payment for order ${resource_id} with amount ${amount} ${currency_code}`)
+    console.log(`[Airwallex] Initiating payment for order ${resource_id} with amount ${amount} ${currency_code} (Env: ${process.env.NODE_ENV})`)
 
     try {
       // 1. Get Access Token
-      const authResponse = await fetch('https://api-demo.airwallex.com/api/v1/authentication/login', {
+      const authResponse = await fetch(`${AIRWALLEX_BASE_URL}/authentication/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +60,7 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
 
       console.log(`[Airwallex] Creating PaymentIntent for amount ${majorAmount}`)
 
-      const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/payment_intents/create', {
+      const response = await fetch(`${AIRWALLEX_BASE_URL}/pa/payment_intents/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +158,7 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     }
 
     // 1. Get Access Token
-    const authResponse = await fetch('https://api-demo.airwallex.com/api/v1/authentication/login', {
+    const authResponse = await fetch(`${AIRWALLEX_BASE_URL}/authentication/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +175,7 @@ class AirwallexPaymentProviderService extends AbstractPaymentProvider {
     const accessToken = authData.token
 
     // 2. Create customer in Airwallex
-    const response = await fetch('https://api-demo.airwallex.com/api/v1/pa/customers/create', {
+    const response = await fetch(`${AIRWALLEX_BASE_URL}/pa/customers/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
