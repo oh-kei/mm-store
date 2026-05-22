@@ -142,14 +142,28 @@ export default async function orderPlacedHandler({
       showProductionDetails: true
     }
 
-    console.log(`[OrderPlacedSubscriber] Sending admin notification to kkeipohl@gmail.com`)
+    // Send admin notification to configured administrators
+    const adminEmailsEnv = process.env.ADMIN_NOTIFICATION_EMAILS
+    const adminEmails = adminEmailsEnv
+      ? adminEmailsEnv.split(',').map((email) => email.trim())
+      : ['christopherlam@marinersmarkets.com', 'sebvanommeren@marinersmarkets.com']
 
-    await notificationModuleService.createNotifications({
-      to: 'kkeipohl@gmail.com',
-      channel: 'email',
-      template: EmailTemplates.ORDER_PLACED,
-      data: adminNotificationData
-    })
+    console.log(`[OrderPlacedSubscriber] Sending admin notification to: ${adminEmails.join(', ')}`)
+
+    await Promise.all(
+      adminEmails.map(async (email) => {
+        try {
+          await notificationModuleService.createNotifications({
+            to: email,
+            channel: 'email',
+            template: EmailTemplates.ORDER_PLACED,
+            data: adminNotificationData
+          })
+        } catch (err) {
+          console.error(`[OrderPlacedSubscriber] Failed to send admin notification to ${email}:`, err)
+        }
+      })
+    )
     
     console.log(`[OrderPlacedSubscriber] Notification created successfully for order ${order.id}`)
   } catch (error) {

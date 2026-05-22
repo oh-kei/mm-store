@@ -246,10 +246,10 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                 
                 return (
                   <div key={`${member.name}-${idx}`} className="space-y-1">
-                    <button
+                    <div
                       onClick={() => handleToggleMember(idx)}
                       className={clx(
-                        "w-full p-3 rounded-xl border flex items-center justify-between transition-all group/item",
+                        "w-full p-3 rounded-xl border flex items-center justify-between transition-all group/item cursor-pointer",
                         isSelected ? "bg-white border-maritime-gold/20 shadow-sm" : "bg-transparent border-transparent hover:bg-white/50"
                       )}
                     >
@@ -266,8 +266,8 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           </p>
                           <div className="flex items-center gap-2">
                              <p className="text-[11px] font-medium text-slate-300">
-                               Size: {currentOverride.size || member.size}
-                               {currentOverride.size && <span className="text-maritime-gold ml-1">(Override)</span>}
+                                Size: {currentOverride.size || member.size}
+                                {currentOverride.size && <span className="text-maritime-gold ml-1">(Override)</span>}
                              </p>
                              {currentOverride.colour && (
                                <p className="text-[11px] font-medium text-maritime-gold">
@@ -306,7 +306,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           )}
                         </div>
                       )}
-                    </button>
+                    </div>
 
                     {/* Size Unavailable Action Hint */}
                     {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && !isEditing && !isOneSize && (
