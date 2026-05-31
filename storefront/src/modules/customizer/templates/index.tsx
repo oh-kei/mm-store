@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from "react"
 import { Heading, Button, Text, clx } from "@medusajs/ui"
-import { Plus, Type, Image as ImageIcon, Trash2, ShoppingCart, Layers, MousePointer2, ChevronLeft, Search } from "lucide-react"
+import { Plus, Type, Image as ImageIcon, Trash2, ShoppingCart, Layers, MousePointer2, ChevronLeft, Search, HelpCircle, ChevronRight, X } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCustomizer } from "../hooks/use-customizer"
 import { uploadToS3 } from "../utils/upload"
@@ -100,6 +100,28 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   const [activeProduct, setActiveProduct] = useState<HttpTypes.StoreProduct | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [quantity, setQuantity] = useState(1)
+
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0)
+
+  const tutorialSteps = [
+    {
+      image: "/custom-tutorial-1.webp",
+      text: "1: Select a product to customise on the Custom Studio page, or choose 'Customise Design' on a product page."
+    },
+    {
+      image: "/custom-tutorial-2.webp",
+      text: "2: Modify your size and colour in the sidebar, if needed."
+    },
+    {
+      image: "/custom-tutorial-3.webp",
+      text: "3: Add text or upload logos by clicking 'Text' or 'Logo' respectively. Modify their colour, size, and rotation in the Properties panel."
+    },
+    {
+      image: "/custom-tutorial-4.webp",
+      text: "4: Navigate between different views using the Front, Back, Left, and Right buttons, and upload more text or logos if needed. Click 'Add to Cart' to buy individually, or click 'Buy for all crew' to purchase in bulk."
+    }
+  ]
 
   const {
     recipe,
@@ -527,11 +549,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
       const overlays = await captureAllOverlayPreviews()
       
       // 2. Identify all unique colors to generate/upload previews for
-      const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
+      const baseColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
       const colorsToProcess = Array.from(
         new Set(
           crewSelection.members.map(m => {
-            const color = m.overrideColour || globalColor
+            const color = m.changeColour || baseColor
             return color ? color : "default"
           })
         )
@@ -570,8 +592,8 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
       // 4. Add each member to cart with color-accurate custom preview URLs
       for (const member of crewSelection.members) {
-        const targetSize = member.overrideSize || member.size
-        const targetColor = member.overrideColour || globalColor
+        const targetSize = member.changeSize || member.size
+        const targetColor = member.changeColour || baseColor
 
         // Find variant matching size and color
         const variant = activeProduct.variants?.find(v => {
@@ -632,11 +654,11 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
   useEffect(() => {
     if (!activeProduct || crewSelection.members.length === 0) return
     
-    const globalColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
+    const baseColor = crewSelection.colour || selectedOptions["Color"] || selectedOptions["Colour"]
     const uniqueColors = Array.from(
       new Set(
         crewSelection.members.map(m => {
-          const color = m.overrideColour || globalColor
+          const color = m.changeColour || baseColor
           return color ? color : "default"
         })
       )
@@ -722,7 +744,20 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
 
   if (!activeProduct) {
     return (
-      <div className="min-h-screen bg-white pt-32 pb-20 px-4 md:px-8">
+      <div className="min-h-screen bg-white pt-32 pb-20 px-4 md:px-8 relative">
+        {/* Absolute Help Button in top right */}
+        <Button
+          variant="secondary"
+          className="absolute top-32 right-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10 flex items-center justify-center"
+          onClick={() => {
+            setCurrentStep(0)
+            setIsTutorialOpen(true)
+          }}
+          title="View Tutorial"
+        >
+          <HelpCircle size={24} />
+        </Button>
+
         <div className="max-w-[1600px] mx-auto">
           <div className="mb-12 text-center">
             <h1 className="text-4xl font-medium text-gray-900 tracking-tight font-sans">Choose something to design</h1>
@@ -770,6 +805,101 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
             ))}
           </div>
         </div>
+
+        {/* Tutorial Popup Modal */}
+        {isTutorialOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            {/* Click outside backdrop to close */}
+            <div className="absolute inset-0" onClick={() => setIsTutorialOpen(false)} />
+            
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-2xl p-6 sm:p-8 w-[95vw] md:w-[90vw] max-w-5xl h-[90vh] max-h-[850px] relative z-10 flex flex-col items-center justify-between gap-6 animate-in zoom-in-95 duration-200">
+              {/* Close Button */}
+              <button 
+                onClick={() => setIsTutorialOpen(false)}
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-50 z-30"
+              >
+                <X size={20} />
+              </button>
+
+              {/* Header */}
+              <div className="text-center w-full shrink-0">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-maritime-gold">Tutorial</span>
+                <h3 className="text-xl font-medium text-slate-900 tracking-tight mt-1">Custom Studio Guide</h3>
+              </div>
+
+              {/* Carousel Content */}
+              <div className="w-full flex-grow flex flex-col items-center gap-4 min-h-0">
+                <div className="relative w-full flex-grow overflow-hidden flex items-center justify-center min-h-0">
+                  <img 
+                    src={tutorialSteps[currentStep].image} 
+                    alt={`Tutorial step ${currentStep + 1}`} 
+                    className="w-full h-full object-contain mix-blend-multiply"
+                  />
+
+                  {/* Left Arrow */}
+                  {currentStep > 0 && (
+                    <button 
+                      onClick={() => setCurrentStep(prev => prev - 1)}
+                      className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shadow-lg p-3 rounded-full transition-all hover:scale-105 z-20"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                  )}
+
+                  {/* Right Arrow */}
+                  {currentStep < tutorialSteps.length - 1 && (
+                    <button 
+                      onClick={() => setCurrentStep(prev => prev + 1)}
+                      className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shadow-lg p-3 rounded-full transition-all hover:scale-105 z-20"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Step indicator dots */}
+                <div className="flex gap-2 mt-1 shrink-0">
+                  {tutorialSteps.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentStep(idx)}
+                      className={clx(
+                        "h-2 rounded-full transition-all duration-300",
+                        currentStep === idx ? "w-8 bg-maritime-gold" : "w-2 bg-slate-200 hover:bg-slate-300"
+                      )}
+                    />
+                  ))}
+                </div>
+
+                {/* Text Description */}
+                <div className="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-100 w-full shrink-0 flex items-center justify-center text-center min-h-[90px]">
+                  <p className="text-[12px] sm:text-sm font-semibold leading-relaxed text-slate-600 max-w-2xl">
+                    {tutorialSteps[currentStep].text}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer buttons */}
+              <div className="flex gap-4 w-full border-t border-slate-100 pt-4 shrink-0">
+                {currentStep < tutorialSteps.length - 1 ? (
+                  <button 
+                    onClick={() => setCurrentStep(prev => prev + 1)}
+                    className="flex-1 bg-slate-900 text-white rounded-xl h-12 font-medium text-xs hover:bg-slate-800 transition-colors"
+                  >
+                    Next Step
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsTutorialOpen(false)}
+                    className="flex-1 bg-maritime-gold text-maritime-navy rounded-xl h-12 font-semibold text-xs hover:bg-yellow-500 transition-colors"
+                  >
+                    Got It!
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -786,6 +916,19 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
         }}
       >
         <ChevronLeft size={24} />
+      </Button>
+
+      {/* Absolute Help Button in top right */}
+      <Button
+        variant="secondary"
+        className="absolute top-32 right-8 p-3 h-12 w-12 rounded-2xl bg-white shadow-sm border-slate-100 hover:border-maritime-gold hover:text-maritime-gold transition-all z-10 flex items-center justify-center"
+        onClick={() => {
+          setCurrentStep(0)
+          setIsTutorialOpen(true)
+        }}
+        title="View Tutorial"
+      >
+        <HelpCircle size={24} />
       </Button>
 
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -812,7 +955,7 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
               </Button>
 
               <label className="h-24 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-maritime-gold transition-all cursor-pointer group">
-                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*,.svg" disabled={isUploading} />
+                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*,.svg,.ai" disabled={isUploading} />
                 {isUploading ? (
                   <div className="w-5 h-5 border-2 border-maritime-gold border-t-transparent rounded-full animate-spin" />
                 ) : (
@@ -1169,6 +1312,101 @@ export function CustomizerTemplate({ products, region }: CustomizerTemplateProps
                   : "We are preparing high-resolution preview images of your custom design. This will only take a moment."
                 }
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tutorial Popup Modal */}
+      {isTutorialOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          {/* Click outside backdrop to close */}
+          <div className="absolute inset-0" onClick={() => setIsTutorialOpen(false)} />
+          
+          <div className="bg-white rounded-[32px] border border-slate-100 shadow-2xl p-6 sm:p-8 w-[95vw] md:w-[90vw] max-w-5xl h-[90vh] max-h-[850px] relative z-10 flex flex-col items-center justify-between gap-6 animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button 
+              onClick={() => setIsTutorialOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-50 z-30"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Header */}
+            <div className="text-center w-full shrink-0">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-maritime-gold">Tutorial</span>
+              <h3 className="text-xl font-medium text-slate-900 tracking-tight mt-1">Custom Studio Guide</h3>
+            </div>
+
+            {/* Carousel Content */}
+            <div className="w-full flex-grow flex flex-col items-center gap-4 min-h-0">
+              <div className="relative w-full flex-grow overflow-hidden flex items-center justify-center min-h-0">
+                <img 
+                  src={tutorialSteps[currentStep].image} 
+                  alt={`Tutorial step ${currentStep + 1}`} 
+                  className="w-full h-full object-contain mix-blend-multiply"
+                />
+
+                {/* Left Arrow */}
+                {currentStep > 0 && (
+                  <button 
+                    onClick={() => setCurrentStep(prev => prev - 1)}
+                    className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shadow-lg p-3 rounded-full transition-all hover:scale-105 z-20"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                )}
+
+                {/* Right Arrow */}
+                {currentStep < tutorialSteps.length - 1 && (
+                  <button 
+                    onClick={() => setCurrentStep(prev => prev + 1)}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shadow-lg p-3 rounded-full transition-all hover:scale-105 z-20"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                )}
+              </div>
+
+              {/* Step indicator dots */}
+              <div className="flex gap-2 mt-1 shrink-0">
+                {tutorialSteps.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentStep(idx)}
+                    className={clx(
+                      "h-2 rounded-full transition-all duration-300",
+                      currentStep === idx ? "w-8 bg-maritime-gold" : "w-2 bg-slate-200 hover:bg-slate-300"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Text Description */}
+              <div className="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-100 w-full shrink-0 flex items-center justify-center text-center min-h-[90px]">
+                <p className="text-[12px] sm:text-sm font-semibold leading-relaxed text-slate-600 max-w-2xl">
+                  {tutorialSteps[currentStep].text}
+                </p>
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex gap-4 w-full border-t border-slate-100 pt-4 shrink-0">
+              {currentStep < tutorialSteps.length - 1 ? (
+                <button 
+                  onClick={() => setCurrentStep(prev => prev + 1)}
+                  className="flex-1 bg-slate-900 text-white rounded-xl h-12 font-medium text-xs hover:bg-slate-800 transition-colors"
+                >
+                  Next Step
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setIsTutorialOpen(false)}
+                  className="flex-1 bg-maritime-gold text-maritime-navy rounded-xl h-12 font-semibold text-xs hover:bg-yellow-500 transition-colors"
+                >
+                  Got It!
+                </button>
+              )}
             </div>
           </div>
         </div>

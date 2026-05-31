@@ -17,8 +17,23 @@ interface StageComponentProps {
 
 const ImageLayer = ({ data, isSelected, onSelect, onChange }: { data: CustomLayer; isSelected: boolean; onSelect: () => void; onChange: (props: any) => void }) => {
   const url = data.props.url
-  const proxyUrl = url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : ""
-  const [image] = useImage(proxyUrl || "", "anonymous")
+  const isAi = url?.toLowerCase().split('?')[0].endsWith('.ai')
+
+  const aiPlaceholderSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200">
+  <rect x="5" y="5" width="290" height="190" rx="16" fill="#F8FAFC" stroke="#FF9F00" stroke-width="2" stroke-dasharray="6 4"/>
+  <g transform="translate(110, 40)">
+    <rect width="80" height="60" rx="12" fill="#FF9F00"/>
+    <text x="40" y="40" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" text-anchor="middle" dominant-baseline="middle">Ai</text>
+  </g>
+  <text x="150" y="130" fill="#334155" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Illustrator Vector File</text>
+  <text x="150" y="150" fill="#64748B" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500" text-anchor="middle">Positioned for Production</text>
+  <text x="150" y="170" fill="#94A3B8" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-style="italic" text-anchor="middle">Drag &amp; scale as needed</text>
+</svg>
+  `)}`
+
+  const imageUrl = isAi ? aiPlaceholderSvg : (url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : "")
+  const [image] = useImage(imageUrl || "", "anonymous")
   const shapeRef = useRef<any>(null)
 
   return (

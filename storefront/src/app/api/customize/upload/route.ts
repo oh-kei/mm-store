@@ -27,14 +27,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File too large. Max 10MB allowed." }, { status: 400 })
     }
 
+    const filename = file.name
+    const isAiFile = filename.toLowerCase().endsWith(".ai")
+
     // 2. Validation: Content Type
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"]
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Only PNG, JPG, WEBP and SVG are allowed." }, { status: 400 })
+    if (!ALLOWED_TYPES.includes(file.type) && !isAiFile) {
+      return NextResponse.json({ error: "Invalid file type. Only PNG, JPG, WEBP, SVG, and AI files are allowed." }, { status: 400 })
     }
 
-    const filename = file.name
-    const contentType = file.type
+    const contentType = isAiFile ? "application/postscript" : file.type
     const key = `custom-studio/uploads/${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')}` // Sanitize filename
     const bucket = process.env.S3_BUCKET || process.env.MINIO_BUCKET || "medusa-media"
     

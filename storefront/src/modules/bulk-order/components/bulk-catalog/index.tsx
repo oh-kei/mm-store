@@ -6,6 +6,7 @@ import { CrewSelector } from "../crew-selector"
 import { Heading } from "@medusajs/ui"
 import { Box, ShoppingCart, ArrowLeft, Paintbrush } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
+import { getVariantImage } from "@modules/products/utils/get-variant-image"
 
 const CATEGORIES = [
   { name: "All", handle: "all", image: "/mm-allclothes.webp" },
@@ -116,29 +117,37 @@ export function BulkCatalog({ products, roster, customer, onAddToCart }: BulkCat
               <div className="space-y-4">
                 <div className="aspect-[4/5] bg-slate-50 rounded-2xl overflow-hidden p-8 flex items-center justify-center border border-slate-100">
                     {(() => {
-                      let thumb = product.thumbnail;
+                      const selectedColor = selections[product.id || ""]?.colour
+                      const selectedVariant = selectedColor 
+                        ? product.variants?.find(v => v.options?.some(o => o.value?.toLowerCase() === selectedColor.toLowerCase()))
+                        : undefined
+                      
+                      let thumb = (selectedVariant && getVariantImage(selectedVariant, product)) || product.thumbnail;
 
-                      // Make sure cover image of duffel bag / small duffel show different colours by default
-                      const titleLower = (product.title || "").toLowerCase();
-                      if (titleLower.includes("duffel")) {
-                        if (titleLower.includes("small")) {
-                          // Small Duffel should default to Grey or Black variant if available
-                          const otherColorImg = product.images?.find(i => {
-                            const url = (i.url || "").toLowerCase();
-                            return (url.includes("-grey") || url.includes("-gray") || url.includes("-black")) &&
-                                   !url.includes("-side") && !url.includes("-back");
-                          });
-                          if (otherColorImg?.url) {
-                            thumb = otherColorImg.url;
-                          }
-                        } else {
-                          // Large Duffel should default to Navy if available
-                          const navyImg = product.images?.find(i => {
-                            const url = (i.url || "").toLowerCase();
-                            return url.includes("-navy") && !url.includes("-side") && !url.includes("-back");
-                          });
-                          if (navyImg?.url) {
-                            thumb = navyImg.url;
+                      // If no color is selected, apply default fallback rules
+                      if (!selectedColor) {
+                        // Make sure cover image of duffel bag / small duffel show different colours by default
+                        const titleLower = (product.title || "").toLowerCase();
+                        if (titleLower.includes("duffel")) {
+                          if (titleLower.includes("small")) {
+                            // Small Duffel should default to Grey or Black variant if available
+                            const otherColorImg = product.images?.find(i => {
+                              const url = (i.url || "").toLowerCase();
+                              return (url.includes("-grey") || url.includes("-gray") || url.includes("-black")) &&
+                                     !url.includes("-side") && !url.includes("-back");
+                            });
+                            if (otherColorImg?.url) {
+                              thumb = otherColorImg.url;
+                            }
+                          } else {
+                            // Large Duffel should default to Navy if available
+                            const navyImg = product.images?.find(i => {
+                              const url = (i.url || "").toLowerCase();
+                              return url.includes("-navy") && !url.includes("-side") && !url.includes("-back");
+                            });
+                            if (navyImg?.url) {
+                              thumb = navyImg.url;
+                            }
                           }
                         }
                       }

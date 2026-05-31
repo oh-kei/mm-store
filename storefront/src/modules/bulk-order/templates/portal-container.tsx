@@ -147,7 +147,7 @@ export function PortalContainer({ products }: PortalContainerProps) {
 
   const countryCode = useParams().countryCode as string
 
-  const handleAddToCart = async (productId: string, selection: { members: any[], color: string | null }) => {
+  const handleAddToCart = async (productId: string, selection: { members: any[], colour: string | null }) => {
      if (!customer) {
        setErrorMsg("Sign in required to add bulk items to the cart.")
        return
@@ -158,9 +158,9 @@ export function PortalContainer({ products }: PortalContainerProps) {
        return
      }
 
-     const allHaveColour = selection.members.every(m => m.overrideColour || selection.colour)
+     const allHaveColour = selection.members.every(m => m.changeColour || selection.colour)
      if (!allHaveColour) {
-       setErrorMsg("Please select a colour for all members (either globally or via override).")
+       setErrorMsg("Please select a colour for all members (either via Base Colour or via Individual Adjustments).")
        return
      }
 
@@ -170,9 +170,9 @@ export function PortalContainer({ products }: PortalContainerProps) {
      const itemsToAdd: { variantId: string, quantity: number, metadata?: any }[] = []
 
      selection.members.forEach(member => {
-       // Priority: Member Override > Global Selection > Roster Default
-       const targetColour = member.overrideColour || selection.colour
-       const targetSize = member.overrideSize || member.size
+       // Priority: Member Change > Base Selection > Roster Default
+       const targetColour = member.changeColour || selection.colour
+       const targetSize = member.changeSize || member.size
 
        if (!targetColour) {
          // This shouldn't happen with our UI guards but safety first

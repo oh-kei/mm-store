@@ -6,9 +6,15 @@ import { Heading, Button, clx } from "@medusajs/ui"
 import { Minus, Plus, User, Users, Check, AlertTriangle } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
+interface CrewMember {
+  name: string
+  size: string
+  warning?: string
+}
+
 interface SelectionMember extends CrewMember {
-  overrideSize?: string
-  overrideColour?: string
+  changeSize?: string
+  changeColour?: string
 }
 
 const Edit2 = ({ size }: { size: number }) => (
@@ -27,10 +33,17 @@ interface CrewSelectorProps {
 export function CrewSelector({ product, roster, customer, onUpdate, forceShowMessage, initialColour }: CrewSelectorProps) {
   const [selectedColour, setSelectedColour] = useState<string | null>(initialColour || null)
   const [selectionMode, setSelectionMode] = useState<"all" | "select">("all")
-  const [selectedMemberIndices, setSelectedMemberIndices] = useState<number[]>([])
-  const [overrides, setOverrides] = useState<Record<number, { size?: string; colour?: string }>>({})
+  const [selectedMemberIndices, setSelectedMemberIndices] = useState<number[]>(() => roster.map((_, i) => i))
+  const [individualAdjustments, setIndividualAdjustments] = useState<Record<number, { size?: string; colour?: string }>>({})
   const [editingMemberIdx, setEditingMemberIdx] = useState<number | null>(null)
   const [hasInteracted, setHasInteracted] = useState(false)
+
+  // Pre-populate all crew members as selected by default
+  useEffect(() => {
+    if (roster.length > 0 && !hasInteracted) {
+      setSelectedMemberIndices(roster.map((_, i) => i))
+    }
+  }, [roster, hasInteracted])
 
   const getColorHex = (colorName: string) => {
     const map: Record<string, string> = {
@@ -100,20 +113,20 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
   const isOneSize = availableSizes.length === 1
   const oneSize = isOneSize ? availableSizes[0] : null
 
-  // Current effective members selection with overrides applied
+  // Current effective members selection with individual adjustments applied
   const selectedMembers = useMemo(() => {
     const base = selectionMode === "all" ? roster.map((m, i) => ({ ...m, originalIdx: i })) : roster.map((m, i) => ({ ...m, originalIdx: i })).filter(m => selectedMemberIndices.includes(m.originalIdx))
     
     return base.map(m => ({
       ...m,
-      overrideSize: isOneSize ? (oneSize || undefined) : overrides[m.originalIdx]?.size,
-      overrideColour: overrides[m.originalIdx]?.colour
+      changeSize: isOneSize ? (oneSize || undefined) : individualAdjustments[m.originalIdx]?.size,
+      changeColour: individualAdjustments[m.originalIdx]?.colour
     }))
-  }, [roster, selectionMode, selectedMemberIndices, overrides, isOneSize, oneSize])
+  }, [roster, selectionMode, selectedMemberIndices, individualAdjustments, isOneSize, oneSize])
 
   // Sync up to parent
   useEffect(() => {
-    const hasError = selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size))
+    const hasError = selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.changeSize || m.size))
     onUpdate({ members: selectedMembers, colour: selectedColour, hasError })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMembers, selectedColour, availableSizes])
@@ -125,9 +138,9 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
     )
   }
 
-  const handleUpdateOverride = (idx: number, type: 'size' | 'colour', value: string) => {
+  const handleUpdateAdjustment = (idx: number, type: 'size' | 'colour', value: string) => {
     setHasInteracted(true)
-    setOverrides(prev => ({
+    setIndividualAdjustments(prev => ({
       ...prev,
       [idx]: {
         ...prev[idx],
@@ -141,7 +154,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
       {/* Color Selection */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h4 className="text-[10px] font-medium text-slate-400">Select Global Colour</h4>
+          <h4 className="text-[10px] font-medium text-slate-400">Set Base Colour for All</h4>
         </div>
         <div className="flex flex-wrap gap-2">
           {colors.map(color => (
@@ -194,7 +207,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                   {selectionMode === "all" ? "All Crew" : `${selectedMemberIndices.length} Members Selected`}
                 </p>
                 <p className="text-[9px] font-medium text-slate-300">
-                  {selectionMode === "all" ? `Total: ${roster.length} People` : "Custom Selection"}
+                  {selectionMode === "all" ? `Total: ${roster.length} People` : "Individual Adjustments"}
                 </p>
               </div>
             </div>
@@ -204,7 +217,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
           </button>
 
           {/* Global Error Message for Unavailable Sizes - Only show after interaction */}
-          {(hasInteracted || forceShowMessage) && selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.overrideSize || m.size)) && (
+          {(hasInteracted || forceShowMessage) && selectedMembers.some(m => availableSizes.length > 0 && !availableSizes.includes(m.changeSize || m.size)) && (
             <div className="mt-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <AlertTriangle className="text-red-500 flex-shrink-0" size={16} />
               <p className="text-[10px] font-medium text-red-600 leading-relaxed">
@@ -242,7 +255,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
               {roster.map((member, idx) => {
                 const isSelected = selectedMemberIndices.includes(idx)
                 const isEditing = editingMemberIdx === idx
-                const currentOverride = overrides[idx] || {}
+                const currentAdjustment = individualAdjustments[idx] || {}
                 
                 return (
                   <div key={`${member.name}-${idx}`} className="space-y-1">
@@ -266,12 +279,12 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           </p>
                           <div className="flex items-center gap-2">
                              <p className="text-[11px] font-medium text-slate-300">
-                                Size: {currentOverride.size || member.size}
-                                {currentOverride.size && <span className="text-maritime-gold ml-1">(Override)</span>}
+                                Size: {currentAdjustment.size || member.size}
+                                {currentAdjustment.size && <span className="text-maritime-gold ml-1">(Adjusted)</span>}
                              </p>
-                             {currentOverride.colour && (
+                             {currentAdjustment.colour && (
                                <p className="text-[11px] font-medium text-maritime-gold">
-                                 Colour: {currentOverride.colour}
+                                 Colour: {currentAdjustment.colour}
                                </p>
                              )}
                           </div>
@@ -280,7 +293,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       
                       {isSelected && (
                         <div className="flex items-center gap-2">
-                          {availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && (
+                          {availableSizes.length > 0 && !availableSizes.includes(currentAdjustment.size || member.size) && (
                             isOneSize ? (
                               <span className="text-[10px] font-medium text-slate-400">One size only</span>
                             ) : (
@@ -309,7 +322,7 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                     </div>
 
                     {/* Size Unavailable Action Hint */}
-                    {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentOverride.size || member.size) && !isEditing && !isOneSize && (
+                    {isSelected && availableSizes.length > 0 && !availableSizes.includes(currentAdjustment.size || member.size) && !isEditing && !isOneSize && (
                       <div className="px-3 pb-2 flex gap-2">
                          <button 
                            onClick={() => setEditingMemberIdx(idx)}
@@ -333,16 +346,16 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                       </div>
                     )}
 
-                    {/* Inline Override Controls */}
+                    {/* Inline Adjustment Controls */}
                     {isEditing && isSelected && (
                       <div className="px-3 pb-3 pt-1 space-y-3 animate-in slide-in-from-top-1">
                         <div className={clx("grid gap-2", isOneSize || colors.length <= 1 ? "grid-cols-1" : "grid-cols-2")}>
                           {!isOneSize && (
                             <div className="space-y-1">
-                              <label className="text-[8px] font-medium text-slate-400">Override Size</label>
+                              <label className="text-[8px] font-medium text-slate-400">Change Size</label>
                               <select 
-                                value={currentOverride.size || "default"}
-                                onChange={(e) => handleUpdateOverride(idx, 'size', e.target.value)}
+                                value={currentAdjustment.size || "default"}
+                                onChange={(e) => handleUpdateAdjustment(idx, 'size', e.target.value)}
                                 className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
                               >
                                 <option value="default">Default ({member.size})</option>
@@ -352,13 +365,13 @@ export function CrewSelector({ product, roster, customer, onUpdate, forceShowMes
                           )}
                           {colors.length > 1 && (
                             <div className="space-y-1">
-                              <label className="text-[8px] font-medium text-slate-400">Override Colour</label>
+                              <label className="text-[8px] font-medium text-slate-400">Change Colour</label>
                               <select 
-                                value={currentOverride.colour || "default"}
-                                onChange={(e) => handleUpdateOverride(idx, 'colour', e.target.value)}
+                                value={currentAdjustment.colour || "default"}
+                                onChange={(e) => handleUpdateAdjustment(idx, 'colour', e.target.value)}
                                 className="w-full bg-white border border-slate-100 rounded-lg h-8 px-2 text-[10px] font-bold outline-none focus:border-maritime-gold"
                               >
-                                <option value="default">Global ({selectedColour || "None"})</option>
+                                <option value="default">Base ({selectedColour || "None"})</option>
                                 {colors.map(c => <option key={c} value={c}>{c}</option>)}
                               </select>
                             </div>

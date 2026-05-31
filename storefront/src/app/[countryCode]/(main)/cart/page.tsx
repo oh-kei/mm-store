@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import CartTemplate from "@modules/cart/templates"
 
 import { enrichLineItems, retrieveCart } from "@lib/data/cart"
+import { listCartShippingMethods } from "@lib/data/fulfillment"
 import { HttpTypes } from "@medusajs/types"
 import { getCustomer } from "@lib/data/customer"
 
@@ -20,6 +21,13 @@ const fetchCart = async () => {
   if (cart?.items?.length) {
     const enrichedItems = await enrichLineItems(cart?.items, cart?.region_id!)
     cart.items = enrichedItems as HttpTypes.StoreCartLineItem[]
+  }
+
+  if (cart && (!cart.shipping_methods || cart.shipping_methods.length === 0)) {
+    const shippingMethods = await listCartShippingMethods(cart.id)
+    if (shippingMethods && shippingMethods.length > 0) {
+      cart.shipping_total = shippingMethods[0].amount
+    }
   }
 
   return cart

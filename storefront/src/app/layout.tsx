@@ -1,6 +1,7 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
 import { Manrope } from "next/font/google"
+import Script from "next/script"
 import "styles/globals.css"
 
 const manrope = Manrope({
@@ -51,6 +52,20 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light" className={manrope.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans" suppressHydrationWarning>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-C5CQQZV50D"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-C5CQQZV50D');
+          `}
+        </Script>
         <SmoothScroll>
           <main className="relative">{props.children}</main>
         </SmoothScroll>
